@@ -2,6 +2,8 @@
 #include <amra/environment.hpp>
 #include <amra/heuristic.hpp>
 #include <amra/constants.hpp>
+#include <amra/amra.hpp>
+#include <amra/wastar.hpp>
 
 // system includes
 #include <smpl/console/console.h>
@@ -60,6 +62,13 @@ void Environment::CreateSearch()
 	m_search = std::make_unique<AMRAStar>(
 		this, m_heurs, m_heurs_map,
 		m_heur_count, m_res_count);
+	m_search->reset();
+}
+
+void Environment::CreateWAStarSearch(double w)
+{
+	m_heurs.emplace_back(new EuclideanDist(this));
+	m_search = std::make_unique<WAStar>(this, m_heurs.at(0), w);
 	m_search->reset();
 }
 
@@ -162,6 +171,9 @@ void Environment::GetSuccs(
 		{
 			// ignore ordinal directions for 4-connected grid
 			if (GRID == 4 && std::abs(a1 * a2) == 1) {
+				continue;
+			}
+			if (a1 == 0 && a2 == 0) {
 				continue;
 			}
 
@@ -380,7 +392,8 @@ int Environment::createHashEntry(
 	{
 		entry->level = Resolution::LOW;
 	}
-	else if ((entry->d1 % MIDRES_MULT == 0 && entry->d2 % MIDRES_MULT == 0)) {
+	else if (NUM_RES == 2 &&
+			(entry->d1 % MIDRES_MULT == 0 && entry->d2 % MIDRES_MULT == 0)) {
 		entry->level = Resolution::MID;
 	}
 	else {

@@ -3,7 +3,6 @@
 
 // project includes
 #include <amra/movingai.hpp>
-#include <amra/amra.hpp>
 
 // system includes
 #include <smpl/types.h>
@@ -33,6 +32,7 @@ public:
 	Environment(const std::string& mapname);
 
 	void CreateSearch();
+	void CreateWAStarSearch(double w=1.0);
 	void SetStart(const int& d1, const int& d2);
 	void SetGoal(const int& d1, const int& d2);
 	bool Plan(bool save=true);
@@ -56,7 +56,7 @@ public:
 private:
 	std::string m_mapname;
 	std::unique_ptr<MovingAI> m_map;
-	std::unique_ptr<AMRAStar> m_search;
+	std::unique_ptr<Search> m_search;
 
 	std::vector<std::shared_ptr<Heuristic> > m_heurs;
 	std::vector<std::pair<Resolution::Level, int> > m_heurs_map;

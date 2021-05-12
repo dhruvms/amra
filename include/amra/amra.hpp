@@ -44,7 +44,7 @@ struct AMRAState
 class Environment;
 class Heuristic;
 
-class AMRAStar
+class AMRAStar : public Search
 {
 public:
 	AMRAStar(
@@ -54,17 +54,17 @@ public:
 		int heur_count, int res_count);
 	~AMRAStar();
 
-	int set_start(int start_id);
-	int set_goal(int goal_id);
-	void set_max_planning_time(double max_planning_time_ms) {
+	int set_start(int start_id) override;
+	int set_goal(int goal_id) override;
+	void set_max_planning_time(double max_planning_time_ms) override {
 		m_time_limit = max_planning_time_ms * 1e-3;
 	};
-	int get_n_expands() const;
+	int get_n_expands() const override;
 	std::string get_expands_str() const;
-	void reset();
+	void reset() override;
 
 	int replan(
-		std::vector<int>* solution_path, int* solution_cost);
+		std::vector<int>* solution_path, int* solution_cost) override;
 
 private:
 	Environment* m_space = nullptr;
