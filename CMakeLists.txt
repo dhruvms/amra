@@ -28,6 +28,7 @@ add_library(
     AMRA
     src/environment.cpp
     src/heuristic.cpp
+    src/wastar.cpp
     src/amra.cpp
     src/movingai.cpp
     src/constants.cpp)
