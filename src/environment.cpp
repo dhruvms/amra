@@ -42,7 +42,7 @@ m_goal_set(false)
 
 void Environment::CreateSearch()
 {
-	m_heurs.emplace_back(new EuclideanDistSq(this));
+	m_heurs.emplace_back(new EuclideanDist(this));
 	m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
 	m_heurs_map.emplace_back(Resolution::HIGH, 0);
 	m_res_count = 1; // inadmissible resolution count
@@ -417,12 +417,12 @@ int Environment::getOrCreateState(
 	return state_id;
 }
 
-int Environment::cost(
+unsigned int Environment::cost(
 	const MapState* s1,
 	const MapState* s2)
 {
-	double dist_sq = std::pow(s1->d1 - s2->d1, 2) + std::pow(s1->d2 - s2->d2, 2);
-	return int(dist_sq * COST_MULT);
+	double dist_sq = std::sqrt(std::pow(s1->d1 - s2->d1, 2) + std::pow(s1->d2 - s2->d2, 2));
+	return (dist_sq * COST_MULT);
 }
 
 }  // namespace CMUPlanner
