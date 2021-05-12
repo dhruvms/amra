@@ -131,7 +131,7 @@ void Environment::GetSuccs(
 	int state_id,
 	Resolution::Level level,
 	std::vector<int>* succs,
-	std::vector<int>* costs)
+	std::vector<unsigned int>* costs)
 {
 	assert(state_id >= 0);
 	succs->clear();
@@ -229,7 +229,7 @@ int Environment::generateSuccessor(
 	const MapState* parent,
 	int a1, int a2, int grid_res,
 	std::vector<int>* succs,
-	std::vector<int>* costs)
+	std::vector<unsigned int>* costs)
 {
 	int succ_d1, succ_d2;
 	bool valid = true;

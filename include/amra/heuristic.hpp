@@ -17,22 +17,22 @@ public:
 	Heuristic(Environment* space) : m_space(space) {};
 	virtual ~Heuristic(){};
 
-	virtual int GetGoalHeuristic(int state_id) = 0;
-	virtual int GetStartHeuristic(int state_id) = 0;
-	virtual int GetFromToHeuristic(int from_id, int to_id) = 0;
+	virtual unsigned int GetGoalHeuristic(int state_id) = 0;
+	virtual unsigned int GetStartHeuristic(int state_id) = 0;
+	virtual unsigned int GetFromToHeuristic(int from_id, int to_id) = 0;
 
 protected:
 	Environment* m_space = nullptr;
 };
 
-class EuclideanDistSq : public Heuristic
+class EuclideanDist : public Heuristic
 {
 public:
-	EuclideanDistSq(Environment* space) : Heuristic(space) {};
+	EuclideanDist(Environment* space) : Heuristic(space) {};
 
-	int GetGoalHeuristic(int state_id) override;
-	int GetStartHeuristic(int state_id) override;
-	int GetFromToHeuristic(int from_id, int to_id) override;
+	unsigned int GetGoalHeuristic(int state_id) override;
+	unsigned int GetStartHeuristic(int state_id) override;
+	unsigned int GetFromToHeuristic(int from_id, int to_id) override;
 };
 
 }  // namespace AMRA

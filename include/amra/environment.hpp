@@ -26,6 +26,8 @@ struct hash<AMRA::MapState>
 namespace AMRA
 {
 
+class Heuristic;
+
 class Environment
 {
 public:
@@ -41,7 +43,7 @@ public:
 		int state_id,
 		Resolution::Level level,
 		std::vector<int>* succs,
-		std::vector<int>* costs);
+		std::vector<unsigned int>* costs);
 	bool IsGoal(const int& id);
 
 	int GetStartID() const { return m_start_id; };
@@ -88,8 +90,8 @@ private:
 		const MapState* parent,
 		int a1, int a2, int grid_res,
 		std::vector<int>* succs,
-		std::vector<int>* costs);
-	int cost(
+		std::vector<unsigned int>* costs);
+	unsigned int cost(
 		const MapState* s1,
 		const MapState* s2);
 

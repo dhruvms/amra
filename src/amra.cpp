@@ -184,14 +184,6 @@ void AMRAStar::reinit_state(AMRAState *state)
 int AMRAStar::replan(
 	std::vector<int>* solution_path, int* solution_cost)
 {
-	if (m_start_id < 0) {
-		// m_logger->LogMsg("AMRA* start state not set!", LogLevel::FATAL);
-	}
-
-	if (m_goal_id < 0) {
-		// m_logger->LogMsg("AMRA* goal state not set!", LogLevel::FATAL);
-	}
-
 	if (is_goal(m_start_id))
 	{
 		// m_logger->LogMsg("Start is goal!", LogLevel::WARN);
@@ -235,7 +227,7 @@ int AMRAStar::replan(
 			for (auto hidx = 1; hidx < num_heuristics(); hidx++)
 			{
 				// numerically greater resolutions are coarser
-				if (static_cast<int>(s->res) >= m_heurs_map.at(hidx).first)
+				if (s->res >= m_heurs_map.at(hidx).first)
 				{
 					s->od[hidx].f = compute_key(s, hidx);
 					s->closed_in_res[hidx - 1] = false;
@@ -300,38 +292,29 @@ bool AMRAStar::improve_path(
 			}
 
 			unsigned int f_check = (unsigned int)(m_w2 * (double)m_open[0].min()->f);
+			if (m_goal->g <= f_check) {
+				return true;
+			}
+
 			if (!m_open[i].empty() &&
 					m_open[i].min()->f <= f_check)
 			{
-				// expand from inadmissible queue
-				if (m_goal->g <= f_check) {
+				AMRAState *s = m_open[i].min()->me;
+				if (s->state_id == m_goal_id) {
 					return true;
 				}
-				else
-				{
-					AMRAState *s = m_open[i].min()->me;
-					if (s->state_id == m_goal_id) {
-						return true;
-					}
-					expand(s, i);
-					++m_expands[i];
-				}
+				expand(s, i);
+				++m_expands[i];
 			}
 			else
 			{
 				// expand from anchor
-				if (m_goal->g <= f_check) {
+				AMRAState *s = m_open[0].min()->me;
+				if (s->state_id == m_goal_id) {
 					return true;
 				}
-				else
-				{
-					AMRAState *s = m_open[0].min()->me;
-					if (s->state_id == m_goal_id) {
-						return true;
-					}
-					expand(s, 0);
-					++m_expands[0];
-				}
+				expand(s, 0);
+				++m_expands[0];
 			}
 		}
 	}
@@ -372,12 +355,12 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	}
 
 	std::vector<int> succ_ids;
-	std::vector<int> costs;
+	std::vector<unsigned int> costs;
 	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(hres_i), &succ_ids, &costs);
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
-		int cost = costs[sidx];
+		unsigned int cost = costs[sidx];
 
 		AMRAState *succ_state = get_state(succ_ids[sidx]);
 		reinit_state(succ_state);
