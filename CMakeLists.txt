@@ -17,9 +17,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fmax-errors=5")
 set(
     SMPL_LIBRARIES
     /home/dhruv/work/code/ros/sbpl/build/smpl/libsmpl.so
+    # /usr/local/lib/libsmpl.so # Tushar
 )
 set(SMPL_INCLUDE_DIRS
     /home/dhruv/work/code/ros/sbpl/devel/include
+    # /usr/local/include/ # Tushar
 )
 
 include_directories(include)
