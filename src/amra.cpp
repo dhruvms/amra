@@ -215,6 +215,7 @@ int AMRAStar::replan(
 	m_incons.push_back(m_start);
 
 	m_search_time = 0.0;
+	m_iter = 0;
 
 	while (m_search_time < m_time_limit && (m_w1 >= m_w1_f && m_w2 >= m_w2_f))
 	{
@@ -241,6 +242,7 @@ int AMRAStar::replan(
 		double search_start_time = GetTime();
 		double search_time = 0.0;
 		bool result = improve_path(search_start_time, search_time);
+
 		m_search_time += search_time;
 
 		if(!result) {
@@ -249,12 +251,15 @@ int AMRAStar::replan(
 
 		// SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		extract_path(*solution_path, *solution_cost);
+		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
 
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
 			break;
 		}
 		m_w1 = std::max(m_w1_f, m_w1 * m_w1_delta);
 		m_w2 = std::max(m_w2_f, m_w2 * m_w2_delta);
+
+		m_iter++;
 	}
 
 	if (m_w1_solve < 0 || m_w2_solve < 0)
