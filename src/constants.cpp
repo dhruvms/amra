@@ -13,6 +13,7 @@ const std::map<char, int> AMRA::MOVINGAI_DICT = {
 	{'(', 4}, // start
 	{'*', 6}, // path
 	{')', 8}, // goal
+	{'E', 10}, // expanded state
 };
 
 const int AMRA::MIDRES_MULT = 3;

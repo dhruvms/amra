@@ -9,6 +9,7 @@
 #include <fstream>
 #include <cassert>
 #include <cstring>
+#include <iomanip>
 
 namespace AMRA
 {
@@ -83,6 +84,62 @@ void MovingAI::SaveMapAndPath(const std::vector<MapState>& solpath)
 		OUT_PATH << s;
 	}
 	OUT_PATH.close();
+}
+
+void MovingAI::SaveExpansions(
+	int iter, double w1, double w2,
+	const EXPANDS_t& expansions)
+{
+	std::string filename(__FILE__), expfile;
+	auto found = filename.find_last_of("/\\");
+	filename = filename.substr(0, found + 1) + "../dat/expansions/";
+
+	std::stringstream ss;
+	ss << std::setw(4) << std::setfill('0') << iter << '_';
+	ss << w1 << '_';
+	ss << w2;
+	std::string s = ss.str();
+
+	filename += s;
+	reset(ss);
+
+	MAP_t expmap;
+	expmap = (MAP_t)calloc(m_h * m_w, sizeof(decltype(*expmap)));
+	for (const auto& q: expansions)
+	{
+		std::memcpy(expmap, m_map, m_h * m_w * sizeof(decltype(*expmap)));
+		for (const auto& s: q.second) {
+			expmap[GETMAPINDEX(s->d1, s->d2, m_h, m_w)] = MOVINGAI_DICT.find('E')->second;
+		}
+
+		expfile = filename;
+		ss << std::setw(4) << std::setfill('0') << q.first << '_';
+		found = expfile.find_last_of("/\\");
+		expfile.insert(found+1+4+1, ss.str());
+		reset(ss);
+
+		std::ofstream EXP_MAP;
+		EXP_MAP.open(expfile, std::ofstream::out);
+		for (int r = 0; r < m_h; ++r)
+		{
+			for (int c = 0; c < m_w; ++c)
+			{
+				EXP_MAP << expmap[GETMAPINDEX(r, c, m_h, m_w)];
+
+				if (c < m_w - 1) {
+					EXP_MAP << ',';
+				}
+			}
+
+			if (r < m_h - 1) {
+				EXP_MAP << '\n';
+			}
+		}
+
+		EXP_MAP.close();
+	}
+
+	free(expmap);
 }
 
 bool MovingAI::IsValid(const int& dim1, const int& dim2) const
@@ -168,7 +225,7 @@ void MovingAI::readFile()
 	std::getline(FILE, line);
 	assert(line.compare("map") == 0);
 
-	m_map = (Map_t)calloc(m_h * m_w, sizeof(decltype(*m_map)));
+	m_map = (MAP_t)calloc(m_h * m_w, sizeof(decltype(*m_map)));
 	for (int r = 0; r < m_h; ++r)
 	{
 		std::getline(FILE, line);

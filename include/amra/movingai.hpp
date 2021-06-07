@@ -19,7 +19,13 @@ public:
 	~MovingAI();
 
 	void GetRandomState(int& d1, int& d2);
-	void SaveMapAndPath(const std::vector<MapState>& solpath);
+
+	void SavePath(
+		const std::vector<MapState>& solpath,
+		int iter=-1);
+	void SaveExpansions(
+		int iter, double w1, double w2,
+		const EXPANDS_t& expansions);
 
 	bool IsValid(const int& dim1, const int& dim2) const;
 	bool IsTraversible(const int& dim1, const int& dim2) const;
@@ -29,7 +35,7 @@ public:
 
 private:
 	std::string m_fname;
-	Map_t m_map;
+	MAP_t m_map;
 	int m_h, m_w;
 
 	std::random_device m_dev;
