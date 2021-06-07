@@ -13,6 +13,9 @@ MAP = MAP.split('/')[-1].split('.')[0]
 
 nrows = ncols = -1
 for f in os.listdir(EXPS_DIR):
+	if (f == '.gitignore'):
+		continue
+
 	fields = f.split('_')
 
 	iters = int(fields[0])
@@ -32,7 +35,11 @@ gs = gridspec.GridSpec(nrows, ncols,
 	top=1.-0.5/(nrows+1), bottom=0.5/(nrows+1),
 	left=0.5/(ncols+1), right=1-0.5/(ncols+1))
 
+ax_label_list = []
 for f in os.listdir(EXPS_DIR):
+	if (f == '.gitignore'):
+		continue
+
 	fields = f.split('_')
 	iters = int(fields[0])
 	queue = int(fields[1])
@@ -42,7 +49,8 @@ for f in os.listdir(EXPS_DIR):
 
 	E[P[:, 0].astype(np.int), P[:, 1].astype(np.int)] += (E[P[:, 0].astype(np.int), P[:, 1].astype(np.int)] // 10) * 10
 
-	ax = plt.subplot(gs[iters*ncols + queue])
+	ax_label_list.append('{}_{}'.format(iters, queue))
+	ax = plt.subplot(gs[iters*ncols + queue], label='{}_{}'.format(iters, queue))
 	ax.plot(P[:, 0], P[:, 1], 'r', lw=1, alpha=0.25)
 	ax.imshow(E.transpose(), vmin=-1, vmax=20, cmap=plt.get_cmap('twilight'))
 
@@ -53,9 +61,10 @@ for f in os.listdir(EXPS_DIR):
 	if (queue == 0):
 		ax.set_ylabel('({0:2.2f}, {1:2.2f})'.format(float(fields[2]), float(fields[3])))
 
-plt.subplot(gs[0]).set_title('anchor')
-plt.subplot(gs[1]).set_title('high res')
-plt.subplot(gs[2]).set_title('mid res')
-plt.subplot(gs[3]).set_title('low res')
+all_axes = fig.get_axes()
+all_axes[ax_label_list.index('{}_{}'.format(0, 0))].set_title('anchor')
+all_axes[ax_label_list.index('{}_{}'.format(0, 1))].set_title('high res')
+all_axes[ax_label_list.index('{}_{}'.format(0, 2))].set_title('mid res')
+all_axes[ax_label_list.index('{}_{}'.format(0, 3))].set_title('low res')
 
 plt.show()
