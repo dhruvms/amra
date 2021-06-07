@@ -39,47 +39,34 @@ void MovingAI::GetRandomState(int& d1, int& d2)
 	}
 }
 
-
-void MovingAI::SaveMapAndPath(const std::vector<MapState>& solpath)
+void MovingAI::SavePath(
+	const std::vector<MapState>& solpath,
+	int iter)
 {
-	Map_t outmap;
-	outmap = (Map_t)calloc(m_h * m_w, sizeof(decltype(*outmap)));
-	std::memcpy(outmap, m_map, m_h * m_w * sizeof(decltype(*outmap)));
-	for (const auto& state: solpath) {
-		outmap[GETMAPINDEX(state.d1, state.d2, m_h, m_w)] = MOVINGAI_DICT.find('*')->second;
-	}
-	outmap[GETMAPINDEX(solpath.at(0).d1, solpath.at(0).d2, m_h, m_w)] = MOVINGAI_DICT.find('(')->second;
-	outmap[GETMAPINDEX(solpath.back().d1, solpath.back().d2, m_h, m_w)] = MOVINGAI_DICT.find(')')->second;
+	std::string filename(__FILE__);
+	auto found = filename.find_last_of("/\\");
+	filename = filename.substr(0, found + 1) + "../dat/solutions/";
 
-	std::string outfile_map(m_fname), outfile_path(m_fname);
-	outfile_map.insert(outfile_map.find_last_of('.'), "_");
-	outfile_map.insert(outfile_map.find_last_of('.'), "solution");
-	outfile_path.insert(outfile_path.find_last_of('.'), "_");
-	outfile_path.insert(outfile_path.find_last_of('.'), "path");
+	found = m_fname.find_last_of("/\\");
+	filename += m_fname.substr(found + 1);
 
-	std::ofstream OUT_MAP, OUT_PATH;
-	OUT_MAP.open(outfile_map, std::ofstream::out);
+	std::string pathfile(filename);
+	pathfile.insert(pathfile.find_last_of('.'), "_");
+	pathfile.insert(pathfile.find_last_of('.'), "path");
 
-	for (int r = 0; r < m_h; ++r)
+	if (iter >= 0)
 	{
-		for (int c = 0; c < m_w; ++c)
-		{
-			OUT_MAP << outmap[GETMAPINDEX(r, c, m_h, m_w)];
+		std::stringstream ss;
+		ss << std::setw(4) << std::setfill('0') << iter << '_';
+		std::string s = ss.str();
 
-			if (c < m_w - 1) {
-				OUT_MAP << ',';
-			}
-		}
+		pathfile.insert(pathfile.find_last_of('/')+1, s);
 
-		if (r < m_h - 1) {
-			OUT_MAP << '\n';
-		}
+		reset(ss);
 	}
 
-	OUT_MAP.close();
-	free(outmap);
-
-	OUT_PATH.open(outfile_path, std::ofstream::out);
+	std::ofstream OUT_PATH;
+	OUT_PATH.open(pathfile, std::ofstream::out);
 	for (const auto& s: solpath) {
 		OUT_PATH << s;
 	}
