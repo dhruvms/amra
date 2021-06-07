@@ -4,11 +4,12 @@
 // standard includes
 #include <iostream>
 #include <vector>
+#include <map>
 
 namespace AMRA
 {
 
-typedef int* Map_t;
+typedef int* MAP_t;
 
 struct Resolution
 {
@@ -28,6 +29,7 @@ struct MapState
 	int d1, d2;
 	Resolution::Level level;
 };
+typedef std::map<int, std::vector<MapState*> > EXPANDS_t;
 
 inline
 bool operator==(const MapState& a, const MapState& b)

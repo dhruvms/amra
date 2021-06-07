@@ -37,7 +37,7 @@ public:
 	void CreateWAStarSearch(double w=1.0);
 	void SetStart(const int& d1, const int& d2);
 	void SetGoal(const int& d1, const int& d2);
-	bool Plan(bool save=true);
+	bool Plan(bool save=false);
 
 	void GetSuccs(
 		int state_id,
@@ -45,6 +45,10 @@ public:
 		std::vector<int>* succs,
 		std::vector<unsigned int>* costs);
 	bool IsGoal(const int& id);
+
+	void SaveExpansions(
+		int iter, double w1, double w2,
+		const std::vector<int>& curr_solution);
 
 	int GetStartID() const { return m_start_id; };
     int GetGoalID() const { return m_goal_id; };
@@ -67,6 +71,7 @@ private:
 	bool m_start_set, m_goal_set;
 	int m_start_id, m_goal_id, m_expansions = 0;
 	std::vector<MapState*> m_states;
+	EXPANDS_t m_closed;
 
 	// maps from coords to stateID
 	typedef MapState StateKey;

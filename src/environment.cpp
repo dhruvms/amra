@@ -59,6 +59,10 @@ void Environment::CreateSearch()
 		m_res_count++;
 	}
 
+	for (int i = 0; i < m_heurs_map.size(); ++i) {
+		m_closed[i].clear(); // init expansions container
+	}
+
 	m_search = std::make_unique<AMRAStar>(
 		this, m_heurs, m_heurs_map,
 		m_heur_count, m_res_count);
@@ -119,7 +123,7 @@ bool Environment::Plan(bool save)
 	{
 		std::vector<MapState> solpath;
 		convertPath(solution, solpath);
-		m_map->SaveMapAndPath(solpath);
+		m_map->SavePath(solpath);
 
 		return true;
 	}
@@ -146,6 +150,7 @@ void Environment::GetSuccs(
 	MapState* parent = getHashEntry(state_id);
 	assert(parent);
 	assert(m_map->IsTraversible(parent->d1, parent->d2));
+	m_closed[static_cast<int>(level)].push_back(parent);
 
 	int grid_res;
 	switch (level)
@@ -200,6 +205,20 @@ bool Environment::IsGoal(const int& id)
 	GetGoal(goal);
 
 	return (id == m_goal_id) && (state == goal);
+}
+
+void Environment::SaveExpansions(
+	int iter, double w1, double w2,
+	const std::vector<int>& curr_solution)
+{
+	m_map->SaveExpansions(iter, w1, w2, m_closed);
+	for (int i = 0; i < m_heurs_map.size(); ++i) {
+		m_closed[i].clear(); // init expansions container
+	}
+
+	std::vector<MapState> solpath;
+	convertPath(curr_solution, solpath);
+	m_map->SavePath(solpath, iter);
 }
 
 void Environment::GetStart(MapState& start)
@@ -392,7 +411,7 @@ int Environment::createHashEntry(
 	{
 		entry->level = Resolution::LOW;
 	}
-	else if (NUM_RES == 2 &&
+	else if (NUM_RES >= 2 &&
 			(entry->d1 % MIDRES_MULT == 0 && entry->d2 % MIDRES_MULT == 0)) {
 		entry->level = Resolution::MID;
 	}
@@ -421,8 +440,8 @@ unsigned int Environment::cost(
 	const MapState* s1,
 	const MapState* s2)
 {
-	double dist_sq = std::sqrt(std::pow(s1->d1 - s2->d1, 2) + std::pow(s1->d2 - s2->d2, 2));
-	return (dist_sq * COST_MULT);
+	double dist = std::sqrt(std::pow(s1->d1 - s2->d1, 2) + std::pow(s1->d2 - s2->d2, 2));
+	return (dist * COST_MULT);
 }
 
 }  // namespace CMUPlanner
