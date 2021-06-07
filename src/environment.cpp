@@ -212,8 +212,11 @@ void Environment::SaveExpansions(
 	const std::vector<int>& curr_solution)
 {
 	m_map->SaveExpansions(iter, w1, w2, m_closed);
-	for (int i = 0; i < m_heurs_map.size(); ++i) {
-		m_closed[i].clear(); // init expansions container
+	if (!SAVE_ALL)
+	{
+		for (int i = 0; i < m_heurs_map.size(); ++i) {
+			m_closed[i].clear(); // init expansions container
+		}
 	}
 
 	std::vector<MapState> solpath;

@@ -20,3 +20,5 @@ const int AMRA::MIDRES_MULT = 3;
 const int AMRA::LOWRES_MULT = 9;
 const int AMRA::GRID = 8;
 const int AMRA::NUM_RES = 3;
+
+const bool AMRA::SAVE_ALL = false;

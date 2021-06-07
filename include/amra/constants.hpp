@@ -16,6 +16,8 @@ extern const int LOWRES_MULT;
 extern const int GRID;
 extern const int NUM_RES;
 
+extern const bool SAVE_ALL;
+
 } // namespace SimPlan
 
 
