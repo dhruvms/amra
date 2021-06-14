@@ -7,6 +7,7 @@ import sys
 
 EXPS_DIR = '../dat/expansions/'
 SOL_DIR = '../dat/solutions/'
+IMG_DIR = '../dat/imgs/'
 
 MAP = sys.argv[1]
 MAP = MAP.split('/')[-1].split('.')[0]
@@ -29,16 +30,15 @@ for f in os.listdir(EXPS_DIR):
 nrows += 1
 ncols += 1
 
-fig = plt.figure(figsize=(ncols+1, nrows+1))
-gs = gridspec.GridSpec(nrows, ncols,
-	wspace=0.0, hspace=0.0,
-	top=1.-0.5/(nrows+1), bottom=0.5/(nrows+1),
-	left=0.5/(ncols+1), right=1-0.5/(ncols+1))
+qnames = {0: 'anchor', 1: 'high res', 2: 'mid res', 3: 'low res'}
 
-ax_label_list = []
+fig = plt.figure()
+
 for f in os.listdir(EXPS_DIR):
 	if (f == '.gitignore'):
 		continue
+
+	ax = plt.gca()
 
 	fields = f.split('_')
 	iters = int(fields[0])
@@ -47,24 +47,16 @@ for f in os.listdir(EXPS_DIR):
 	E = np.genfromtxt(EXPS_DIR + f, delimiter=',')
 	P = np.genfromtxt(SOL_DIR + '{0:04d}'.format(iters) + '_' + MAP + '_path.map', delimiter=',')
 
-	E[P[:, 0].astype(np.int), P[:, 1].astype(np.int)] += (E[P[:, 0].astype(np.int), P[:, 1].astype(np.int)] // 10) * 10
-
-	ax_label_list.append('{}_{}'.format(iters, queue))
-	ax = plt.subplot(gs[iters*ncols + queue], label='{}_{}'.format(iters, queue))
 	ax.plot(P[:, 0], P[:, 1], 'r', lw=1, alpha=0.25)
 	ax.imshow(E.transpose(), vmin=-1, vmax=20, cmap=plt.get_cmap('twilight'))
 
 	ax.set_xticklabels([])
 	ax.set_yticklabels([])
-	ax.axis('tight')
+	ax.set_ylabel('({0:2.2f}, {1:2.2f})'.format(float(fields[2]), float(fields[3])))
+	ax.set_title(qnames[queue])
+	ax.axis('equal')
 
-	if (queue == 0):
-		ax.set_ylabel('({0:2.2f}, {1:2.2f})'.format(float(fields[2]), float(fields[3])))
+	# plt.show()
+	plt.savefig(IMG_DIR + f + '.png', bbox_inches='tight')
+	plt.cla()
 
-all_axes = fig.get_axes()
-all_axes[ax_label_list.index('{}_{}'.format(0, 0))].set_title('anchor')
-all_axes[ax_label_list.index('{}_{}'.format(0, 1))].set_title('high res')
-all_axes[ax_label_list.index('{}_{}'.format(0, 2))].set_title('mid res')
-all_axes[ax_label_list.index('{}_{}'.format(0, 3))].set_title('low res')
-
-plt.show()
