@@ -187,10 +187,10 @@ void Environment::GetSuccs(
 			// generate coarse resolution successors for anchor
 			if (level == Resolution::ANCHOR)
 			{
-				if (NUM_RES > 1) {
+				if (NUM_RES >= 2 && parent->level >= Resolution::MID) {
 					succ_id = generateSuccessor(parent, a1, a2, MIDRES_MULT, succs, costs);
 				}
-				if (NUM_RES == 3) {
+				if (NUM_RES == 3 && parent->level >= Resolution::LOW) {
 					succ_id = generateSuccessor(parent, a1, a2, LOWRES_MULT, succs, costs);
 				}
 			}
