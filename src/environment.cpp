@@ -141,16 +141,16 @@ void Environment::GetSuccs(
 	succs->clear();
 	costs->clear();
 
+	MapState* parent = getHashEntry(state_id);
+	assert(parent);
+	assert(m_map->IsTraversible(parent->d1, parent->d2));
+	m_closed[static_cast<int>(level)].push_back(parent);
+
 	// goal state should be absorbing
 	if (state_id == GetGoalID()) {
 		SMPL_INFO("Expanding goal state (id = %d)!", GetGoalID());
 		return;
 	}
-
-	MapState* parent = getHashEntry(state_id);
-	assert(parent);
-	assert(m_map->IsTraversible(parent->d1, parent->d2));
-	m_closed[static_cast<int>(level)].push_back(parent);
 
 	int grid_res;
 	switch (level)
@@ -410,12 +410,12 @@ int Environment::createHashEntry(
 	entry->d1 = d1;
 	entry->d2 = d2;
 	if (NUM_RES == 3 &&
-			(entry->d1 % LOWRES_MULT == 0 && entry->d2 % LOWRES_MULT == 0))
+			(d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0))
 	{
 		entry->level = Resolution::LOW;
 	}
 	else if (NUM_RES >= 2 &&
-			(entry->d1 % MIDRES_MULT == 0 && entry->d2 % MIDRES_MULT == 0)) {
+			(d1 % MIDRES_MULT == 0 && d2 % MIDRES_MULT == 0)) {
 		entry->level = Resolution::MID;
 	}
 	else {

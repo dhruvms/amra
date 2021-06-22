@@ -308,20 +308,20 @@ bool AMRAStar::improve_path(
 					m_open[i].min()->f <= f_check)
 			{
 				AMRAState *s = m_open[i].min()->me;
+				expand(s, i);
 				if (s->state_id == m_goal_id) {
 					return true;
 				}
-				expand(s, i);
 				++m_expands[i];
 			}
 			else
 			{
 				// expand from anchor
 				AMRAState *s = m_open[0].min()->me;
+				expand(s, 0);
 				if (s->state_id == m_goal_id) {
 					return true;
 				}
-				expand(s, 0);
 				++m_expands[0];
 			}
 		}
