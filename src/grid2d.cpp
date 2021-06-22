@@ -1,5 +1,5 @@
 // project includes
-#include <amra/environment.hpp>
+#include <amra/grid2d.hpp>
 #include <amra/heuristic.hpp>
 #include <amra/constants.hpp>
 #include <amra/amra.hpp>
@@ -14,15 +14,14 @@ auto std::hash<AMRA::MapState>::operator()(
 	const argument_type& s) const -> result_type
 {
 	size_t seed = 0;
-	boost::hash_combine(seed, s.d1);
-	boost::hash_combine(seed, s.d2);
+	boost::hash_combine(seed, boost::hash_range(s.coord.begin(), s.coord.end()));
 	return seed;
 }
 
 namespace AMRA
 {
 
-Environment::Environment(const std::string& mapname)
+Grid2D::Grid2D(const std::string& mapname)
 :
 m_mapname(mapname),
 m_start_set(false),
@@ -40,7 +39,7 @@ m_goal_set(false)
 	m_state_to_id.clear();
 }
 
-void Environment::CreateSearch()
+void Grid2D::CreateSearch()
 {
 	m_heurs.emplace_back(new EuclideanDist(this));
 	m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
@@ -69,28 +68,28 @@ void Environment::CreateSearch()
 	m_search->reset();
 }
 
-void Environment::CreateWAStarSearch(double w)
+void Grid2D::CreateWAStarSearch(double w)
 {
 	m_heurs.emplace_back(new EuclideanDist(this));
 	m_search = std::make_unique<WAStar>(this, m_heurs.at(0), w);
 	m_search->reset();
 }
 
-void Environment::SetStart(const int& d1, const int& d2)
+void Grid2D::SetStart(const int& d1, const int& d2)
 {
 	assert(!m_start_set);
 	m_start_id = getOrCreateState(d1, d2);
 	m_start_set = true;
 }
 
-void Environment::SetGoal(const int& d1, const int& d2)
+void Grid2D::SetGoal(const int& d1, const int& d2)
 {
 	assert(!m_goal_set);
 	m_goal_id = getOrCreateState(d1, d2);
 	m_goal_set = true;
 }
 
-bool Environment::Plan(bool save)
+bool Grid2D::Plan(bool save)
 {
 	int d1s, d2s, d1g, d2g;
 	if (!m_start_set)
@@ -131,7 +130,7 @@ bool Environment::Plan(bool save)
 	return false;
 }
 
-void Environment::GetSuccs(
+void Grid2D::GetSuccs(
 	int state_id,
 	Resolution::Level level,
 	std::vector<int>* succs,
@@ -143,7 +142,7 @@ void Environment::GetSuccs(
 
 	MapState* parent = getHashEntry(state_id);
 	assert(parent);
-	assert(m_map->IsTraversible(parent->d1, parent->d2));
+	assert(m_map->IsTraversible(parent->coord.at(0), parent->coord.at(1)));
 	m_closed[static_cast<int>(level)].push_back(parent);
 
 	// goal state should be absorbing
@@ -198,7 +197,7 @@ void Environment::GetSuccs(
 	}
 }
 
-bool Environment::IsGoal(const int& id)
+bool Grid2D::IsGoal(const int& id)
 {
 	MapState state, goal;
 	GetStateFromID(id, state);
@@ -207,7 +206,7 @@ bool Environment::IsGoal(const int& id)
 	return (id == m_goal_id) && (state == goal);
 }
 
-void Environment::SaveExpansions(
+void Grid2D::SaveExpansions(
 	int iter, double w1, double w2,
 	const std::vector<int>& curr_solution)
 {
@@ -224,30 +223,30 @@ void Environment::SaveExpansions(
 	m_map->SavePath(solpath, iter);
 }
 
-void Environment::GetStart(MapState& start)
+void Grid2D::GetStart(MapState& start)
 {
 	GetStateFromID(m_start_id, start);
 }
 
-void Environment::GetGoal(MapState& goal)
+void Grid2D::GetGoal(MapState& goal)
 {
 	GetStateFromID(m_goal_id, goal);
 }
 
-void Environment::GetStateFromID(const int& id, MapState& state)
+void Grid2D::GetStateFromID(const int& id, MapState& state)
 {
 	MapState* hashentry = getHashEntry(id);
 	state = *hashentry;
 }
 
-Resolution::Level Environment::GetResLevel(const int& state_id)
+Resolution::Level Grid2D::GetResLevel(const int& state_id)
 {
 	auto s = getHashEntry(state_id);
 	assert(s);
 	return s->level;
 }
 
-int Environment::generateSuccessor(
+int Grid2D::generateSuccessor(
 	const MapState* parent,
 	int a1, int a2, int grid_res,
 	std::vector<int>* succs,
@@ -256,8 +255,8 @@ int Environment::generateSuccessor(
 	int succ_d1, succ_d2;
 	bool valid = true;
 	for (int m = grid_res; m >= 1; --m) {
-		succ_d1 = parent->d1 + a1*m;
-		succ_d2 = parent->d2 + a2*m;
+		succ_d1 = parent->coord.at(0) + a1*m;
+		succ_d2 = parent->coord.at(1) + a2*m;
 		valid = m_map->IsTraversible(succ_d1, succ_d2);
 
 		if (!valid) {
@@ -265,8 +264,8 @@ int Environment::generateSuccessor(
 		}
 	}
 
-	succ_d1 = parent->d1 + a1*grid_res;
-	succ_d2 = parent->d2 + a2*grid_res;
+	succ_d1 = parent->coord.at(0) + a1*grid_res;
+	succ_d2 = parent->coord.at(1) + a2*grid_res;
 
 	int succ_state_id = getOrCreateState(succ_d1, succ_d2);
 	MapState* successor = getHashEntry(succ_state_id);
@@ -277,7 +276,7 @@ int Environment::generateSuccessor(
 	return succ_state_id;
 }
 
-bool Environment::convertPath(
+bool Grid2D::convertPath(
 	const std::vector<int>& idpath,
 	std::vector<MapState>& path)
 {
@@ -358,7 +357,7 @@ bool Environment::convertPath(
 
 // Return a pointer to the data for the input the state id
 // if it exists, else return nullptr
-MapState* Environment::getHashEntry(int state_id) const
+MapState* Grid2D::getHashEntry(int state_id) const
 {
 	if (state_id < 0 || state_id >= (int)m_states.size()) {
 		return nullptr;
@@ -369,13 +368,15 @@ MapState* Environment::getHashEntry(int state_id) const
 
 // Return the state id of the state with the given data or -1 if the
 // state has not yet been allocated.
-int Environment::getHashEntry(
+int Grid2D::getHashEntry(
 		const int& d1,
 		const int& d2)
 {
 	MapState state;
-	state.d1 = d1;
-	state.d2 = d2;
+	state.coord.resize(2, 0);
+
+	state.coord.at(0) = d1;
+	state.coord.at(1) = d2;
 
 	auto sit = m_state_to_id.find(&state);
 	if (sit == m_state_to_id.end()) {
@@ -384,9 +385,11 @@ int Environment::getHashEntry(
 	return sit->second;
 }
 
-int Environment::reserveHashEntry()
+int Grid2D::reserveHashEntry()
 {
 	MapState* entry = new MapState;
+	entry->coord.resize(2, 0);
+
 	int state_id = (int)m_states.size();
 
 	// map state id -> state
@@ -400,15 +403,15 @@ int Environment::reserveHashEntry()
 	return state_id;
 }
 
-int Environment::createHashEntry(
+int Grid2D::createHashEntry(
 		const int& d1,
 		const int& d2)
 {
 	int state_id = reserveHashEntry();
 	MapState* entry = getHashEntry(state_id);
 
-	entry->d1 = d1;
-	entry->d2 = d2;
+	entry->coord.at(0) = d1;
+	entry->coord.at(1) = d2;
 	if (NUM_RES == 3 &&
 			(d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0))
 	{
@@ -428,7 +431,7 @@ int Environment::createHashEntry(
 	return state_id;
 }
 
-int Environment::getOrCreateState(
+int Grid2D::getOrCreateState(
 		const int& d1,
 		const int& d2)
 {
@@ -439,12 +442,13 @@ int Environment::getOrCreateState(
 	return state_id;
 }
 
-unsigned int Environment::cost(
+unsigned int Grid2D::cost(
 	const MapState* s1,
 	const MapState* s2)
 {
-	double dist = std::sqrt(std::pow(s1->d1 - s2->d1, 2) + std::pow(s1->d2 - s2->d2, 2));
+	double dist = std::sqrt(std::pow(s1->coord.at(0) - s2->coord.at(0), 2) +
+							std::pow(s1->coord.at(1) - s2->coord.at(1), 2));
 	return (dist * COST_MULT);
 }
 
-}  // namespace CMUPlanner
+}  // namespace AMRA

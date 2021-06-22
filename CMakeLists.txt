@@ -28,7 +28,7 @@ include_directories(include)
 include_directories(${SMPL_INCLUDE_DIRS})
 add_library(
     AMRA
-    src/environment.cpp
+    src/grid2d.cpp
     src/heuristic.cpp
     src/wastar.cpp
     src/amra.cpp

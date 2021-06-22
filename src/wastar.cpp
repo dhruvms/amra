@@ -1,7 +1,7 @@
 // project includes
 #include <amra/wastar.hpp>
 #include <amra/constants.hpp>
-#include <amra/environment.hpp>
+#include <amra/types.hpp>
 #include <amra/heuristic.hpp>
 
 // system includes

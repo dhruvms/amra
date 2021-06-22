@@ -1,7 +1,7 @@
 // project includes
 #include <amra/amra.hpp>
 #include <amra/constants.hpp>
-#include <amra/environment.hpp>
+#include <amra/types.hpp>
 #include <amra/heuristic.hpp>
 
 // system includes
@@ -467,4 +467,4 @@ void AMRAStar::extract_path(
 	std::reverse(solution.begin(), solution.end());
 }
 
-}  // namespace CMUPlanner
+}  // namespace AMRA

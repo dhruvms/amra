@@ -1,5 +1,5 @@
 // project includes
-#include <amra/environment.hpp>
+#include <amra/grid2d.hpp>
 
 // system includes
 
@@ -11,10 +11,10 @@ using namespace AMRA;
 int main(int argc, char** argv)
 {
 	std::string mapfile(argv[1]);
-	Environment env(mapfile);
-	env.CreateSearch();
-	env.SetStart(28, 20);
-	env.SetGoal(15, 45);
-	// env.CreateWAStarSearch(1.0);
-	env.Plan();
+	Grid2D grid(mapfile);
+	grid.CreateSearch();
+	grid.SetStart(28, 20);
+	grid.SetGoal(15, 45);
+	// grid.CreateWAStarSearch(1.0);
+	grid.Plan();
 }

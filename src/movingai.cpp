@@ -96,7 +96,7 @@ void MovingAI::SaveExpansions(
 	{
 		std::memcpy(expmap, m_map, m_h * m_w * sizeof(decltype(*expmap)));
 		for (const auto& s: q.second) {
-			expmap[GETMAPINDEX(s->d1, s->d2, m_h, m_w)] = MOVINGAI_DICT.find('E')->second;
+			expmap[GETMAPINDEX(s->coord.at(0), s->coord.at(1), m_h, m_w)] = MOVINGAI_DICT.find('E')->second;
 		}
 
 		expfile = filename;
@@ -223,4 +223,4 @@ void MovingAI::readFile()
 	}
 }
 
-}  // namespace CMUPlanner
+}  // namespace AMRA

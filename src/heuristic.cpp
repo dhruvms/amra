@@ -5,6 +5,8 @@
 // system includes
 
 // standard includes
+#include <cmath>
+#include <cassert>
 
 namespace AMRA
 {
@@ -15,7 +17,13 @@ unsigned int EuclideanDist::GetGoalHeuristic(int state_id)
 	m_space->GetGoal(goal);
 	m_space->GetStateFromID(state_id, state);
 
-	double dist = std::sqrt(std::pow(state.d1 - goal.d1, 2) + std::pow(state.d2 - goal.d2, 2));
+	assert(state.coord.size() == goal.coord.size());
+
+	double dist = 0.0;
+	for (size_t i = 0; i < state.coord.size(); ++i) {
+		dist += std::pow(state.coord.at(i) - goal.coord.at(i), 2);
+	}
+	dist = std::sqrt(dist);
 	return (dist * COST_MULT);
 }
 
@@ -25,7 +33,13 @@ unsigned int EuclideanDist::GetStartHeuristic(int state_id)
 	m_space->GetStart(start);
 	m_space->GetStateFromID(state_id, state);
 
-	double dist = std::sqrt(std::pow(state.d1 - start.d1, 2) + std::pow(state.d2 - start.d2, 2));
+	assert(state.coord.size() == start.coord.size());
+
+	double dist = 0.0;
+	for (size_t i = 0; i < state.coord.size(); ++i) {
+		dist += std::pow(state.coord.at(i) - start.coord.at(i), 2);
+	}
+	dist = std::sqrt(dist);
 	return (dist * COST_MULT);
 }
 
@@ -35,8 +49,14 @@ unsigned int EuclideanDist::GetFromToHeuristic(int from_id, int to_id)
 	m_space->GetStateFromID(from_id, from);
 	m_space->GetStateFromID(to_id, to);
 
-	double dist = std::sqrt(std::pow(from.d1 - to.d1, 2) + std::pow(from.d2 - to.d2, 2));
+	assert(from.coord.size() == to.coord.size());
+
+	double dist = 0.0;
+	for (size_t i = 0; i < from.coord.size(); ++i) {
+		dist += std::pow(from.coord.at(i) - to.coord.at(i), 2);
+	}
+	dist = std::sqrt(dist);
 	return (dist * COST_MULT);
 }
 
-}  // namespace CMUPlanner
+}  // namespace AMRA

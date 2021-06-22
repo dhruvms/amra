@@ -1,5 +1,5 @@
-#ifndef ENVIRONMENT_HPP
-#define ENVIRONMENT_HPP
+#ifndef GRID2D_HPP
+#define GRID2D_HPP
 
 // project includes
 #include <amra/movingai.hpp>
@@ -28,48 +28,44 @@ namespace AMRA
 
 class Heuristic;
 
-class Environment
+class Grid2D : public Environment
 {
 public:
-	Environment(const std::string& mapname);
+	Grid2D(const std::string& mapname);
 
-	void CreateSearch();
-	void CreateWAStarSearch(double w=1.0);
 	void SetStart(const int& d1, const int& d2);
 	void SetGoal(const int& d1, const int& d2);
-	bool Plan(bool save=false);
+
+	void CreateSearch() override;
+	void CreateWAStarSearch(double w=1.0);
+	bool Plan(bool save=false) override;
 
 	void GetSuccs(
 		int state_id,
 		Resolution::Level level,
 		std::vector<int>* succs,
-		std::vector<unsigned int>* costs);
-	bool IsGoal(const int& id);
+		std::vector<unsigned int>* costs) override;
+	bool IsGoal(const int& id) override;
 
 	void SaveExpansions(
 		int iter, double w1, double w2,
-		const std::vector<int>& curr_solution);
+		const std::vector<int>& curr_solution) override;
 
-	int GetStartID() const { return m_start_id; };
-    int GetGoalID() const { return m_goal_id; };
-
-    void GetStart(MapState& goal);
+    void GetStart(MapState& start);
     void GetGoal(MapState& goal);
     void GetStateFromID(const int& id, MapState& state);
 
-    Resolution::Level GetResLevel(const int& state_id);
+    Resolution::Level GetResLevel(const int& state_id) override;
 
 private:
 	std::string m_mapname;
 	std::unique_ptr<MovingAI> m_map;
-	std::unique_ptr<Search> m_search;
 
 	std::vector<std::shared_ptr<Heuristic> > m_heurs;
 	std::vector<std::pair<Resolution::Level, int> > m_heurs_map;
 	int m_heur_count, m_res_count;
 
 	bool m_start_set, m_goal_set;
-	int m_start_id, m_goal_id, m_expansions = 0;
 	std::vector<MapState*> m_states;
 	EXPANDS_t m_closed;
 
@@ -107,4 +103,4 @@ private:
 
 }  // namespace AMRA
 
-#endif  // ENVIRONMENT_HPP
+#endif  // GRID2D_HPP

@@ -2,7 +2,7 @@
 #define HEURISTIC_HPP
 
 // project includes
-#include <amra/environment.hpp>
+#include <amra/types.hpp>
 
 // system includes
 

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <memory>
 
 namespace AMRA
 {
@@ -26,7 +27,8 @@ struct Resolution
 
 struct MapState
 {
-	int d1, d2;
+	std::vector<int> coord;
+	std::vector<double> state;
 	Resolution::Level level;
 };
 typedef std::map<int, std::vector<MapState*> > EXPANDS_t;
@@ -34,16 +36,21 @@ typedef std::map<int, std::vector<MapState*> > EXPANDS_t;
 inline
 bool operator==(const MapState& a, const MapState& b)
 {
-	return (
-		a.d1 == b.d1 &&
-		a.d2 == b.d2
-	);
+	return (a.coord == b.coord);
 }
 
 inline
-std::ostream& operator<<(std::ostream& out, const MapState& state)
+std::ostream& operator<<(std::ostream& out, const MapState& s)
 {
-	return out << state.d1 << ',' << state.d2 << std::endl;
+	for (size_t i = 0; i < s.coord.size(); ++i)
+	{
+		out << s.coord.at(i);
+		if (i < s.coord.size()-1) {
+			out << ", ";
+		}
+	}
+	out << std::endl;
+	return out;
 }
 
 class Search
@@ -57,6 +64,38 @@ public:
 
 	virtual int replan(
 		std::vector<int>* solution_path, int* solution_cost) = 0;
+};
+
+class Environment
+{
+public:
+	virtual void CreateSearch() = 0;
+	virtual bool Plan(bool save=false) = 0;
+
+	virtual void GetSuccs(
+		int state_id,
+		Resolution::Level level,
+		std::vector<int>* succs,
+		std::vector<unsigned int>* costs) = 0;
+	virtual bool IsGoal(const int& id) = 0;
+
+	virtual void SaveExpansions(
+		int iter, double w1, double w2,
+		const std::vector<int>& curr_solution) = 0;
+
+	int GetStartID() const { return m_start_id; };
+    int GetGoalID() const { return m_goal_id; };
+
+    virtual void GetStart(MapState& start) = 0;
+    virtual void GetGoal(MapState& goal) = 0;
+    virtual void GetStateFromID(const int& id, MapState& state) = 0;
+
+    virtual Resolution::Level GetResLevel(const int& state_id) = 0;
+
+protected:
+	std::unique_ptr<Search> m_search;
+
+	int m_start_id, m_goal_id, m_expansions = 0;
 };
 
 } // namespace AMRA
