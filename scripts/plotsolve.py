@@ -45,9 +45,11 @@ for f in os.listdir(EXPS_DIR):
 	queue = int(fields[1])
 
 	E = np.genfromtxt(EXPS_DIR + f, delimiter=',')
+	E[28, 20] += 5;
+	E[15, 45] += 5;
 	P = np.genfromtxt(SOL_DIR + '{0:04d}'.format(iters) + '_' + MAP + '_path.map', delimiter=',')
 
-	ax.plot(P[:, 0], P[:, 1], 'r', lw=1, alpha=0.25)
+	ax.plot(P[:, 0], P[:, 1], 'r', lw=1, alpha=0.8)
 	ax.imshow(E.transpose(), vmin=-1, vmax=20, cmap=plt.get_cmap('twilight'))
 
 	ax.set_xticklabels([])
