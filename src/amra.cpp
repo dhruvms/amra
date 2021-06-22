@@ -224,20 +224,23 @@ int AMRAStar::replan(
 			s->od[0].f = compute_key(s, 0);
 			s->closed_in_anc = false;
 			insert_or_update(s, 0);
+		}
+		m_incons.clear();
 
+		for (auto it = m_open[0].begin(); it != m_open[0].end(); ++it)
+		{
 			for (auto hidx = 1; hidx < num_heuristics(); hidx++)
 			{
 				// numerically greater resolutions are coarser
-				if (s->res >= m_heurs_map.at(hidx).first)
+				if ((*it)->me->res >= m_heurs_map.at(hidx).first)
 				{
-					s->od[hidx].f = compute_key(s, hidx);
-					s->closed_in_res[hidx - 1] = false;
-					insert_or_update(s, hidx);
+					(*it)->me->od[hidx].f = compute_key((*it)->me, hidx);
+					(*it)->me->closed_in_res[hidx - 1] = false;
+					insert_or_update((*it)->me, hidx);
 				}
 			}
 		}
 		reorder_open();
-		m_incons.clear();
 
 		double search_start_time = GetTime();
 		double search_time = 0.0;
@@ -296,7 +299,7 @@ bool AMRAStar::improve_path(
 				return false;
 			}
 
-			unsigned int f_check = (unsigned int)(m_w2 * (double)m_open[0].min()->f);
+			unsigned int f_check = m_w2 * m_open[0].min()->f;
 			if (m_goal->g <= f_check) {
 				return true;
 			}
