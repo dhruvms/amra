@@ -84,13 +84,13 @@ public:
 		const std::vector<int>& curr_solution) = 0;
 
 	int GetStartID() const { return m_start_id; };
-    int GetGoalID() const { return m_goal_id; };
+	int GetGoalID() const { return m_goal_id; };
 
-    virtual void GetStart(MapState& start) = 0;
-    virtual void GetGoal(MapState& goal) = 0;
-    virtual void GetStateFromID(const int& id, MapState& state) = 0;
+	virtual void GetStart(MapState& start) = 0;
+	virtual void GetGoal(MapState& goal) = 0;
+	virtual void GetStateFromID(const int& id, MapState& state) = 0;
 
-    virtual Resolution::Level GetResLevel(const int& state_id) = 0;
+	virtual Resolution::Level GetResLevel(const int& state_id) = 0;
 
 protected:
 	std::unique_ptr<Search> m_search;

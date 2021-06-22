@@ -276,7 +276,7 @@ void WAStar::extract_path(
 	solution.clear();
 
 	// m_goal->state_id == m_goal_id == 0 should be true
-	for (WAStarState *state = m_goal->bp; state; state = state->bp) {
+	for (WAStarState *state = m_goal; state; state = state->bp) {
 		solution.push_back(state->state_id);
 	}
 	std::reverse(solution.begin(), solution.end());

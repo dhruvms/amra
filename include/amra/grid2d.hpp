@@ -51,11 +51,11 @@ public:
 		int iter, double w1, double w2,
 		const std::vector<int>& curr_solution) override;
 
-    void GetStart(MapState& start);
-    void GetGoal(MapState& goal);
-    void GetStateFromID(const int& id, MapState& state);
+	void GetStart(MapState& start);
+	void GetGoal(MapState& goal);
+	void GetStateFromID(const int& id, MapState& state);
 
-    Resolution::Level GetResLevel(const int& state_id) override;
+	Resolution::Level GetResLevel(const int& state_id) override;
 
 private:
 	std::string m_mapname;
