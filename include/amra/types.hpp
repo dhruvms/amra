@@ -33,6 +33,13 @@ struct MapState
 };
 typedef std::map<int, std::vector<MapState*> > EXPANDS_t;
 
+struct UAVState
+{
+	std::vector<int> coord;    // (x, y, theta, v)
+	std::vector<double> state; // (x, y, theta, v)
+	Resolution::Level level;
+};
+
 inline
 bool operator==(const MapState& a, const MapState& b)
 {

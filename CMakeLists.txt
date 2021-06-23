@@ -16,12 +16,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fmax-errors=5")
 
 set(
     SMPL_LIBRARIES
-    /home/dhruv/work/code/ros/sbpl/build/smpl/libsmpl.so
-    # /usr/local/lib/libsmpl.so # Tushar
+    # /home/dhruv/work/code/ros/sbpl/build/smpl/libsmpl.so
+    /usr/local/lib/libsmpl.so # Tushar
 )
 set(SMPL_INCLUDE_DIRS
-    /home/dhruv/work/code/ros/sbpl/devel/include
-    # /usr/local/include/ # Tushar
+    # /home/dhruv/work/code/ros/sbpl/devel/include
+    /usr/local/include/ # Tushar
 )
 
 include_directories(include)
@@ -29,6 +29,7 @@ include_directories(${SMPL_INCLUDE_DIRS})
 add_library(
     AMRA
     src/grid2d.cpp
+    src/uav_env.cpp
     src/heuristic.cpp
     src/wastar.cpp
     src/amra.cpp
@@ -38,3 +39,6 @@ target_link_libraries(AMRA ${SMPL_LIBRARIES})
 
 add_executable(run2d test/run2d.cpp)
 target_link_libraries(run2d AMRA)
+
+add_executable(run_uav test/run_uav.cpp)
+target_link_libraries(run_uav AMRA)
