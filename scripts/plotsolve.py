@@ -32,7 +32,7 @@ ncols += 1
 
 qnames = {0: 'anchor', 1: 'high res', 2: 'mid res', 3: 'low res'}
 
-fig = plt.figure()
+fig = plt.figure(figsize=(10,10))
 
 for f in os.listdir(EXPS_DIR):
 	if (f == '.gitignore'):
@@ -45,8 +45,9 @@ for f in os.listdir(EXPS_DIR):
 	queue = int(fields[1])
 
 	E = np.genfromtxt(EXPS_DIR + f, delimiter=',')
-	E[28, 20] += 5;
-	E[15, 45] += 5;
+	if 'culdesac' in MAP:
+		E[28, 20] += 5
+		E[15, 45] += 5
 	P = np.genfromtxt(SOL_DIR + '{0:04d}'.format(iters) + '_' + MAP + '_path.map', delimiter=',')
 
 	ax.plot(P[:, 0], P[:, 1], 'r', lw=1, alpha=0.8)
