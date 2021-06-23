@@ -1,2 +1,5 @@
 build/
 buildd/
+todo
+build_debug/
+build_release/
