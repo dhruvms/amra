@@ -78,10 +78,11 @@ private:
 
     bool m_start_set, m_goal_set;
     std::vector<UAVState*> m_states;
-    EXPANDS_t m_closed;
+    std::map<int, std::vector<UAVState*>> m_closed;
 
     std::vector<Action> m_actions;
     int m_totalAngles, m_totalPrims, m_primsPerAngle;
+    int m_numHighResPrims, m_numMidResPrims;
 
     // maps from coords to stateID
     typedef UAVState StateKey;

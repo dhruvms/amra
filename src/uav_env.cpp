@@ -68,7 +68,7 @@ void UAVEnv::SetStart(ContState& startState)
     m_start_set = true;
 
     auto* state = getHashEntry(m_start_id);
-    printf("Set start: %d, %d, %d, %d\n", state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
+    printf("Set start (id = %d): %d, %d, %d, %d\n", m_start_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
     printf("Resolution::Level: %d\n", state->level);
 }
 
@@ -88,7 +88,7 @@ void UAVEnv::SetGoal(ContState& goalState)
     m_goal_set = true;
 
     auto* state = getHashEntry(m_goal_id);
-    printf("Set goal: %d, %d, %d, %d\n", state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
+    printf("Set goal (id = %d): %d, %d, %d, %d\n", m_goal_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
     printf("Resolution::Level: %d\n", state->level);
 }
 
@@ -141,13 +141,13 @@ void UAVEnv::ReadMprims(std::string& mprimfile)
             {
                 std::string high_res_prims;
                 lineStream >> high_res_prims;
-                int num_high_res_prims = std::stoi(high_res_prims);
+                m_numHighResPrims = std::stoi(high_res_prims);
             }
             else if (field == "numberofmidresprimitives:")
             {
                 std::string mid_res_prims;
                 lineStream >> mid_res_prims;
-                int num_mid_res_prims = std::stoi(mid_res_prims);
+                m_numMidResPrims = std::stoi(mid_res_prims);
             }
             else if (field == "primID:")
             {
@@ -282,7 +282,77 @@ void UAVEnv::GetSuccs(
     std::vector<int>* succs,
     std::vector<unsigned int>* costs)
 {
+    assert(state_id >= 0);
+    succs->clear();
+    costs->clear();
 
+    UAVState* parent = getHashEntry(state_id);
+    assert(parent);
+    assert(m_map->IsTraversible(parent->coord.at(0), parent->coord.at(1)));
+    m_closed[static_cast<int>(level)].push_back(parent);
+
+    // goal state should be absorbing
+    if (state_id == GetGoalID()) {
+        SMPL_INFO("Expanding goal state (id = %d)!", GetGoalID());
+        return;
+    }
+
+    int grid_res;
+    int primid_start;
+    switch (level)
+    {
+        case Resolution::ANCHOR:
+        case Resolution::HIGH: {
+            grid_res = 1;
+            break;
+        }
+        case Resolution::MID: {
+            grid_res = MIDRES_MULT;
+            primid_start = 0;
+            break;
+        }
+        case Resolution::LOW: {
+            grid_res = LOWRES_MULT;
+            primid_start = 9;
+            break;
+        }
+    }
+
+    // Apply motion primitives to generate successors of resolution grid_res.
+    // If anchor, also generate successors for other resolutions.
+    int parent_disc_angle = parent->coord.at(2);
+    for (int primid = primid_start; primid < primid_start + 8; ++primid)
+    {
+        int actionidx = getActionIdx(parent_disc_angle, primid);
+        auto action = m_actions.at(actionidx);
+
+        // collision-check action
+
+        // successor state
+        DiscState succCoords = {
+            parent->coord.at(0) + action.end.at(0), // x
+            parent->coord.at(1) + action.end.at(1), // y
+            action.end.at(2),                       // theta
+            action.end.at(3)                        // velocity
+        };
+
+        if (!m_map->IsTraversible(succCoords.at(0), succCoords.at(1))) {
+            printf("  successor (%d, %d) + (%d, %d) = (%d, %d) not traversable\n",
+                parent->coord.at(0), parent->coord.at(1),
+                action.end.at(0), action.end.at(1),
+                succCoords.at(0), succCoords.at(1));
+            continue;
+        }
+
+        int succ_state_id = getOrCreateState(succCoords);
+        succs->push_back(succ_state_id);
+        costs->push_back(10); // TODO: add action costs
+
+        printf("  successor (%d, %d) + (%d, %d) = (%d, %d) generated\n",
+                parent->coord.at(0), parent->coord.at(1),
+                action.end.at(0), action.end.at(1),
+                succCoords.at(0), succCoords.at(1));
+    }
 }
 
 bool UAVEnv::IsGoal(const int& id)
@@ -363,17 +433,14 @@ int UAVEnv::createHashEntry(DiscState& inCoords)
     int d1 = inCoords.at(0); // x
     int d2 = inCoords.at(1); // y
 
-    if (NUM_RES == 3 &&
-        (d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0))
-    {
+    assert(NUM_RES == 2);
+    if (d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0) {
         entry->level = Resolution::LOW;
-    }
-    else if (NUM_RES >= 2 &&
-        (d1 % MIDRES_MULT == 0 && d2 % MIDRES_MULT == 0)) {
+    } else if (d1 % MIDRES_MULT == 0 && d2 % MIDRES_MULT == 0) {
         entry->level = Resolution::MID;
-    }
-    else {
-        entry->level = Resolution::HIGH;
+    } else {
+        printf("d1, d2 = %d, %d\n", d1, d2);
+        assert(false && "Aaaaa");
     }
 
     // map state -> state id
