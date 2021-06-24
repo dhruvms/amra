@@ -14,6 +14,10 @@ int main(int argc, char** argv)
 
     // TODO
     UAVEnv uav_env(mapfile);
+
+    std::string mprimfile = "../dat/mprim/mhi_3m_9m.mprim";
+    uav_env.ReadMprims(mprimfile);
+
     uav_env.CreateSearch();
 
     ContState start = { 12.5, 9.5, 0.0, 0.0 };

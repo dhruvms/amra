@@ -35,6 +35,13 @@ public:
     void SetStart(ContState& startState);
     void SetGoal(ContState& goalState);
 
+    void GetStart(MapState& start);
+    void GetGoal(MapState& goal);
+    void GetStateFromID(const int& id, MapState& state);
+
+    void ReadMprims(std::string& mprimfile);
+
+    /// Required public functions from AMRA::Environment ///////////////////////
     void CreateSearch() override;
     bool Plan(bool save=false) override;
 
@@ -49,11 +56,8 @@ public:
         int iter, double w1, double w2,
         const std::vector<int>& curr_solution) override;
 
-    void GetStart(MapState& start);
-    void GetGoal(MapState& goal);
-    void GetStateFromID(const int& id, MapState& state);
-
     Resolution::Level GetResLevel(const int& state_id) override;
+    ////////////////////////////////////////////////////////////////////////////
 
 private:
     UAVState* getHashEntry(int state_id) const;
@@ -73,6 +77,9 @@ private:
     bool m_start_set, m_goal_set;
     std::vector<UAVState*> m_states;
     EXPANDS_t m_closed;
+
+    std::vector<Action> m_actions;
+    int m_totalAngles, m_totalPrims, m_primsPerAngle;
 
     // maps from coords to stateID
     typedef UAVState StateKey;

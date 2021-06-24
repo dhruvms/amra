@@ -9,6 +9,8 @@
 #include <smpl/console/console.h>
 
 // standard includes
+#include <fstream>
+#include <sstream>
 
 auto std::hash<AMRA::UAVState>::operator()(
     const argument_type& s) const -> result_type
@@ -16,6 +18,17 @@ auto std::hash<AMRA::UAVState>::operator()(
     size_t seed = 0;
     boost::hash_combine(seed, boost::hash_range(s.coord.begin(), s.coord.end()));
     return seed;
+}
+
+auto split(std::string& s, char delim) -> std::vector<std::string>
+{
+    std::string item;
+    std::stringstream ss(s);
+    std::vector<std::string> elems;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
 }
 
 namespace AMRA
@@ -79,6 +92,143 @@ void UAVEnv::SetGoal(ContState& goalState)
     printf("Resolution::Level: %d\n", state->level);
 }
 
+void UAVEnv::ReadMprims(std::string& mprimfile)
+{
+    m_actions.clear();
+
+    std::string line;
+    char split_char = ' ';
+    std::vector<std::string> tokens;
+
+    int numIntermediatePoses = 0;
+    int mprimCount = 0;
+
+    // read line
+    std::ifstream mprimFileStream(mprimfile);
+    while (std::getline(mprimFileStream, line))
+    {
+        std::istringstream lineStream(line);
+        std::string field;
+
+        Action currentAction;
+
+        // parse current line
+        while (lineStream >> field)
+        {
+            // std::cout << "field: " << field << std::endl;
+            if (field == "resolution_m:")
+            {
+                std::string resolution;
+                lineStream >> resolution;
+                double res1 = std::stod(resolution);
+                lineStream >> resolution;
+                double res2 = std::stod(resolution);
+            }
+            else if (field == "numberofangles:")
+            {
+                std::string num;
+                lineStream >> num;
+                m_totalAngles = std::stoi(num);
+            }
+            else if (field == "totalnumberofprimitives:")
+            {
+                std::string prims;
+                lineStream >> prims;
+                m_totalPrims = std::stoi(prims);
+                m_primsPerAngle = m_totalPrims / m_totalAngles;
+            }
+            else if (field == "numberofhighresprimitives:")
+            {
+                std::string high_res_prims;
+                lineStream >> high_res_prims;
+                int num_high_res_prims = std::stoi(high_res_prims);
+            }
+            else if (field == "numberofmidresprimitives:")
+            {
+                std::string mid_res_prims;
+                lineStream >> mid_res_prims;
+                int num_mid_res_prims = std::stoi(mid_res_prims);
+            }
+            else if (field == "primID:")
+            {
+                std::string id;
+                lineStream >> id;
+                // currentAction.reset();
+                currentAction.primID = std::stoi(id);
+            }
+            else if (field == "startangle_c:")
+            {
+                std::string angle;
+                lineStream >> angle;
+            }
+            else if (field == "endpose_c:")
+            {
+                std::string dummy;
+                lineStream >> dummy;
+                lineStream >> dummy;
+                lineStream >> dummy;
+                lineStream >> dummy;
+            }
+            else if (field == "start_velocity:")
+            {
+                std::string dummy;
+                lineStream >> dummy;
+            }
+            else if (field == "end_velocity:")
+            {
+                std::string dummy;
+                lineStream >> dummy;
+            }
+            else if (field == "duration:")
+            {
+                std::string dummy;
+                lineStream >> dummy;
+            }
+            else if (field == "intermediateposes:")
+            {
+                std::string num;
+                lineStream >> num;
+                numIntermediatePoses = std::stoi(num);
+            }
+            else
+            {
+                // intermediate continuous states
+                int count = 0;
+                do {
+                    auto poses = split(line, split_char);
+                    ContState state = {
+                        std::stod(poses[0]),
+                        std::stod(poses[1]),
+                        std::stod(poses[2]),
+                        std::stod(poses[3])
+                    };
+                    currentAction.intermediateStates.push_back(state);
+                    if (count++ == numIntermediatePoses - 1)
+                        break;
+                } while (std::getline(mprimFileStream, line));
+                auto last_int_state = currentAction.intermediateStates.back();
+                auto first_int_state = currentAction.intermediateStates.front();
+                currentAction.start = {
+                    (int)first_int_state[0],
+                    (int)first_int_state[1],
+                    (int)first_int_state[2],
+                    (int)first_int_state[3]
+                };
+                currentAction.end = {
+                    (int)last_int_state[0],
+                    (int)last_int_state[1],
+                    (int)last_int_state[2],
+                    (int)last_int_state[3]
+                };
+                m_actions.push_back(currentAction);
+                ++mprimCount;
+                break;
+            }
+        }
+    }
+    assert(mprimCount == m_totalPrims);
+}
+
 void UAVEnv::CreateSearch()
 {
     m_heurs.emplace_back(new EuclideanDist(this));
@@ -131,22 +281,25 @@ void UAVEnv::SaveExpansions(
     int iter, double w1, double w2,
     const std::vector<int>& curr_solution)
 {
-
+    printf("UAVEnv::SaveExpansions not implemented\n");
 }
 
 void UAVEnv::GetStart(MapState& start)
 {
-
+    printf("Must not be called as MapState not un UAVEnv\n");
+    assert(false);
 }
 
 void UAVEnv::GetGoal(MapState& goal)
 {
-
+    printf("Must not be called as MapState not un UAVEnv\n");
+    assert(false);
 }
 
 void UAVEnv::GetStateFromID(const int& id, MapState& state)
 {
-
+    printf("Must not be called as MapState not un UAVEnv\n");
+    assert(false);
 }
 
 Resolution::Level UAVEnv::GetResLevel(const int& state_id)

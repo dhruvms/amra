@@ -42,6 +42,14 @@ struct UAVState
 	Resolution::Level level;
 };
 
+struct Action
+{
+    int primID;
+    DiscState start;
+    DiscState end;
+    std::vector<ContState> intermediateStates;
+};
+
 inline bool operator==(const UAVState& a, const UAVState& b) {
   return a.coord == b.coord;
 }
