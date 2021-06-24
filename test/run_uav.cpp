@@ -13,9 +13,14 @@ int main(int argc, char** argv)
     std::string mapfile(argv[1]);
 
     // TODO
-    UAVEnv env(mapfile);
-    // env.CreateSearch();
-    // env.SetStart(x, y, theta, v);
-    // env.SetGoal(x, y, theta, v);
-    // env.Plan();
+    UAVEnv uav_env(mapfile);
+    uav_env.CreateSearch();
+
+    ContState start = { 12.5, 9.5, 0.0, 0.0 };
+    uav_env.SetStart(start);
+
+    ContState goal = { 53.3, 51.4, 0.0, 0.0 };
+    uav_env.SetGoal(goal);
+
+    // uav_env.Plan();
 }

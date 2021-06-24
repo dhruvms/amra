@@ -3,6 +3,7 @@
 
 // project includes
 #include <amra/movingai.hpp>
+#include <amra/heuristic.hpp>
 
 // system includes
 #include <smpl/types.h>
@@ -31,6 +32,9 @@ class UAVEnv : public Environment
 public:
     UAVEnv(const std::string& mapname);
 
+    void SetStart(ContState& startState);
+    void SetGoal(ContState& goalState);
+
     void CreateSearch() override;
     bool Plan(bool save=false) override;
 
@@ -52,12 +56,23 @@ public:
     Resolution::Level GetResLevel(const int& state_id) override;
 
 private:
+    UAVState* getHashEntry(int state_id) const;
+    int getHashEntry(DiscState& state);
+    int getOrCreateState(DiscState& state);
+    int createHashEntry(DiscState& state);
+    int reserveHashEntry();
+
+private:
     std::string m_mapname;
     std::unique_ptr<MovingAI> m_map;
 
-    bool m_start_set;
-    bool m_goal_set;
+    std::vector<std::shared_ptr<Heuristic> > m_heurs;
+    std::vector<std::pair<Resolution::Level, int> > m_heurs_map;
+    int m_heur_count, m_res_count;
+
+    bool m_start_set, m_goal_set;
     std::vector<UAVState*> m_states;
+    EXPANDS_t m_closed;
 
     // maps from coords to stateID
     typedef UAVState StateKey;
