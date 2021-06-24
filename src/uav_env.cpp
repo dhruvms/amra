@@ -206,27 +206,40 @@ void UAVEnv::ReadMprims(std::string& mprimfile)
                     if (count++ == numIntermediatePoses - 1)
                         break;
                 } while (std::getline(mprimFileStream, line));
-                auto last_int_state = currentAction.intermediateStates.back();
-                auto first_int_state = currentAction.intermediateStates.front();
-                currentAction.start = {
-                    (int)first_int_state[0],
-                    (int)first_int_state[1],
-                    (int)first_int_state[2],
-                    (int)first_int_state[3]
-                };
-                currentAction.end = {
-                    (int)last_int_state[0],
-                    (int)last_int_state[1],
-                    (int)last_int_state[2],
-                    (int)last_int_state[3]
-                };
-                m_actions.push_back(currentAction);
+                storeAction(currentAction);
                 ++mprimCount;
                 break;
             }
         }
     }
     assert(mprimCount == m_totalPrims);
+}
+
+void UAVEnv::storeAction(Action& action)
+{
+    auto last_int_state = action.intermediateStates.back();
+    auto first_int_state = action.intermediateStates.front();
+    action.start = {
+        (int)first_int_state[0],
+        (int)first_int_state[1],
+        (int)first_int_state[2],
+        (int)first_int_state[3]
+    };
+    action.end = {
+        (int)last_int_state[0],-
+        (int)last_int_state[1],
+        (int)last_int_state[2],
+        (int)last_int_state[3]
+    };
+    m_actions.push_back(action);
+}
+
+/// For every angle, first 9 mprims are of resolution 3m and next 9 are of
+/// resolution 9m. For e.g., if disc_angle = 2, primID 0 to 7 (i.e. action idx
+/// 2*18+0 = 36 to 2*18+8 = 44) are mprims of 3m resolution.
+int UAVEnv::getActionIdx(int& disc_angle, int& primID)
+{
+    return m_primsPerAngle * disc_angle + primID;
 }
 
 void UAVEnv::CreateSearch()

@@ -40,6 +40,8 @@ public:
     void GetStateFromID(const int& id, MapState& state);
 
     void ReadMprims(std::string& mprimfile);
+    void storeAction(Action& action);
+    int getActionIdx(int& disc_angle, int& primID);
 
     /// Required public functions from AMRA::Environment ///////////////////////
     void CreateSearch() override;
