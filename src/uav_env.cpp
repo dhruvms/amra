@@ -348,6 +348,9 @@ void UAVEnv::GetSuccs(
         auto action = m_actions.at(actionidx);
 
         // collision-check action
+        if (!validAction(parent, action)) {
+            continue;
+        }
 
         // successor state
         DiscState succCoords = {
@@ -377,6 +380,24 @@ void UAVEnv::GetSuccs(
         //         action.end.at(0), action.end.at(1),
         //         succCoords.at(0), succCoords.at(1));
     }
+}
+
+bool UAVEnv::validAction(UAVState* state, Action& action)
+{
+    for (const auto& s : action.intermediateStates)
+    {
+        // TODO: convert continuous states to discrete!
+        DiscState int_point_xy = {
+            (int)(state->coord.at(0) + s.at(0)),
+            (int)(state->coord.at(1) + s.at(1)),
+        };
+
+        // performs bounds and collision check
+        if (!m_map->IsTraversible(int_point_xy.at(0), int_point_xy.at(1))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool UAVEnv::IsGoal(const int& id)

@@ -301,9 +301,9 @@ bool AMRAStar::improve_path(
 			}
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
-			// printf("  f_check: [%u] m_goal->g: [%u]\n", f_check, m_goal->g);
+			printf("  f_check: [%u] m_goal->g: [%u]\n", f_check, m_goal->g);
 			if (m_goal->g <= f_check) {
-				// printf("m_goal->g [%u] <= f_check [%u], returning\n", m_goal->g, f_check);
+				printf("m_goal->g [%u] <= f_check [%u], returning\n", m_goal->g, f_check);
 				return true;
 			}
 
@@ -374,6 +374,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
 	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(hres_i), &succ_ids, &costs);
+	// printf("  got %d successors\n", (int)succ_ids.size());
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{

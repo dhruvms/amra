@@ -72,6 +72,8 @@ private:
         const std::vector<int>& idpath,
         std::vector<MapState>& path);
 
+    bool validAction(UAVState* state, Action& action);
+
 private:
     std::string m_mapname;
     std::unique_ptr<MovingAI> m_map;
