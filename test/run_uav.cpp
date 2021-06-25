@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 
     uav_env.CreateSearch();
 
-    ContState goal = { 18.3, 9.4, 0.0, 0.0 };
+    ContState goal = { 600.3, 600.4, 0.0, 0.0 };
     uav_env.SetGoal(goal);
 
     // ContState start = { 12.5, 9.5, 0.0, 0.0 };

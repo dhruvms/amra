@@ -337,7 +337,10 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	// close s in correct resolution
 	// and remove from appropriate OPENs
 
-	// printf("  expanding %d with hidx %d\n", s->state_id, hidx);
+	UAVState state;
+	m_space->GetStateFromID(s->state_id, state);
+	// printf("  expanding state [%d] x = %d, y = %d, theta = %d, v = %d\n",
+	// 	s->state_id, state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
 
 	int hres_i = static_cast<int>(m_heurs_map.at(hidx).first);
 	if (hidx == 0)

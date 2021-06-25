@@ -353,9 +353,11 @@ void UAVEnv::GetSuccs(
         DiscState succCoords = {
             parent->coord.at(0) + action.end.at(0), // x
             parent->coord.at(1) + action.end.at(1), // y
-            action.end.at(2),                       // theta
+            parent->coord.at(2) + action.end.at(2), // theta
             action.end.at(3)                        // velocity
         };
+        if (succCoords[2] > 12-1) succCoords[2] -= 12;
+        if (succCoords[2] < 0) succCoords[2] += 12;
 
         // collision-check successor coordinates
         if (!m_map->IsTraversible(succCoords.at(0), succCoords.at(1))) {
@@ -383,7 +385,15 @@ bool UAVEnv::IsGoal(const int& id)
     GetStateFromID(id, state);
     GetGoal(goal);
 
-    return state.coord[0] == goal.coord[0] && state.coord[1] == goal.coord[1];
+    auto sx = state.coord[0];
+    auto sy = state.coord[1];
+    auto goalx = goal.coord[0];
+    auto goaly = goal.coord[1];
+
+    auto distToGoal = std::sqrt((sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly));
+    return distToGoal < 10;
+
+    // return state.coord[0] == goal.coord[0] && state.coord[1] == goal.coord[1];
     // return (id == m_goal_id) && (state == goal);
 }
 
