@@ -337,10 +337,10 @@ void UAVEnv::GetSuccs(
         };
 
         if (!m_map->IsTraversible(succCoords.at(0), succCoords.at(1))) {
-            printf("  successor (%d, %d) + (%d, %d) = (%d, %d) not traversable\n",
-                parent->coord.at(0), parent->coord.at(1),
-                action.end.at(0), action.end.at(1),
-                succCoords.at(0), succCoords.at(1));
+            // printf("  successor (%d, %d) + (%d, %d) = (%d, %d) not traversable\n",
+            //     parent->coord.at(0), parent->coord.at(1),
+            //     action.end.at(0), action.end.at(1),
+            //     succCoords.at(0), succCoords.at(1));
             continue;
         }
 
@@ -348,10 +348,10 @@ void UAVEnv::GetSuccs(
         succs->push_back(succ_state_id);
         costs->push_back(10); // TODO: add action costs
 
-        printf("  successor (%d, %d) + (%d, %d) = (%d, %d) generated\n",
-                parent->coord.at(0), parent->coord.at(1),
-                action.end.at(0), action.end.at(1),
-                succCoords.at(0), succCoords.at(1));
+        // printf("  successor (%d, %d) + (%d, %d) = (%d, %d) generated\n",
+        //         parent->coord.at(0), parent->coord.at(1),
+        //         action.end.at(0), action.end.at(1),
+        //         succCoords.at(0), succCoords.at(1));
     }
 }
 
@@ -387,7 +387,9 @@ void UAVEnv::GetStateFromID(const int& id, MapState& state)
 
 Resolution::Level UAVEnv::GetResLevel(const int& state_id)
 {
-    UAVState s; return s.level;
+    auto s = getHashEntry(state_id);
+    assert(s);
+    return s->level;
 }
 
 // Return a pointer to the data for the input the state id
