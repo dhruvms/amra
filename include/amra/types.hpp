@@ -35,12 +35,17 @@ typedef std::map<int, std::vector<MapState*> > EXPANDS_t;
 
 using ContState = std::vector<double>;
 using DiscState = std::vector<int>;
-struct UAVState
-{
-	DiscState coord; // (x, y, theta, v)
-	ContState state; // (x, y, theta, v)
-	Resolution::Level level;
-};
+// struct UAVState
+// {
+// 	DiscState coord; // (x, y, theta, v)
+// 	ContState state; // (x, y, theta, v)
+// 	Resolution::Level level;
+// };
+// inline bool operator==(const UAVState& a, const UAVState& b) {
+//   return a.coord == b.coord;
+// }
+
+using UAVState = MapState;
 
 struct Action
 {
@@ -50,9 +55,6 @@ struct Action
     std::vector<ContState> intermediateStates;
 };
 
-inline bool operator==(const UAVState& a, const UAVState& b) {
-  return a.coord == b.coord;
-}
 
 inline
 bool operator==(const MapState& a, const MapState& b)

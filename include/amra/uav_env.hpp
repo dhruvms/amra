@@ -68,6 +68,10 @@ private:
     int createHashEntry(DiscState& state);
     int reserveHashEntry();
 
+    bool convertPath(
+        const std::vector<int>& idpath,
+        std::vector<MapState>& path);
+
 private:
     std::string m_mapname;
     std::unique_ptr<MovingAI> m_map;

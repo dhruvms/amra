@@ -64,6 +64,7 @@ int AMRAStar::set_goal(int goal_id)
 {
 	m_goal_id = goal_id;
 	m_goal = get_state(m_goal_id);
+	printf("Created goal. ID = %d, g = %d\n", m_goal->state_id, m_goal->g);
 	return m_goal_id;
 }
 
@@ -272,9 +273,6 @@ int AMRAStar::replan(
 		return 0;
 	}
 
-	// m_ss << "time (s) = " << m_search_time << " | expansions = " << get_n_expands() << " | solution_cost = " << m_solution_cost;
-	// log_it(LogLevel::WARN);
-
 	SMPL_INFO("%d (%s), %f", get_n_expands(), get_expands_str().c_str(), m_search_time);
 
 	return 1;
@@ -284,6 +282,8 @@ bool AMRAStar::improve_path(
 	const double& start_time,
 	double& elapsed_time)
 {
+	// printf("improve_path ... \n");
+
 	elapsed_time = 0.0;
 	while (!m_open[0].empty() &&
 				m_open[0].min()->f < std::numeric_limits<unsigned int>::max())
@@ -296,11 +296,14 @@ bool AMRAStar::improve_path(
 		for (int i = 1; i < num_heuristics(); ++i)
 		{
 			if (m_open[0].empty()) {
+				printf("OPEN[0] empty, returning\n");
 				return false;
 			}
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
+			// printf("  f_check: [%u] m_goal->g: [%u]\n", f_check, m_goal->g);
 			if (m_goal->g <= f_check) {
+				// printf("m_goal->g [%u] <= f_check [%u], returning\n", m_goal->g, f_check);
 				return true;
 			}
 
@@ -308,6 +311,7 @@ bool AMRAStar::improve_path(
 					m_open[i].min()->f <= f_check)
 			{
 				AMRAState *s = m_open[i].min()->me;
+				// printf("  expanding state %d with heur %d\n", s->state_id, i);
 				expand(s, i);
 				if (s->state_id == m_goal_id) {
 					return true;
@@ -332,6 +336,8 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 {
 	// close s in correct resolution
 	// and remove from appropriate OPENs
+
+	// printf("  expanding %d with hidx %d\n", s->state_id, hidx);
 
 	int hres_i = static_cast<int>(m_heurs_map.at(hidx).first);
 	if (hidx == 0)
@@ -369,6 +375,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
 		unsigned int cost = costs[sidx];
+		// printf("  succ id = %d ", succ_ids[sidx]);
 
 		AMRAState *succ_state = get_state(succ_ids[sidx]);
 		reinit_state(succ_state);
@@ -377,6 +384,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		if (new_g < succ_state->g)
 		{
 			succ_state->g = new_g;
+			// printf("  succ g (updated) = %d\n", new_g);
 			succ_state->bp = s;
 			if (succ_state->closed_in_anc) {
 				m_incons.push_back(succ_state);
@@ -402,12 +410,15 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 							if (f_j <= m_w2 * f_0)
 							{
 								succ_state->od[j].f = f_j;
+								// printf("  succ f = %d, j = %d\n", f_j, j);
 								insert_or_update(succ_state, j);
 							}
 						}
 					}
 				}
 			}
+		} else { // if g-value not updated
+			// printf("  succ g (not updated) = %d\n", succ_state->g);
 		}
 	}
 }

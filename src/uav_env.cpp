@@ -245,21 +245,26 @@ int UAVEnv::getActionIdx(int& disc_angle, int& primID)
 void UAVEnv::CreateSearch()
 {
     m_heurs.emplace_back(new EuclideanDist(this));
-    m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
-    m_heurs_map.emplace_back(Resolution::HIGH, 0);
-    m_res_count = 1; // inadmissible resolution count
-    m_heur_count = 1;
+    m_heurs_map.emplace_back(Resolution::MID, 0);
+    m_res_count++;
+    m_heurs_map.emplace_back(Resolution::LOW, 0);
+    m_res_count++;
 
-    if (NUM_RES > 1)
-    {
-        m_heurs_map.emplace_back(Resolution::MID, 0);
-        m_res_count++;
-    }
-    if (NUM_RES == 3)
-    {
-        m_heurs_map.emplace_back(Resolution::LOW, 0);
-        m_res_count++;
-    }
+    // m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
+    // m_heurs_map.emplace_back(Resolution::HIGH, 0);
+    // m_res_count = 1; // inadmissible resolution count
+    // m_heur_count = 1;
+
+    // if (NUM_RES > 1)
+    // {
+    //     m_heurs_map.emplace_back(Resolution::MID, 0);
+    //     m_res_count++;
+    // }
+    // if (NUM_RES == 3)
+    // {
+    //     m_heurs_map.emplace_back(Resolution::LOW, 0);
+    //     m_res_count++;
+    // }
 
     for (int i = 0; i < m_heurs_map.size(); ++i) {
         m_closed[i].clear(); // init expansions container
@@ -273,6 +278,22 @@ void UAVEnv::CreateSearch()
 
 bool UAVEnv::Plan(bool save)
 {
+    m_search->set_goal(m_goal_id);
+    m_search->set_start(m_start_id);
+
+    std::vector<int> solution;
+    int solcost;
+    bool result = m_search->replan(&solution, &solcost);
+
+    if (result && save)
+    {
+        std::vector<MapState> solpath;
+        convertPath(solution, solpath);
+        m_map->SavePath(solpath);
+
+        return true;
+    }
+
     return false;
 }
 
@@ -336,6 +357,7 @@ void UAVEnv::GetSuccs(
             action.end.at(3)                        // velocity
         };
 
+        // collision-check successor coordinates
         if (!m_map->IsTraversible(succCoords.at(0), succCoords.at(1))) {
             // printf("  successor (%d, %d) + (%d, %d) = (%d, %d) not traversable\n",
             //     parent->coord.at(0), parent->coord.at(1),
@@ -357,7 +379,12 @@ void UAVEnv::GetSuccs(
 
 bool UAVEnv::IsGoal(const int& id)
 {
-    return false;
+    UAVState state, goal;
+    GetStateFromID(id, state);
+    GetGoal(goal);
+
+    return state.coord[0] == goal.coord[0] && state.coord[1] == goal.coord[1];
+    // return (id == m_goal_id) && (state == goal);
 }
 
 void UAVEnv::SaveExpansions(
@@ -369,20 +396,18 @@ void UAVEnv::SaveExpansions(
 
 void UAVEnv::GetStart(MapState& start)
 {
-    printf("Must not be called as MapState not un UAVEnv\n");
-    assert(false);
+    GetStateFromID(m_start_id, start);
 }
 
 void UAVEnv::GetGoal(MapState& goal)
 {
-    printf("Must not be called as MapState not un UAVEnv\n");
-    assert(false);
+    GetStateFromID(m_goal_id, goal);
 }
 
 void UAVEnv::GetStateFromID(const int& id, MapState& state)
 {
-    printf("Must not be called as MapState not un UAVEnv\n");
-    assert(false);
+    UAVState* hashentry = getHashEntry(id);
+    state = *hashentry;
 }
 
 Resolution::Level UAVEnv::GetResLevel(const int& state_id)
@@ -464,5 +489,83 @@ int UAVEnv::reserveHashEntry()
     return state_id;
 }
 
+bool UAVEnv::convertPath(
+    const std::vector<int>& idpath,
+    std::vector<MapState>& path)
+{
+    std::vector<MapState> opath;
+
+    if (idpath.empty()) {
+        return true;
+    }
+
+    // attempt to handle paths of length 1...do any of the sbpl planners still
+    // return a single-point path in some cases?
+    if (idpath.size() == 1)
+    {
+        auto state_id = idpath[0];
+
+        if (state_id == GetGoalID())
+        {
+            auto* entry = getHashEntry(GetStartID());
+            if (!entry)
+            {
+                SMPL_ERROR("Failed to get state entry for state %d", GetStartID());
+                return false;
+            }
+            opath.push_back(*entry);
+        }
+        else
+        {
+            auto* entry = getHashEntry(state_id);
+            if (!entry)
+            {
+                SMPL_ERROR("Failed to get state entry for state %d", state_id);
+                return false;
+            }
+            opath.push_back(*entry);
+        }
+    }
+
+    if (idpath[0] == GetGoalID())
+    {
+        SMPL_ERROR("Cannot extract a non-trivial path starting from the goal state");
+        return false;
+    }
+
+    // grab the first point
+    {
+        auto* entry = getHashEntry(idpath[0]);
+        if (!entry)
+        {
+            SMPL_ERROR("Failed to get state entry for state %d", idpath[0]);
+            return false;
+        }
+        opath.push_back(*entry);
+    }
+
+    // grab the rest of the points
+    for (size_t i = 1; i < idpath.size(); ++i)
+    {
+        auto prev_id = idpath[i - 1];
+        auto curr_id = idpath[i];
+
+        if (prev_id == GetGoalID())
+        {
+            SMPL_ERROR("Cannot determine goal state predecessor state during path extraction");
+            return false;
+        }
+
+        auto* entry = getHashEntry(curr_id);
+        if (!entry)
+        {
+            SMPL_ERROR("Failed to get state entry state %d", curr_id);
+            return false;
+        }
+        opath.push_back(*entry);
+    }
+    path = std::move(opath);
+    return true;
+}
 
 }  // namespace AMRA
