@@ -46,17 +46,22 @@ for f in os.listdir(EXPS_DIR):
 
 	E = np.genfromtxt(EXPS_DIR + f, delimiter=',')
 	if 'costs' in MAP:
-		E[E == 10] = 90
+		E = E / 10
 	if 'culdesac' in MAP:
-		E[28, 20] += 5
-		E[15, 45] += 5
+		E[28, 20] = -1
+		E[15, 45] = -1
 	P = np.genfromtxt(SOL_DIR + '{0:04d}'.format(iters) + '_' + MAP + '_path.map', delimiter=',')
 
-	ax.plot(P[:, 0], P[:, 1], 'r', lw=1, alpha=0.8)
+	ax.plot(P[:, 0], P[:, 1], 'gold', lw=5, alpha=1.0)
+	im = None
 	if 'costs' in MAP:
-		ax.imshow(E.transpose(), vmin=85, vmax=122, cmap=plt.get_cmap('twilight'))
+		im = ax.imshow(E.transpose(), vmin=0.9, vmax=26, cmap=plt.get_cmap('rainbow'))
+		im.cmap.set_under('k')
+		im.cmap.set_over('w')
 	else:
-		ax.imshow(E.transpose(), vmin=-1, vmax=20, cmap=plt.get_cmap('twilight'))
+		im = ax.imshow(E.transpose(), vmin=-0.1, vmax=1.1, cmap=plt.get_cmap('gray'))
+		im.cmap.set_under('r')
+		im.cmap.set_over('b')
 
 	ax.set_xticklabels([])
 	ax.set_yticklabels([])
