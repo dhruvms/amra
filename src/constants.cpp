@@ -10,10 +10,10 @@ const std::map<char, int> AMRA::MOVINGAI_DICT = {
 	{'T', 0},
 	{'S', 1},
 	{'W', 2}, // water is only traversible from water
-	{'(', 4}, // start
-	{'*', 6}, // path
-	{')', 8}, // goal
-	{'E', 10}, // expanded state
+	{'(', 1000}, // start
+	{'*', 1001}, // path
+	{')', 1002}, // goal
+	{'E', 1003}, // expanded state
 };
 
 const int AMRA::MIDRES_MULT = 3;
@@ -22,4 +22,4 @@ const int AMRA::GRID = 8;
 const int AMRA::NUM_RES = 3;
 
 const bool AMRA::SAVE_ALL = false;
-const bool AMRA::COSTMAP = true;
+const bool AMRA::COSTMAP = false;

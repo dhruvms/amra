@@ -39,6 +39,13 @@ m_goal_id(-1)
 	// Set default max planing time
 	m_time_limit = double(MAX_PLANNING_TIME_MS / 1000.0); // seconds
 
+	if (COSTMAP) {
+		m_w1_i = 500.0;
+		m_w2_i = 100.0;
+
+		m_w1_delta = 0.33;
+	}
+
 	m_w1 = m_w1_i;
 	m_w2 = m_w2_i;
 

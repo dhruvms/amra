@@ -97,6 +97,9 @@ void MovingAI::SaveExpansions(
 		std::memcpy(expmap, m_map, m_h * m_w * sizeof(decltype(*expmap)));
 		for (const auto& s: q.second) {
 			expmap[GETMAPINDEX(s->coord.at(0), s->coord.at(1), m_h, m_w)] = MOVINGAI_DICT.find('E')->second;
+			if (COSTMAP) {
+				expmap[GETMAPINDEX(s->coord.at(0), s->coord.at(1), m_h, m_w)] *= 10;
+			}
 		}
 
 		expfile = filename;
@@ -226,7 +229,8 @@ void MovingAI::readFile()
 				m_map[GETMAPINDEX(r, c, m_h, m_w)] = MOVINGAI_DICT.find(line[c])->second;
 			}
 			else {
-				m_map[GETMAPINDEX(r, c, m_h, m_w)] = int(line[c]);
+				int val = int(line[c]) - int('a') + 1;
+				m_map[GETMAPINDEX(r, c, m_h, m_w)] = val * 10;
 			}
 		}
 	}
