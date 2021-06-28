@@ -22,3 +22,4 @@ const int AMRA::GRID = 8;
 const int AMRA::NUM_RES = 3;
 
 const bool AMRA::SAVE_ALL = false;
+const bool AMRA::COSTMAP = true;

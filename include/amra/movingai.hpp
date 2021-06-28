@@ -33,6 +33,10 @@ public:
 	int CellType(const int& dim1, const int& dim2) const;
 	int CellType(const int& dim1, const int& dim2, char& c) const;
 
+	const MAP_t GetMap() { return m_map; };
+	int GetH() { return m_h; };
+	int GetW() { return m_w; };
+
 private:
 	std::string m_fname;
 	MAP_t m_map;

@@ -17,6 +17,7 @@ extern const int GRID;
 extern const int NUM_RES;
 
 extern const bool SAVE_ALL;
+extern const bool COSTMAP;
 
 } // namespace SimPlan
 

@@ -152,8 +152,8 @@ int MovingAI::CellType(const int& dim1, const int& dim2) const
 
 int MovingAI::CellType(const int& dim1, const int& dim2, char& c) const
 {
+	c = '!';
 	if (!IsValid(dim1, dim2)) {
-		c = '!';
 		return -99;
 	}
 
@@ -163,6 +163,9 @@ int MovingAI::CellType(const int& dim1, const int& dim2, char& c) const
 		if (itr->second == val) {
 			c = itr->first;
 		}
+	}
+	if (c == '!') {
+		c = char(val);
 	}
 
 	return val;
@@ -218,7 +221,13 @@ void MovingAI::readFile()
 		std::getline(FILE, line);
 		for (int c = 0; c < m_w; ++c)
 		{
-			m_map[GETMAPINDEX(r, c, m_h, m_w)] = MOVINGAI_DICT.find(line[c])->second;
+			auto itr = MOVINGAI_DICT.find(line[c]);
+			if (itr != MOVINGAI_DICT.end()) {
+				m_map[GETMAPINDEX(r, c, m_h, m_w)] = MOVINGAI_DICT.find(line[c])->second;
+			}
+			else {
+				m_map[GETMAPINDEX(r, c, m_h, m_w)] = int(line[c]);
+			}
 		}
 	}
 }

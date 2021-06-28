@@ -4,6 +4,7 @@
 #include <amra/constants.hpp>
 #include <amra/amra.hpp>
 #include <amra/wastar.hpp>
+#include <amra/helpers.hpp>
 
 // system includes
 #include <smpl/console/console.h>
@@ -446,9 +447,31 @@ unsigned int Grid2D::cost(
 	const MapState* s1,
 	const MapState* s2)
 {
-	double dist = std::sqrt(std::pow(s1->coord.at(0) - s2->coord.at(0), 2) +
-							std::pow(s1->coord.at(1) - s2->coord.at(1), 2));
-	return (dist * COST_MULT);
+	if (COSTMAP)
+	{
+		int dir1 = sgn(s2->coord.at(0) - s1->coord.at(0));
+		int dir2 = sgn(s2->coord.at(1) - s1->coord.at(1));
+
+		int h, w;
+		auto map = m_map->GetMap();
+		h = m_map->GetH();
+		w = m_map->GetW();
+
+		unsigned int cost = 0;
+		for (int d1 = s1->coord.at(0) + dir1, d2 = s1->coord.at(1) + dir2;
+					d1 != s2->coord.at(0) + dir1 || d2 != s2->coord.at(1) + dir2;
+						d1 += dir1, d2 += dir2)
+		{
+			cost += map[GETMAPINDEX(d1, d2, h, w)];
+		}
+		return (cost * COST_MULT);
+	}
+	else
+	{
+		double dist = std::sqrt(std::pow(s1->coord.at(0) - s2->coord.at(0), 2) +
+								std::pow(s1->coord.at(1) - s2->coord.at(1), 2));
+		return (dist * COST_MULT);
+	}
 }
 
 }  // namespace AMRA

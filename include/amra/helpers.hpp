@@ -13,10 +13,17 @@ namespace AMRA
 
 #define GETMAPINDEX(X, Y, XSIZE, YSIZE) (X*YSIZE + Y)
 
+inline
 void reset(std::stringstream& ss)
 {
 	ss.str("");
 	ss.clear();
+}
+
+template <typename T>
+inline
+int sgn(T val) {
+	return (T(0) < val) - (val < T(0));
 }
 
 }  // namespace AMRA
