@@ -148,7 +148,7 @@ void Grid2D::GetSuccs(
 
 	// goal state should be absorbing
 	if (state_id == GetGoalID()) {
-		SMPL_INFO("Expanding goal state (id = %d)!", GetGoalID());
+		// SMPL_INFO("Expanding goal state (id = %d)!", GetGoalID());
 		return;
 	}
 
