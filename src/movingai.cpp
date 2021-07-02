@@ -30,13 +30,12 @@ MovingAI::~MovingAI()
 
 void MovingAI::GetRandomState(int& d1, int& d2)
 {
-	d1 = (int)std::round(m_distD(m_rng) * (m_h - 1));
-	d2 = (int)std::round(m_distD(m_rng) * (m_w - 1));
-	while (!IsTraversible(d1, d2))
+	do
 	{
 		d1 = (int)std::round(m_distD(m_rng) * (m_h - 1));
 		d2 = (int)std::round(m_distD(m_rng) * (m_w - 1));
 	}
+	while (!IsTraversible(d1, d2));
 }
 
 void MovingAI::SavePath(

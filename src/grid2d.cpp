@@ -104,10 +104,11 @@ bool Grid2D::Plan(bool save)
 	if (!m_goal_set)
 	{
 		// set random goal
-		m_map->GetRandomState(d1g, d2g);
-		while (d1g == d1s && d2g == d2s) {
+		do {
 			m_map->GetRandomState(d1g, d2g);
 		}
+		while (d1g == d1s && d2g == d2s);
+
 		m_goal_id = getOrCreateState(d1g, d2g);
 		m_goal_set = true;
 	}
