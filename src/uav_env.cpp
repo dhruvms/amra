@@ -204,6 +204,18 @@ void UAVEnv::ReadMprims(std::string& mprimfile)
         }
     }
     assert(mprimCount == m_totalPrims);
+    // /// Log motion primitive info
+    // std::ofstream mprimlog;
+    // mprimlog.open("../dat/mprimlog.txt");
+    // for (auto i = 0; i < m_totalPrims; ++i) {
+    //     auto action = m_actions[i];
+    //     mprimlog << "idx: " << i << "\n";
+    //     mprimlog << "primID: " << action.primID << "\n";
+    //     mprimlog << "start: " << action.start[0] << "," << action.start[1] << "," << action.start[2] << "," << action.start[3] << "\n";
+    //     mprimlog << "end: " << action.end[0] << "," << action.end[1] << "," << action.end[2] << "," << action.end[3] << "\n";
+    //     mprimlog << "\n";
+    // }
+    // mprimlog.close();
 }
 
 void UAVEnv::storeAction(Action& action)
@@ -226,7 +238,7 @@ void UAVEnv::storeAction(Action& action)
 }
 
 /// For every angle, first 9 mprims are of resolution 3m and next 9 are of
-/// resolution 9m. For e.g., if disc_angle = 2, primID 0 to 7 (i.e. action idx
+/// resolution 9m. For e.g., if disc_angle = 2, primID 0 to 8 (i.e. action idx
 /// 2*18+0 = 36 to 2*18+8 = 44) are mprims of 3m resolution.
 int UAVEnv::getActionIdx(int& disc_angle, int& primID)
 {
@@ -295,7 +307,14 @@ void UAVEnv::GetSuccs(
 
     UAVState* parent = getHashEntry(state_id);
     assert(parent);
-    assert(m_map->IsTraversible(parent->coord.at(0), parent->coord.at(1)));
+
+    /// Discrete coordinates of parent state
+    auto parent_x     = parent->coord[0];
+    auto parent_y     = parent->coord[1];
+    auto parent_theta = parent->coord[2];
+    auto parent_vel   = parent->coord[3];
+
+    assert(m_map->IsTraversible(parent_x, parent_y));
     m_closed[static_cast<int>(level)].push_back(parent);
 
     // goal state should be absorbing
@@ -304,67 +323,78 @@ void UAVEnv::GetSuccs(
         return;
     }
 
-    int grid_res;
-    int primid_start;
+    /// Apply motion primitives to generate successors of resolution grid_res.
+    /// If anchor, also generate successors for other resolutions.
+
+    int primid_start = -1;
+    int primid_end   = -1;
     switch (level)
     {
-        case Resolution::ANCHOR:
-        case Resolution::HIGH: {
-            grid_res = 1;
+        case Resolution::ANCHOR: {
+            primid_start = 0;
+            primid_end   = 17;
             break;
         }
         case Resolution::MID: {
-            grid_res = MIDRES_MULT;
             primid_start = 0;
+            primid_end   = 8;
             break;
         }
         case Resolution::LOW: {
-            grid_res = LOWRES_MULT;
             primid_start = 9;
+            primid_end   = 17;
             break;
         }
     }
 
-    // Apply motion primitives to generate successors of resolution grid_res.
-    // If anchor, also generate successors for other resolutions.
-    int parent_disc_angle = parent->coord.at(2);
-    for (int primid = primid_start; primid < primid_start + 8; ++primid)
+    for(
+    auto primid = primid_start;
+    primid <= primid_end;
+    ++primid)
     {
-        int actionidx = getActionIdx(parent_disc_angle, primid);
+        int actionidx = getActionIdx(parent_theta, primid);
         auto action = m_actions.at(actionidx);
 
-        // collision-check action
+        printf("Applying primid [%d] w/ start theta = %d, vel = %d ... ", primid, action.start[2], action.start[3]);
+
+        /// Reject action if not applicable at parent
+        auto action_start_theta = action.start[2];
+        auto action_start_vel   = action.start[3];
+        if (parent_theta != action_start_theta) {
+            printf(" INVALID theta ... ");
+            printf("parent_theta = [%d], action_start_theta = [%d]\n", parent_theta, action_start_theta);
+            continue;
+        }
+        if (parent_vel != action_start_vel) {
+            printf(" INVALID vel ... ");
+            printf(" parent_vel = [%d], action_start_vel = [%d]\n", parent_vel, action_start_vel);
+            continue;
+        }
+        printf(" valid\n");
+
+        /// Check if applying action keeps robot collision-free and in bounds
         if (!validAction(parent, action)) {
             continue;
         }
 
-        // successor state
+        /// Compute successor state
         DiscState succCoords = {
             parent->coord.at(0) + action.end.at(0), // x
             parent->coord.at(1) + action.end.at(1), // y
             parent->coord.at(2) + action.end.at(2), // theta
             action.end.at(3)                        // velocity
         };
-        if (succCoords[2] > 12-1) succCoords[2] -= 12;
-        if (succCoords[2] < 0) succCoords[2] += 12;
-
-        // collision-check successor coordinates
-        if (!m_map->IsTraversible(succCoords.at(0), succCoords.at(1))) {
-            // printf("  successor (%d, %d) + (%d, %d) = (%d, %d) not traversable\n",
-            //     parent->coord.at(0), parent->coord.at(1),
-            //     action.end.at(0), action.end.at(1),
-            //     succCoords.at(0), succCoords.at(1));
-            continue;
-        }
+        if (succCoords[2] > m_totalAngles-1) succCoords[2] -= m_totalAngles;
+        if (succCoords[2] < 0) succCoords[2] += m_totalAngles;
 
         int succ_state_id = getOrCreateState(succCoords);
         succs->push_back(succ_state_id);
         costs->push_back(10); // TODO: add action costs
 
-        // printf("  successor (%d, %d) + (%d, %d) = (%d, %d) generated\n",
-        //         parent->coord.at(0), parent->coord.at(1),
-        //         action.end.at(0), action.end.at(1),
-        //         succCoords.at(0), succCoords.at(1));
+        printf("  successor (%d, %d) + (%d, %d) = (%d, %d) generated\n",
+                parent->coord.at(0), parent->coord.at(1),
+                action.end.at(0), action.end.at(1),
+                succCoords.at(0), succCoords.at(1));
     }
 }
 
@@ -389,9 +419,13 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
 void UAVEnv::ContToDiscState(ContState& inContState, DiscState& outDiscState)
 {
     assert(inContState.size() == 4);
+
+    // TODO: Make sure these are in correct resolutions?
     int x = (int)inContState[0];
     int y = (int)inContState[1];
+
     int theta = ContToDiscTheta(inContState[2]);
+    assert(validTheta(theta));
 
     /// Motion primitives resources/mprim/mhi_3m_9m.mprim uses discrete
     /// velocities 0, 3, and 8 m/s.
@@ -513,11 +547,16 @@ int UAVEnv::createHashEntry(DiscState& inCoords)
     int d2 = inCoords.at(1); // y
 
     assert(NUM_RES == 2);
-    if (d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0) {
+    if (d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0)
+    {
         entry->level = Resolution::LOW;
-    } else if (d1 % MIDRES_MULT == 0 && d2 % MIDRES_MULT == 0) {
+    }
+    else if (d1 % MIDRES_MULT == 0 && d2 % MIDRES_MULT == 0)
+    {
         entry->level = Resolution::MID;
-    } else {
+    }
+    else
+    {
         printf("d1, d2 = %d, %d\n", d1, d2);
         assert(false && "Aaaaa");
     }

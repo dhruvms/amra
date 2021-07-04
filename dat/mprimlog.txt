@@ -1,0 +1,1080 @@
+idx: 0
+primID: 0
+start: 0,0,0,0
+end: 6,-3,0,3
+
+idx: 1
+primID: 1
+start: 0,0,0,0
+end: 9,0,0,3
+
+idx: 2
+primID: 2
+start: 0,0,0,0
+end: 6,3,5,3
+
+idx: 3
+primID: 3
+start: 0,0,0,3
+end: 6,-3,0,0
+
+idx: 4
+primID: 4
+start: 0,0,0,3
+end: 9,0,0,0
+
+idx: 5
+primID: 5
+start: 0,0,0,3
+end: 6,3,5,0
+
+idx: 6
+primID: 6
+start: 0,0,0,3
+end: 12,-6,0,3
+
+idx: 7
+primID: 7
+start: 0,0,0,3
+end: 15,0,0,3
+
+idx: 8
+primID: 8
+start: 0,0,0,3
+end: 12,6,5,3
+
+idx: 9
+primID: 9
+start: 0,0,0,3
+end: 18,-9,0,8
+
+idx: 10
+primID: 10
+start: 0,0,0,3
+end: 27,0,0,8
+
+idx: 11
+primID: 11
+start: 0,0,0,3
+end: 18,9,5,8
+
+idx: 12
+primID: 12
+start: 0,0,0,8
+end: 18,-9,0,3
+
+idx: 13
+primID: 13
+start: 0,0,0,8
+end: 27,0,0,3
+
+idx: 14
+primID: 14
+start: 0,0,0,8
+end: 18,9,5,3
+
+idx: 15
+primID: 15
+start: 0,0,0,8
+end: 36,-18,0,8
+
+idx: 16
+primID: 16
+start: 0,0,0,8
+end: 45,0,0,8
+
+idx: 17
+primID: 17
+start: 0,0,0,8
+end: 36,18,5,8
+
+idx: 18
+primID: 0
+start: 0,0,0,0
+end: 3,-6,1,3
+
+idx: 19
+primID: 1
+start: 0,0,0,0
+end: 6,-3,0,3
+
+idx: 20
+primID: 2
+start: 0,0,0,0
+end: 9,0,0,3
+
+idx: 21
+primID: 3
+start: 0,0,0,3
+end: 3,-6,1,0
+
+idx: 22
+primID: 4
+start: 0,0,0,3
+end: 6,-3,0,0
+
+idx: 23
+primID: 5
+start: 0,0,0,3
+end: 9,0,0,0
+
+idx: 24
+primID: 6
+start: 0,0,0,3
+end: 6,-12,1,3
+
+idx: 25
+primID: 7
+start: 0,0,0,3
+end: 12,-6,0,3
+
+idx: 26
+primID: 8
+start: 0,0,0,3
+end: 15,0,0,3
+
+idx: 27
+primID: 9
+start: 0,0,0,3
+end: 9,-18,1,8
+
+idx: 28
+primID: 10
+start: 0,0,0,3
+end: 18,-9,0,8
+
+idx: 29
+primID: 11
+start: 0,0,0,3
+end: 27,0,0,8
+
+idx: 30
+primID: 12
+start: 0,0,0,8
+end: 9,-18,1,3
+
+idx: 31
+primID: 13
+start: 0,0,0,8
+end: 18,-9,0,3
+
+idx: 32
+primID: 14
+start: 0,0,0,8
+end: 27,0,0,3
+
+idx: 33
+primID: 15
+start: 0,0,0,8
+end: 18,-36,1,8
+
+idx: 34
+primID: 16
+start: 0,0,0,8
+end: 36,-18,0,8
+
+idx: 35
+primID: 17
+start: 0,0,0,8
+end: 45,0,6,8
+
+idx: 36
+primID: 0
+start: 0,0,1,0
+end: 0,-9,1,3
+
+idx: 37
+primID: 1
+start: 0,0,1,0
+end: 3,-6,1,3
+
+idx: 38
+primID: 2
+start: 0,0,1,0
+end: 6,-3,0,3
+
+idx: 39
+primID: 3
+start: 0,0,1,3
+end: 0,-9,1,0
+
+idx: 40
+primID: 4
+start: 0,0,1,3
+end: 3,-6,1,0
+
+idx: 41
+primID: 5
+start: 0,0,1,3
+end: 6,-3,0,0
+
+idx: 42
+primID: 6
+start: 0,0,1,3
+end: 0,-15,1,3
+
+idx: 43
+primID: 7
+start: 0,0,1,3
+end: 6,-12,1,3
+
+idx: 44
+primID: 8
+start: 0,0,1,3
+end: 12,-6,0,3
+
+idx: 45
+primID: 9
+start: 0,0,1,3
+end: 0,-27,1,8
+
+idx: 46
+primID: 10
+start: 0,0,1,3
+end: 9,-18,1,8
+
+idx: 47
+primID: 11
+start: 0,0,1,3
+end: 18,-9,0,8
+
+idx: 48
+primID: 12
+start: 0,0,1,8
+end: 0,-27,1,3
+
+idx: 49
+primID: 13
+start: 0,0,1,8
+end: 9,-18,1,3
+
+idx: 50
+primID: 14
+start: 0,0,1,8
+end: 18,-9,0,3
+
+idx: 51
+primID: 15
+start: 0,0,1,8
+end: 0,-45,1,8
+
+idx: 52
+primID: 16
+start: 0,0,1,8
+end: 18,-36,1,8
+
+idx: 53
+primID: 17
+start: 0,0,1,8
+end: 36,-18,0,8
+
+idx: 54
+primID: 0
+start: 0,0,1,0
+end: -3,-6,2,3
+
+idx: 55
+primID: 1
+start: 0,0,1,0
+end: 0,-9,1,3
+
+idx: 56
+primID: 2
+start: 0,0,1,0
+end: 3,-6,1,3
+
+idx: 57
+primID: 3
+start: 0,0,1,3
+end: -3,-6,2,0
+
+idx: 58
+primID: 4
+start: 0,0,1,3
+end: 0,-9,1,0
+
+idx: 59
+primID: 5
+start: 0,0,1,3
+end: 3,-6,1,0
+
+idx: 60
+primID: 6
+start: 0,0,1,3
+end: -6,-12,2,3
+
+idx: 61
+primID: 7
+start: 0,0,1,3
+end: 0,-15,1,3
+
+idx: 62
+primID: 8
+start: 0,0,1,3
+end: 6,-12,1,3
+
+idx: 63
+primID: 9
+start: 0,0,1,3
+end: -9,-18,2,8
+
+idx: 64
+primID: 10
+start: 0,0,1,3
+end: 0,-27,1,8
+
+idx: 65
+primID: 11
+start: 0,0,1,3
+end: 9,-18,1,8
+
+idx: 66
+primID: 12
+start: 0,0,1,8
+end: -9,-18,2,3
+
+idx: 67
+primID: 13
+start: 0,0,1,8
+end: 0,-27,1,3
+
+idx: 68
+primID: 14
+start: 0,0,1,8
+end: 9,-18,1,3
+
+idx: 69
+primID: 15
+start: 0,0,1,8
+end: -18,-36,2,8
+
+idx: 70
+primID: 16
+start: 0,0,1,8
+end: 0,-45,1,8
+
+idx: 71
+primID: 17
+start: 0,0,1,8
+end: 18,-36,1,8
+
+idx: 72
+primID: 0
+start: 0,0,2,0
+end: -6,-3,2,3
+
+idx: 73
+primID: 1
+start: 0,0,2,0
+end: -3,-6,2,3
+
+idx: 74
+primID: 2
+start: 0,0,2,0
+end: 0,-9,1,3
+
+idx: 75
+primID: 3
+start: 0,0,2,3
+end: -6,-3,2,0
+
+idx: 76
+primID: 4
+start: 0,0,2,3
+end: -3,-6,2,0
+
+idx: 77
+primID: 5
+start: 0,0,2,3
+end: 0,-9,1,0
+
+idx: 78
+primID: 6
+start: 0,0,2,3
+end: -12,-6,2,3
+
+idx: 79
+primID: 7
+start: 0,0,2,3
+end: -6,-12,2,3
+
+idx: 80
+primID: 8
+start: 0,0,2,3
+end: 0,-15,1,3
+
+idx: 81
+primID: 9
+start: 0,0,2,3
+end: -18,-9,2,8
+
+idx: 82
+primID: 10
+start: 0,0,2,3
+end: -9,-18,2,8
+
+idx: 83
+primID: 11
+start: 0,0,2,3
+end: 0,-27,1,8
+
+idx: 84
+primID: 12
+start: 0,0,2,8
+end: -18,-9,2,3
+
+idx: 85
+primID: 13
+start: 0,0,2,8
+end: -9,-18,2,3
+
+idx: 86
+primID: 14
+start: 0,0,2,8
+end: 0,-27,1,3
+
+idx: 87
+primID: 15
+start: 0,0,2,8
+end: -36,-18,2,8
+
+idx: 88
+primID: 16
+start: 0,0,2,8
+end: -18,-36,2,8
+
+idx: 89
+primID: 17
+start: 0,0,2,8
+end: 0,-45,1,8
+
+idx: 90
+primID: 0
+start: 0,0,2,0
+end: -9,0,3,3
+
+idx: 91
+primID: 1
+start: 0,0,2,0
+end: -6,-3,2,3
+
+idx: 92
+primID: 2
+start: 0,0,2,0
+end: -3,-6,2,3
+
+idx: 93
+primID: 3
+start: 0,0,2,3
+end: -9,0,3,0
+
+idx: 94
+primID: 4
+start: 0,0,2,3
+end: -6,-3,2,0
+
+idx: 95
+primID: 5
+start: 0,0,2,3
+end: -3,-6,2,0
+
+idx: 96
+primID: 6
+start: 0,0,2,3
+end: -15,0,3,3
+
+idx: 97
+primID: 7
+start: 0,0,2,3
+end: -12,-6,2,3
+
+idx: 98
+primID: 8
+start: 0,0,2,3
+end: -6,-12,2,3
+
+idx: 99
+primID: 9
+start: 0,0,2,3
+end: -27,0,3,8
+
+idx: 100
+primID: 10
+start: 0,0,2,3
+end: -18,-9,2,8
+
+idx: 101
+primID: 11
+start: 0,0,2,3
+end: -9,-18,2,8
+
+idx: 102
+primID: 12
+start: 0,0,2,8
+end: -27,0,3,3
+
+idx: 103
+primID: 13
+start: 0,0,2,8
+end: -18,-9,2,3
+
+idx: 104
+primID: 14
+start: 0,0,2,8
+end: -9,-18,2,3
+
+idx: 105
+primID: 15
+start: 0,0,2,8
+end: -45,0,3,8
+
+idx: 106
+primID: 16
+start: 0,0,2,8
+end: -36,-18,2,8
+
+idx: 107
+primID: 17
+start: 0,0,2,8
+end: -18,-36,2,8
+
+idx: 108
+primID: 0
+start: 0,0,3,0
+end: -6,3,3,3
+
+idx: 109
+primID: 1
+start: 0,0,3,0
+end: -9,0,3,3
+
+idx: 110
+primID: 2
+start: 0,0,3,0
+end: -6,-3,2,3
+
+idx: 111
+primID: 3
+start: 0,0,3,3
+end: -6,3,3,0
+
+idx: 112
+primID: 4
+start: 0,0,3,3
+end: -9,0,3,0
+
+idx: 113
+primID: 5
+start: 0,0,3,3
+end: -6,-3,2,0
+
+idx: 114
+primID: 6
+start: 0,0,3,3
+end: -12,6,3,3
+
+idx: 115
+primID: 7
+start: 0,0,3,3
+end: -15,0,3,3
+
+idx: 116
+primID: 8
+start: 0,0,3,3
+end: -12,-6,2,3
+
+idx: 117
+primID: 9
+start: 0,0,3,3
+end: -18,9,3,8
+
+idx: 118
+primID: 10
+start: 0,0,3,3
+end: -27,0,3,8
+
+idx: 119
+primID: 11
+start: 0,0,3,3
+end: -18,-9,2,8
+
+idx: 120
+primID: 12
+start: 0,0,3,8
+end: -18,9,3,3
+
+idx: 121
+primID: 13
+start: 0,0,3,8
+end: -27,0,3,3
+
+idx: 122
+primID: 14
+start: 0,0,3,8
+end: -18,-9,2,3
+
+idx: 123
+primID: 15
+start: 0,0,3,8
+end: -36,18,3,8
+
+idx: 124
+primID: 16
+start: 0,0,3,8
+end: -45,0,3,8
+
+idx: 125
+primID: 17
+start: 0,0,3,8
+end: -36,-18,2,8
+
+idx: 126
+primID: 0
+start: 0,0,3,0
+end: -3,6,4,3
+
+idx: 127
+primID: 1
+start: 0,0,3,0
+end: -6,3,3,3
+
+idx: 128
+primID: 2
+start: 0,0,3,0
+end: -9,0,3,3
+
+idx: 129
+primID: 3
+start: 0,0,3,3
+end: -3,6,4,0
+
+idx: 130
+primID: 4
+start: 0,0,3,3
+end: -6,3,3,0
+
+idx: 131
+primID: 5
+start: 0,0,3,3
+end: -9,0,3,0
+
+idx: 132
+primID: 6
+start: 0,0,3,3
+end: -6,12,4,3
+
+idx: 133
+primID: 7
+start: 0,0,3,3
+end: -12,6,3,3
+
+idx: 134
+primID: 8
+start: 0,0,3,3
+end: -15,0,3,3
+
+idx: 135
+primID: 9
+start: 0,0,3,3
+end: -9,18,4,8
+
+idx: 136
+primID: 10
+start: 0,0,3,3
+end: -18,9,3,8
+
+idx: 137
+primID: 11
+start: 0,0,3,3
+end: -27,0,3,8
+
+idx: 138
+primID: 12
+start: 0,0,3,8
+end: -9,18,4,3
+
+idx: 139
+primID: 13
+start: 0,0,3,8
+end: -18,9,3,3
+
+idx: 140
+primID: 14
+start: 0,0,3,8
+end: -27,0,3,3
+
+idx: 141
+primID: 15
+start: 0,0,3,8
+end: -18,36,4,8
+
+idx: 142
+primID: 16
+start: 0,0,3,8
+end: -36,18,3,8
+
+idx: 143
+primID: 17
+start: 0,0,3,8
+end: -45,0,3,8
+
+idx: 144
+primID: 0
+start: 0,0,4,0
+end: 0,9,4,3
+
+idx: 145
+primID: 1
+start: 0,0,4,0
+end: -3,6,4,3
+
+idx: 146
+primID: 2
+start: 0,0,4,0
+end: -6,3,3,3
+
+idx: 147
+primID: 3
+start: 0,0,4,3
+end: 0,9,4,0
+
+idx: 148
+primID: 4
+start: 0,0,4,3
+end: -3,6,4,0
+
+idx: 149
+primID: 5
+start: 0,0,4,3
+end: -6,3,3,0
+
+idx: 150
+primID: 6
+start: 0,0,4,3
+end: 0,15,4,3
+
+idx: 151
+primID: 7
+start: 0,0,4,3
+end: -6,12,4,3
+
+idx: 152
+primID: 8
+start: 0,0,4,3
+end: -12,6,3,3
+
+idx: 153
+primID: 9
+start: 0,0,4,3
+end: 0,27,4,8
+
+idx: 154
+primID: 10
+start: 0,0,4,3
+end: -9,18,4,8
+
+idx: 155
+primID: 11
+start: 0,0,4,3
+end: -18,9,3,8
+
+idx: 156
+primID: 12
+start: 0,0,4,8
+end: 0,27,4,3
+
+idx: 157
+primID: 13
+start: 0,0,4,8
+end: -9,18,4,3
+
+idx: 158
+primID: 14
+start: 0,0,4,8
+end: -18,9,3,3
+
+idx: 159
+primID: 15
+start: 0,0,4,8
+end: 0,45,4,8
+
+idx: 160
+primID: 16
+start: 0,0,4,8
+end: -18,36,4,8
+
+idx: 161
+primID: 17
+start: 0,0,4,8
+end: -36,18,3,8
+
+idx: 162
+primID: 0
+start: 0,0,4,0
+end: 3,6,5,3
+
+idx: 163
+primID: 1
+start: 0,0,4,0
+end: 0,9,4,3
+
+idx: 164
+primID: 2
+start: 0,0,4,0
+end: -3,6,4,3
+
+idx: 165
+primID: 3
+start: 0,0,4,3
+end: 3,6,5,0
+
+idx: 166
+primID: 4
+start: 0,0,4,3
+end: 0,9,4,0
+
+idx: 167
+primID: 5
+start: 0,0,4,3
+end: -3,6,4,0
+
+idx: 168
+primID: 6
+start: 0,0,4,3
+end: 6,12,5,3
+
+idx: 169
+primID: 7
+start: 0,0,4,3
+end: 0,15,4,3
+
+idx: 170
+primID: 8
+start: 0,0,4,3
+end: -6,12,4,3
+
+idx: 171
+primID: 9
+start: 0,0,4,3
+end: 9,18,5,8
+
+idx: 172
+primID: 10
+start: 0,0,4,3
+end: 0,27,4,8
+
+idx: 173
+primID: 11
+start: 0,0,4,3
+end: -9,18,4,8
+
+idx: 174
+primID: 12
+start: 0,0,4,8
+end: 9,18,5,3
+
+idx: 175
+primID: 13
+start: 0,0,4,8
+end: 0,27,4,3
+
+idx: 176
+primID: 14
+start: 0,0,4,8
+end: -9,18,4,3
+
+idx: 177
+primID: 15
+start: 0,0,4,8
+end: 18,36,5,8
+
+idx: 178
+primID: 16
+start: 0,0,4,8
+end: 0,45,4,8
+
+idx: 179
+primID: 17
+start: 0,0,4,8
+end: -18,36,4,8
+
+idx: 180
+primID: 0
+start: 0,0,5,0
+end: 6,3,5,3
+
+idx: 181
+primID: 1
+start: 0,0,5,0
+end: 3,6,5,3
+
+idx: 182
+primID: 2
+start: 0,0,5,0
+end: 0,9,4,3
+
+idx: 183
+primID: 3
+start: 0,0,5,3
+end: 6,3,5,0
+
+idx: 184
+primID: 4
+start: 0,0,5,3
+end: 3,6,5,0
+
+idx: 185
+primID: 5
+start: 0,0,5,3
+end: 0,9,4,0
+
+idx: 186
+primID: 6
+start: 0,0,5,3
+end: 12,6,5,3
+
+idx: 187
+primID: 7
+start: 0,0,5,3
+end: 6,12,5,3
+
+idx: 188
+primID: 8
+start: 0,0,5,3
+end: 0,15,4,3
+
+idx: 189
+primID: 9
+start: 0,0,5,3
+end: 18,9,5,8
+
+idx: 190
+primID: 10
+start: 0,0,5,3
+end: 9,18,5,8
+
+idx: 191
+primID: 11
+start: 0,0,5,3
+end: 0,27,4,8
+
+idx: 192
+primID: 12
+start: 0,0,5,8
+end: 18,9,5,3
+
+idx: 193
+primID: 13
+start: 0,0,5,8
+end: 9,18,5,3
+
+idx: 194
+primID: 14
+start: 0,0,5,8
+end: 0,27,4,3
+
+idx: 195
+primID: 15
+start: 0,0,5,8
+end: 36,18,5,8
+
+idx: 196
+primID: 16
+start: 0,0,5,8
+end: 18,36,5,8
+
+idx: 197
+primID: 17
+start: 0,0,5,8
+end: 0,45,4,8
+
+idx: 198
+primID: 0
+start: 0,0,5,0
+end: 9,0,6,3
+
+idx: 199
+primID: 1
+start: 0,0,5,0
+end: 6,3,5,3
+
+idx: 200
+primID: 2
+start: 0,0,5,0
+end: 3,6,5,3
+
+idx: 201
+primID: 3
+start: 0,0,5,3
+end: 9,0,6,0
+
+idx: 202
+primID: 4
+start: 0,0,5,3
+end: 6,3,5,0
+
+idx: 203
+primID: 5
+start: 0,0,5,3
+end: 3,6,5,0
+
+idx: 204
+primID: 6
+start: 0,0,5,3
+end: 15,0,6,3
+
+idx: 205
+primID: 7
+start: 0,0,5,3
+end: 12,6,5,3
+
+idx: 206
+primID: 8
+start: 0,0,5,3
+end: 6,12,5,3
+
+idx: 207
+primID: 9
+start: 0,0,5,3
+end: 27,0,6,8
+
+idx: 208
+primID: 10
+start: 0,0,5,3
+end: 18,9,5,8
+
+idx: 209
+primID: 11
+start: 0,0,5,3
+end: 9,18,5,8
+
+idx: 210
+primID: 12
+start: 0,0,5,8
+end: 27,0,6,3
+
+idx: 211
+primID: 13
+start: 0,0,5,8
+end: 18,9,5,3
+
+idx: 212
+primID: 14
+start: 0,0,5,8
+end: 9,18,5,3
+
+idx: 213
+primID: 15
+start: 0,0,5,8
+end: 45,0,0,8
+
+idx: 214
+primID: 16
+start: 0,0,5,8
+end: 36,18,5,8
+
+idx: 215
+primID: 17
+start: 0,0,5,8
+end: 18,36,5,8
+
