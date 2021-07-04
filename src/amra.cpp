@@ -371,7 +371,16 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
-	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(hres_i), &succ_ids, &costs);
+	if (is_goal(s->state_id))
+	{
+		succ_ids.push_back(m_goal_id);
+		costs.push_back(0);
+		// actions.push_back(std::make_pair(-2, -2));
+	}
+	else
+	{
+		m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(hres_i), &succ_ids, &costs);
+	}
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
