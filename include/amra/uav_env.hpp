@@ -74,6 +74,12 @@ private:
 
     bool validAction(UAVState* state, Action& action);
 
+    /// Converts a continuous (x,y,theta,v) state to a discrete one.
+    void ContToDiscState(ContState& inContState, DiscState& outDiscState);
+
+    bool validTheta(int& theta);
+    bool validTheta(double& theta);
+
 private:
     std::string m_mapname;
     std::unique_ptr<MovingAI> m_map;

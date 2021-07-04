@@ -2,6 +2,7 @@
 #include <amra/uav_env.hpp>
 #include <amra/heuristic.hpp>
 #include <amra/constants.hpp>
+#include <amra/helpers.hpp>
 #include <amra/amra.hpp>
 #include <amra/wastar.hpp>
 
@@ -56,15 +57,10 @@ void UAVEnv::SetStart(ContState& startState)
 {
     assert(!m_start_set);
 
-    DiscState coords =
-    {
-        (int)startState[0],
-        (int)startState[1],
-        (int)startState[2],
-        (int)startState[3]
-    };
+    DiscState startCoords;
+    ContToDiscState(startState, startCoords);
 
-    m_start_id = getOrCreateState(coords);
+    m_start_id = getOrCreateState(startCoords);
     m_start_set = true;
 
     auto* state = getHashEntry(m_start_id);
@@ -76,15 +72,10 @@ void UAVEnv::SetGoal(ContState& goalState)
 {
     assert(!m_goal_set);
 
-    DiscState coords =
-    {
-        (int)goalState[0],
-        (int)goalState[1],
-        (int)goalState[2],
-        (int)goalState[3]
-    };
+    DiscState goalCoords;
+    ContToDiscState(goalState, goalCoords);
 
-    m_goal_id = getOrCreateState(coords);
+    m_goal_id = getOrCreateState(goalCoords);
     m_goal_set = true;
 
     auto* state = getHashEntry(m_goal_id);
@@ -398,6 +389,41 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
         }
     }
     return true;
+}
+
+void UAVEnv::ContToDiscState(ContState& inContState, DiscState& outDiscState)
+{
+    assert(inContState.size() == 4);
+    int x = (int)inContState[0];
+    int y = (int)inContState[1];
+    int theta = ContToDiscTheta(inContState[2]);
+
+    /// Motion primitives resources/mprim/mhi_3m_9m.mprim uses discrete
+    /// velocities 0, 3, and 8 m/s.
+    int vels[3] = { 0, 3, 8 };
+    int v = (int)inContState[3];
+    int dist = std::numeric_limits<int>::max();
+    int closest = -1;
+    for (auto vel : vels) {
+        if (abs(v - vel) < dist) {
+            dist = abs(v - vel);
+            closest = vel;
+        }
+    }
+    v = closest;
+    assert(v == 0 || v == 3 || v == 8);
+
+    outDiscState = { x, y, theta, v };
+}
+
+bool UAVEnv::validTheta(int& theta)
+{
+    return theta >= 0 && theta < m_totalAngles;
+}
+
+bool UAVEnv::validTheta(double& theta)
+{
+
 }
 
 bool UAVEnv::IsGoal(const int& id)

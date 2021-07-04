@@ -130,6 +130,7 @@ bool Grid2D::Plan(bool save)
 	return false;
 }
 
+/// GetSuccs of state `state_id` corresponding to resolution `level`.
 void Grid2D::GetSuccs(
 	int state_id,
 	Resolution::Level level,
@@ -151,6 +152,11 @@ void Grid2D::GetSuccs(
 		return;
 	}
 
+	/// Set `grid_res` to be the multiplicative factor that corresponds to
+	/// `level`. For example,
+	///  grid_res = 1(m) for level = HIGH
+	///  grid_res = 3(m) for level = MID
+	///  grid_res = 9(m) for level = LOW
 	int grid_res;
 	switch (level)
 	{
@@ -169,6 +175,7 @@ void Grid2D::GetSuccs(
 		}
 	}
 
+	/// Compute successors using this multiplicative factor.
 	for (int a1 = -1; a1 <= 1; ++a1)
 	{
 		for (int a2 = -1; a2 <= 1; ++a2)
