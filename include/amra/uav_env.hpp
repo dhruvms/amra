@@ -10,6 +10,7 @@
 
 // standard includes
 #include <memory>
+#include <fstream>
 
 namespace std {
 
@@ -83,11 +84,13 @@ private:
 private:
     std::string m_mapname;
     std::unique_ptr<MovingAI> m_map;
+    std::ofstream m_exps_debug;
 
     std::vector<std::shared_ptr<Heuristic> > m_heurs;
     std::vector<std::pair<Resolution::Level, int> > m_heurs_map;
     int m_heur_count, m_res_count;
 
+    DiscState m_goal_state;
     bool m_start_set, m_goal_set;
     std::vector<UAVState*> m_states;
     std::map<int, std::vector<UAVState*>> m_closed;

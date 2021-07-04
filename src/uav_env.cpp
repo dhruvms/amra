@@ -51,6 +51,8 @@ m_goal_set(false)
         }
     }
     m_state_to_id.clear();
+
+    m_exps_debug.open("../dat/uavexps.txt");
 }
 
 void UAVEnv::SetStart(ContState& startState)
@@ -64,7 +66,7 @@ void UAVEnv::SetStart(ContState& startState)
     m_start_set = true;
 
     auto* state = getHashEntry(m_start_id);
-    printf("Set start (id = %d): %d, %d, %d, %d\n", m_start_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
+    printf("Set start (id = %d): %d, %d, %d, %d, ", m_start_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
     printf("Resolution::Level: %d\n", state->level);
 }
 
@@ -72,14 +74,14 @@ void UAVEnv::SetGoal(ContState& goalState)
 {
     assert(!m_goal_set);
 
-    DiscState goalCoords;
-    ContToDiscState(goalState, goalCoords);
+    ContToDiscState(goalState, m_goal_coords);
 
     m_goal_id = getOrCreateState(goalCoords);
+    assert(m_goal_id == 0);
     m_goal_set = true;
 
     auto* state = getHashEntry(m_goal_id);
-    printf("Set goal (id = %d): %d, %d, %d, %d\n", m_goal_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
+    printf("Set goal (id = %d): %d, %d, %d, %d, ", m_goal_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
     printf("Resolution::Level: %d\n", state->level);
 }
 
@@ -229,7 +231,7 @@ void UAVEnv::storeAction(Action& action)
         (int)first_int_state[3]
     };
     action.end = {
-        (int)last_int_state[0],-
+        (int)last_int_state[0],
         (int)last_int_state[1],
         (int)last_int_state[2],
         (int)last_int_state[3]
@@ -282,6 +284,10 @@ bool UAVEnv::Plan(bool save)
     std::vector<int> solution;
     int solcost;
     bool result = m_search->replan(&solution, &solcost);
+    printf("solution size: %d\n", (int)solution.size());
+    for (auto s : solution) {
+        printf("%d\n", s);
+    }
 
     if (result && save)
     {
@@ -313,6 +319,8 @@ void UAVEnv::GetSuccs(
     auto parent_y     = parent->coord[1];
     auto parent_theta = parent->coord[2];
     auto parent_vel   = parent->coord[3];
+
+    m_exps_debug << parent_x << "," << parent_y << std::endl;
 
     assert(m_map->IsTraversible(parent_x, parent_y));
     m_closed[static_cast<int>(level)].push_back(parent);
@@ -355,22 +363,22 @@ void UAVEnv::GetSuccs(
         int actionidx = getActionIdx(parent_theta, primid);
         auto action = m_actions.at(actionidx);
 
-        printf("Applying primid [%d] w/ start theta = %d, vel = %d ... ", primid, action.start[2], action.start[3]);
+        // printf("Applying primid [%d] w/ start theta = %d, vel = %d ... ", primid, action.start[2], action.start[3]);
 
         /// Reject action if not applicable at parent
         auto action_start_theta = action.start[2];
         auto action_start_vel   = action.start[3];
         if (parent_theta != action_start_theta) {
-            printf(" INVALID theta ... ");
-            printf("parent_theta = [%d], action_start_theta = [%d]\n", parent_theta, action_start_theta);
+            // printf(" INVALID theta ... ");
+            // printf("parent_theta = [%d], action_start_theta = [%d]\n", parent_theta, action_start_theta);
             continue;
         }
         if (parent_vel != action_start_vel) {
-            printf(" INVALID vel ... ");
-            printf(" parent_vel = [%d], action_start_vel = [%d]\n", parent_vel, action_start_vel);
+            // printf(" INVALID vel ... ");
+            // printf(" parent_vel = [%d], action_start_vel = [%d]\n", parent_vel, action_start_vel);
             continue;
         }
-        printf(" valid\n");
+        // printf(" applicable\n");
 
         /// Check if applying action keeps robot collision-free and in bounds
         if (!validAction(parent, action)) {
@@ -391,10 +399,8 @@ void UAVEnv::GetSuccs(
         succs->push_back(succ_state_id);
         costs->push_back(10); // TODO: add action costs
 
-        printf("  successor (%d, %d) + (%d, %d) = (%d, %d) generated\n",
-                parent->coord.at(0), parent->coord.at(1),
-                action.end.at(0), action.end.at(1),
-                succCoords.at(0), succCoords.at(1));
+        printf("  successor [id = %d] (%d, %d, %d, %d) generated\n",
+            succ_state_id, succCoords.at(0), succCoords.at(1), succCoords.at(2), succCoords.at(3));
     }
 }
 
@@ -467,7 +473,7 @@ bool UAVEnv::IsGoal(const int& id)
     auto goaly = goal.coord[1];
 
     auto distToGoal = std::sqrt((sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly));
-    return distToGoal < 10;
+    return distToGoal < 5;
 
     // return state.coord[0] == goal.coord[0] && state.coord[1] == goal.coord[1];
     // return (id == m_goal_id) && (state == goal);
@@ -570,7 +576,7 @@ int UAVEnv::createHashEntry(DiscState& inCoords)
 int UAVEnv::reserveHashEntry()
 {
     UAVState* entry = new UAVState;
-    entry->coord.resize(2, 0);
+    entry->coord.resize(4, 0);
 
     int state_id = (int)m_states.size();
 

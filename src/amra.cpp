@@ -57,6 +57,7 @@ int AMRAStar::set_start(int start_id)
 {
 	m_start_id = start_id;
 	m_start = get_state(m_start_id);
+	printf("AMRA: set start %d\n", m_start_id);
 	return m_start_id;
 }
 
@@ -64,6 +65,7 @@ int AMRAStar::set_goal(int goal_id)
 {
 	m_goal_id = goal_id;
 	m_goal = get_state(m_goal_id);
+	printf("AMRA: set goal %d\n", m_goal_id);
 	return m_goal_id;
 }
 
@@ -187,6 +189,7 @@ int AMRAStar::replan(
 	if (is_goal(m_start_id))
 	{
 		// m_logger->LogMsg("Start is goal!", LogLevel::WARN);
+		printf("    Start is goal!");
 		solution_path->push_back(m_start_id);
 		solution_cost = 0;
 		return 1;
@@ -253,6 +256,7 @@ int AMRAStar::replan(
 		}
 
 		// SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
+		printf("Solved with (%f, %f) | expansions = %s | time = %f\n", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		extract_path(*solution_path, *solution_cost);
 		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
 
@@ -284,6 +288,8 @@ bool AMRAStar::improve_path(
 	const double& start_time,
 	double& elapsed_time)
 {
+	printf("improve_path ...\n");
+
 	elapsed_time = 0.0;
 	while (!m_open[0].empty() &&
 				m_open[0].min()->f < std::numeric_limits<unsigned int>::max())
@@ -300,6 +306,7 @@ bool AMRAStar::improve_path(
 			}
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
+			printf("f_check = [%u]  m_goal->g = [%u]\n", f_check, m_goal->g);
 			if (m_goal->g <= f_check) {
 				return true;
 			}

@@ -20,24 +20,23 @@ int main(int argc, char** argv)
 
     uav_env.CreateSearch();
 
-    ContState goal = { 36.3, 36.4, 0.0, 0.0 };
+    ContState goal = { 9.3, 12.4, 0.0, 0.0 };
     uav_env.SetGoal(goal);
 
-    // ContState start = { 12.5, 9.5, 0.0, 0.0 };
-    ContState start = { 9.5, 9.5, 0.0, 0.0 };
+    ContState start = { 3.5, 9.5, 0.0, 0.0 };
     uav_env.SetStart(start);
 
-    // ANCHOR = 0,
-    // HIGH = 1,
-    // MID = 2,
-    // LOW = 3
+    // // ANCHOR = 0,
+    // // HIGH = 1,
+    // // MID = 2,
+    // // LOW = 3
 
-    int state_id = 1;
-    Resolution::Level level = Resolution::ANCHOR;
-    std::vector<int> succs;
-    std::vector<unsigned int> costs;
+    // int state_id = 1;
+    // Resolution::Level level = Resolution::ANCHOR;
+    // std::vector<int> succs;
+    // std::vector<unsigned int> costs;
 
-    uav_env.GetSuccs(state_id, level, &succs, &costs);
+    // uav_env.GetSuccs(state_id, level, &succs, &costs);
 
-    // uav_env.Plan();
+    uav_env.Plan();
 }
