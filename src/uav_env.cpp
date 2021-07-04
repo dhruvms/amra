@@ -236,26 +236,21 @@ int UAVEnv::getActionIdx(int& disc_angle, int& primID)
 void UAVEnv::CreateSearch()
 {
     m_heurs.emplace_back(new EuclideanDist(this));
+    m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
+    // m_heurs_map.emplace_back(Resolution::HIGH, 0);
+    m_res_count = 1; // inadmissible resolution count
+    m_heur_count = 1;
+
+    if (NUM_RES != 2) {
+        printf("For now, NUM_RES must be 2 for UAV domain.\n");
+        assert(false);
+    }
+
+    /// Add MID and LOW resolution queues
     m_heurs_map.emplace_back(Resolution::MID, 0);
     m_res_count++;
     m_heurs_map.emplace_back(Resolution::LOW, 0);
     m_res_count++;
-
-    // m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
-    // m_heurs_map.emplace_back(Resolution::HIGH, 0);
-    // m_res_count = 1; // inadmissible resolution count
-    // m_heur_count = 1;
-
-    // if (NUM_RES > 1)
-    // {
-    //     m_heurs_map.emplace_back(Resolution::MID, 0);
-    //     m_res_count++;
-    // }
-    // if (NUM_RES == 3)
-    // {
-    //     m_heurs_map.emplace_back(Resolution::LOW, 0);
-    //     m_res_count++;
-    // }
 
     for (int i = 0; i < m_heurs_map.size(); ++i) {
         m_closed[i].clear(); // init expansions container
