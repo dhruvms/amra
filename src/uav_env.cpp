@@ -76,7 +76,7 @@ void UAVEnv::SetGoal(ContState& goalState)
 
     ContToDiscState(goalState, m_goal_coords);
 
-    m_goal_id = getOrCreateState(goalCoords);
+    m_goal_id = getOrCreateState(m_goal_coords);
     assert(m_goal_id == 0);
     m_goal_set = true;
 
@@ -224,18 +224,22 @@ void UAVEnv::storeAction(Action& action)
 {
     auto last_int_state = action.intermediateStates.back();
     auto first_int_state = action.intermediateStates.front();
+
     action.start = {
         (int)first_int_state[0],
         (int)first_int_state[1],
-        (int)first_int_state[2],
+        ContToDiscTheta(first_int_state[2]),
         (int)first_int_state[3]
     };
+    assert(action.start[3] == 0 || action.start[3] == 3 || action.start[3] == 8);
+
     action.end = {
         (int)last_int_state[0],
         (int)last_int_state[1],
-        (int)last_int_state[2],
+        ContToDiscTheta(last_int_state[2]),
         (int)last_int_state[3]
     };
+    assert(action.end[3] == 0 || action.end[3] == 3 || action.end[3] == 8);
     m_actions.push_back(action);
 }
 
@@ -399,8 +403,36 @@ void UAVEnv::GetSuccs(
         succs->push_back(succ_state_id);
         costs->push_back(10); // TODO: add action costs
 
-        printf("  successor [id = %d] (%d, %d, %d, %d) generated\n",
-            succ_state_id, succCoords.at(0), succCoords.at(1), succCoords.at(2), succCoords.at(3));
+        // printf("  successor [id = %d] (%d, %d, %d, %d) generated\n",
+        //     succ_state_id, succCoords.at(0), succCoords.at(1), succCoords.at(2), succCoords.at(3));
+
+        DiscState interm_goal_coords = {};
+        for (auto i = 0; i < action.intermediateStates.size(); i++)
+        {
+            // TODO: cont -> disc conversion
+            const auto& intState = action.intermediateStates[i];
+            int x = (int)(parent->coord.at(0) + intState.at(0));
+            int y = (int)(parent->coord.at(1) + intState.at(1));
+
+            /// If this intermediate cell is the goal, add this as an extra successor
+            if (IsGoal(x, y))
+            {
+                interm_goal_coords = {
+                    x,
+                    y,
+                    ContToDiscTheta(parent->coord.at(2) + intState.at(2)), // theta
+                    (int)(intState.at(3)) // velocity
+                };
+                break;
+            }
+        }
+
+        if (!interm_goal_coords.empty())
+        {
+            auto id = getOrCreateState(succCoords);
+            succs->push_back(id);
+            costs->push_back(10); // TODO: add action costs
+        }
     }
 }
 
@@ -472,11 +504,39 @@ bool UAVEnv::IsGoal(const int& id)
     auto goalx = goal.coord[0];
     auto goaly = goal.coord[1];
 
-    auto distToGoal = std::sqrt((sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly));
-    return distToGoal < 5;
+    auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
+    if (distToGoalSqrd < 5*5)
+    {
+        return true;
+    }
+    else
+    {
+        // printf(" NOT GOAL: [%d, %d]\n", sx, sy);
+        return false;
+    }
 
     // return state.coord[0] == goal.coord[0] && state.coord[1] == goal.coord[1];
     // return (id == m_goal_id) && (state == goal);
+}
+
+bool UAVEnv::IsGoal(const int& sx, const int& sy)
+{
+    UAVState goal;
+    GetGoal(goal);
+
+    auto goalx = goal.coord[0];
+    auto goaly = goal.coord[1];
+
+    auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
+    if (distToGoalSqrd < 5*5)
+    {
+        return true;
+    }
+    else
+    {
+        // printf(" NOT GOAL: [%d, %d]\n", sx, sy);
+        return false;
+    }
 }
 
 void UAVEnv::SaveExpansions(
@@ -557,14 +617,9 @@ int UAVEnv::createHashEntry(DiscState& inCoords)
     {
         entry->level = Resolution::LOW;
     }
-    else if (d1 % MIDRES_MULT == 0 && d2 % MIDRES_MULT == 0)
-    {
-        entry->level = Resolution::MID;
-    }
     else
     {
-        printf("d1, d2 = %d, %d\n", d1, d2);
-        assert(false && "Aaaaa");
+        entry->level = Resolution::MID;
     }
 
     // map state -> state id

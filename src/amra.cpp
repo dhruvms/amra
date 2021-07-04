@@ -302,11 +302,12 @@ bool AMRAStar::improve_path(
 		for (int i = 1; i < num_heuristics(); ++i)
 		{
 			if (m_open[0].empty()) {
+				printf(" 1 OPEN[0] empty\n");
 				return false;
 			}
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
-			printf("f_check = [%u]  m_goal->g = [%u]\n", f_check, m_goal->g);
+			// printf("f_check = [%u]  m_goal->g = [%u]\n", f_check, m_goal->g);
 			if (m_goal->g <= f_check) {
 				return true;
 			}
@@ -333,6 +334,7 @@ bool AMRAStar::improve_path(
 			}
 		}
 	}
+	printf(" 2 OPEN[0] empty\n");
 }
 
 void AMRAStar::expand(AMRAState *s, int hidx)
@@ -373,6 +375,9 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	std::vector<unsigned int> costs;
 	if (is_goal(s->state_id))
 	{
+		MapState state; m_space->GetStateFromID(s->state_id, state);
+		printf("AMRA: potential goal [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
+
 		succ_ids.push_back(m_goal_id);
 		costs.push_back(0);
 		// actions.push_back(std::make_pair(-2, -2));

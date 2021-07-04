@@ -62,6 +62,8 @@ public:
     Resolution::Level GetResLevel(const int& state_id) override;
     ////////////////////////////////////////////////////////////////////////////
 
+    bool IsGoal(const int& sx, const int& sy);
+
 private:
     UAVState* getHashEntry(int state_id) const;
     int getHashEntry(DiscState& state);
@@ -90,7 +92,7 @@ private:
     std::vector<std::pair<Resolution::Level, int> > m_heurs_map;
     int m_heur_count, m_res_count;
 
-    DiscState m_goal_state;
+    DiscState m_goal_coords;
     bool m_start_set, m_goal_set;
     std::vector<UAVState*> m_states;
     std::map<int, std::vector<UAVState*>> m_closed;
