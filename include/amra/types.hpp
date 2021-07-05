@@ -99,7 +99,8 @@ public:
 		int state_id,
 		Resolution::Level level,
 		std::vector<int>* succs,
-		std::vector<unsigned int>* costs) = 0;
+		std::vector<unsigned int>* costs,
+		std::vector<int>* action_ids) = 0;
 	virtual bool IsGoal(const int& id) = 0;
 
 	virtual void SaveExpansions(

@@ -205,7 +205,8 @@ void WAStar::expand(WAStarState *s, int hidx)
 
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
-	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(0), &succ_ids, &costs);
+	std::vector<int> action_ids;
+	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(0), &succ_ids, &costs, &action_ids);
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{

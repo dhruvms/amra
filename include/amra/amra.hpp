@@ -21,7 +21,7 @@ struct AMRAState
 	unsigned int g;
 	Resolution::Level res;
 	AMRAState* bp;
-	// std::pair<int, int> actionids;
+	int actionidx;
 
 	struct HeapData : public smpl::heap_element
 	{

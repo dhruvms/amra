@@ -373,6 +373,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
+	std::vector<int> action_ids;
 	if (is_goal(s->state_id))
 	{
 		MapState state; m_space->GetStateFromID(s->state_id, state);
@@ -380,11 +381,15 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 
 		succ_ids.push_back(m_goal_id);
 		costs.push_back(0);
-		// actions.push_back(std::make_pair(-2, -2));
+		action_ids.push_back(-1);
 	}
 	else
 	{
-		m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(hres_i), &succ_ids, &costs);
+		m_space->GetSuccs(s->state_id,
+						  static_cast<Resolution::Level>(hres_i),
+						  &succ_ids,
+						  &costs,
+						  &action_ids);
 	}
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
@@ -399,6 +404,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		{
 			succ_state->g = new_g;
 			succ_state->bp = s;
+			succ_state->actionidx = action_ids[sidx];
 			if (succ_state->closed_in_anc) {
 				m_incons.push_back(succ_state);
 			}

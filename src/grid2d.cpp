@@ -135,11 +135,16 @@ void Grid2D::GetSuccs(
 	int state_id,
 	Resolution::Level level,
 	std::vector<int>* succs,
-	std::vector<unsigned int>* costs)
+	std::vector<unsigned int>* costs,
+	std::vector<int>* action_ids)
 {
 	assert(state_id >= 0);
 	succs->clear();
 	costs->clear();
+	action_ids->clear();
+
+	/// no action IDs for Grid2D
+	std::fill(action_ids->begin(), action_ids->end(), -1);
 
 	MapState* parent = getHashEntry(state_id);
 	assert(parent);

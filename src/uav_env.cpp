@@ -309,11 +309,13 @@ void UAVEnv::GetSuccs(
     int state_id,
     Resolution::Level level,
     std::vector<int>* succs,
-    std::vector<unsigned int>* costs)
+    std::vector<unsigned int>* costs,
+    std::vector<int>* action_ids)
 {
     assert(state_id >= 0);
     succs->clear();
     costs->clear();
+    action_ids->clear();
 
     UAVState* parent = getHashEntry(state_id);
     assert(parent);
@@ -402,37 +404,40 @@ void UAVEnv::GetSuccs(
         int succ_state_id = getOrCreateState(succCoords);
         succs->push_back(succ_state_id);
         costs->push_back(10); // TODO: add action costs
+        action_ids->push_back(actionidx);
 
         // printf("  successor [id = %d] (%d, %d, %d, %d) generated\n",
         //     succ_state_id, succCoords.at(0), succCoords.at(1), succCoords.at(2), succCoords.at(3));
 
-        DiscState interm_goal_coords = {};
-        for (auto i = 0; i < action.intermediateStates.size(); i++)
-        {
-            // TODO: cont -> disc conversion
-            const auto& intState = action.intermediateStates[i];
-            int x = (int)(parent->coord.at(0) + intState.at(0));
-            int y = (int)(parent->coord.at(1) + intState.at(1));
+        /// INTERMEDIATE WAYPOINT = GOAL ///////////////////////////////////////
+        // DiscState interm_goal_coords = {};
+        // for (auto i = 0; i < action.intermediateStates.size(); i++)
+        // {
+        //     // TODO: cont -> disc conversion
+        //     const auto& intState = action.intermediateStates[i];
+        //     int x = (int)(parent->coord.at(0) + intState.at(0));
+        //     int y = (int)(parent->coord.at(1) + intState.at(1));
 
-            /// If this intermediate cell is the goal, add this as an extra successor
-            if (IsGoal(x, y))
-            {
-                interm_goal_coords = {
-                    x,
-                    y,
-                    ContToDiscTheta(parent->coord.at(2) + intState.at(2)), // theta
-                    (int)(intState.at(3)) // velocity
-                };
-                break;
-            }
-        }
+        //     /// If this intermediate cell is the goal, add this as an extra successor
+        //     if (IsGoal(x, y))
+        //     {
+        //         interm_goal_coords = {
+        //             x,
+        //             y,
+        //             ContToDiscTheta(parent->coord.at(2) + intState.at(2)), // theta
+        //             (int)(intState.at(3)) // velocity
+        //         };
+        //         break;
+        //     }
+        // }
 
-        if (!interm_goal_coords.empty())
-        {
-            auto id = getOrCreateState(succCoords);
-            succs->push_back(id);
-            costs->push_back(10); // TODO: add action costs
-        }
+        // if (!interm_goal_coords.empty())
+        // {
+        //     auto id = getOrCreateState(succCoords);
+        //     succs->push_back(id);
+        //     costs->push_back(10); // TODO: add action costs
+        //     action_ids->push_back(actionidx);
+        // }
     }
 }
 
