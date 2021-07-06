@@ -73,7 +73,8 @@ private:
     int reserveHashEntry();
 
     bool convertPath(
-        const std::vector<int>& idpath,
+        const std::vector<int>& solution_ids,
+        const std::vector<int>& action_ids,
         std::vector<MapState>& path);
 
     bool validAction(UAVState* state, Action& action);

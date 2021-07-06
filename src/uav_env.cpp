@@ -286,8 +286,9 @@ bool UAVEnv::Plan(bool save)
     m_search->set_start(m_start_id);
 
     std::vector<int> solution;
+    std::vector<int> action_ids;
     int solcost;
-    bool result = m_search->replan(&solution, &solcost);
+    bool result = m_search->replan(&solution, &action_ids, &solcost);
     printf("solution size: %d\n", (int)solution.size());
     for (auto s : solution) {
         printf("%d\n", s);
@@ -296,7 +297,7 @@ bool UAVEnv::Plan(bool save)
     if (result && save)
     {
         std::vector<MapState> solpath;
-        convertPath(solution, solpath);
+        convertPath(solution, action_ids, solpath);
         m_map->SavePath(solpath);
 
         return true;
@@ -395,7 +396,8 @@ void UAVEnv::GetSuccs(
         DiscState succCoords = {
             parent->coord.at(0) + action.end.at(0), // x
             parent->coord.at(1) + action.end.at(1), // y
-            parent->coord.at(2) + action.end.at(2), // theta
+            // parent->coord.at(2) + action.end.at(2), // theta
+            action.end.at(2), // theta
             action.end.at(3)                        // velocity
         };
         if (succCoords[2] > m_totalAngles-1) succCoords[2] -= m_totalAngles;
@@ -647,81 +649,65 @@ int UAVEnv::reserveHashEntry()
 }
 
 bool UAVEnv::convertPath(
-    const std::vector<int>& idpath,
+    const std::vector<int>& solution_ids,
+    const std::vector<int>& action_ids,
     std::vector<MapState>& path)
 {
-    std::vector<MapState> opath;
+    std::vector<ContState> sol_path;
 
-    if (idpath.empty()) {
-        return true;
-    }
+    assert(solution_ids.size() == action_ids.size());
 
-    // attempt to handle paths of length 1...do any of the sbpl planners still
-    // return a single-point path in some cases?
-    if (idpath.size() == 1)
+    std::ofstream sol_log;
+    sol_log.open("../dat/uavsol.txt");
+
+    for (auto i = 0; i < solution_ids.size(); ++i)
     {
-        auto state_id = idpath[0];
+        if (i == solution_ids.size()-2) break;
 
-        if (state_id == GetGoalID())
+        MapState state;
+        GetStateFromID(solution_ids[i], state);
+        auto action = m_actions.at(action_ids[i+1]);
+
+        printf("state.coord = [%d %d %d %d]\n",
+            state.coord[0],
+            state.coord[1],
+            state.coord[2],
+            state.coord[3]);
+
+        printf("action.start = [%d %d %d %d]\n",
+            action.start[0],
+            action.start[1],
+            action.start[2],
+            action.start[3]);
+        printf("\n");
+
+        // printf("action.end = [%d %d %d %d]\n",
+        //     action.end[0],
+        //     action.end[1],
+        //     action.end[2],
+        //     action.end[3]);
+
+        for (auto wp : action.intermediateStates)
         {
-            auto* entry = getHashEntry(GetStartID());
-            if (!entry)
-            {
-                SMPL_ERROR("Failed to get state entry for state %d", GetStartID());
-                return false;
-            }
-            opath.push_back(*entry);
+            ContState solstate = {
+                state.coord.at(0) + wp.at(0),
+                state.coord.at(1) + wp.at(1),
+                // DiscToContTheta(state.coord.at(2)) + wp.at(2),
+                wp.at(2),
+                wp.at(3)
+            };
+            // solstate[3] = smpl::normalize_angle_positive(solstate[3]);
+            sol_path.push_back(solstate);
+
+            sol_log
+            << solstate[0] << ","
+            << solstate[1] << ","
+            << solstate[2] << ","
+            << solstate[3] << std::endl;
         }
-        else
-        {
-            auto* entry = getHashEntry(state_id);
-            if (!entry)
-            {
-                SMPL_ERROR("Failed to get state entry for state %d", state_id);
-                return false;
-            }
-            opath.push_back(*entry);
-        }
+        // printf("[%d, %d, %d, %d] .. a: [%d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3], action_ids[i]);
     }
-
-    if (idpath[0] == GetGoalID())
-    {
-        SMPL_ERROR("Cannot extract a non-trivial path starting from the goal state");
-        return false;
-    }
-
-    // grab the first point
-    {
-        auto* entry = getHashEntry(idpath[0]);
-        if (!entry)
-        {
-            SMPL_ERROR("Failed to get state entry for state %d", idpath[0]);
-            return false;
-        }
-        opath.push_back(*entry);
-    }
-
-    // grab the rest of the points
-    for (size_t i = 1; i < idpath.size(); ++i)
-    {
-        auto prev_id = idpath[i - 1];
-        auto curr_id = idpath[i];
-
-        if (prev_id == GetGoalID())
-        {
-            SMPL_ERROR("Cannot determine goal state predecessor state during path extraction");
-            return false;
-        }
-
-        auto* entry = getHashEntry(curr_id);
-        if (!entry)
-        {
-            SMPL_ERROR("Failed to get state entry state %d", curr_id);
-            return false;
-        }
-        opath.push_back(*entry);
-    }
-    path = std::move(opath);
+    sol_log.close();
     return true;
 }
 

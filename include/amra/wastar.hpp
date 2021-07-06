@@ -59,7 +59,9 @@ public:
 	void reset() override;
 
 	int replan(
-		std::vector<int>* solution_path, int* solution_cost) override;
+		std::vector<int>* solution_path,
+		std::vector<int>* action_ids,
+		int* solution_cost) override;
 
 private:
 	Environment* m_space = nullptr;

@@ -115,8 +115,9 @@ bool Grid2D::Plan(bool save)
 	m_search->set_goal(m_goal_id);
 
 	std::vector<int> solution;
+	std::vector<int> action_ids;
 	int solcost;
-	bool result = m_search->replan(&solution, &solcost);
+	bool result = m_search->replan(&solution, &action_ids, &solcost);
 
 	if (result && save)
 	{

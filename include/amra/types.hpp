@@ -86,7 +86,9 @@ public:
 	virtual void reset() = 0;
 
 	virtual int replan(
-		std::vector<int>* solution_path, int* solution_cost) = 0;
+		std::vector<int>* solution_path,
+		std::vector<int>* action_ids,
+		int* solution_cost) = 0;
 };
 
 class Environment

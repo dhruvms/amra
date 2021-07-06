@@ -184,7 +184,9 @@ void AMRAStar::reinit_state(AMRAState *state)
 }
 
 int AMRAStar::replan(
-	std::vector<int>* solution_path, int* solution_cost)
+	std::vector<int>* solution_path,
+	std::vector<int>* action_ids,
+	int* solution_cost)
 {
 	if (is_goal(m_start_id))
 	{
@@ -257,7 +259,7 @@ int AMRAStar::replan(
 
 		// SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		printf("Solved with (%f, %f) | expansions = %s | time = %f\n", m_w1, m_w2, get_expands_str().c_str(), search_time);
-		extract_path(*solution_path, *solution_cost);
+		extract_path(*solution_path, *action_ids, *solution_cost);
 		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
 
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
@@ -478,7 +480,9 @@ void AMRAStar::reorder_open()
 }
 
 void AMRAStar::extract_path(
-	std::vector<int>& solution, int& cost)
+	std::vector<int>& solution,
+	std::vector<int>& action_ids,
+	int& cost)
 {
 	m_w1_solve = m_w1;
 	m_w2_solve = m_w2;
@@ -486,12 +490,15 @@ void AMRAStar::extract_path(
 	m_solution_cost = m_goal->g;
 
 	solution.clear();
+	action_ids.clear();
 
 	// m_goal->state_id == m_goal_id == 0 should be true
 	for (AMRAState *state = m_goal; state; state = state->bp) {
 		solution.push_back(state->state_id);
+		action_ids.push_back(state->actionidx);
 	}
 	std::reverse(solution.begin(), solution.end());
+	std::reverse(action_ids.begin(), action_ids.end());
 }
 
 }  // namespace AMRA

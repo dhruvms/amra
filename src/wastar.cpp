@@ -147,7 +147,9 @@ void WAStar::reinit_state(WAStarState *state)
 }
 
 int WAStar::replan(
-	std::vector<int>* solution_path, int* solution_cost)
+	std::vector<int>* solution_path,
+	std::vector<int>* action_ids,
+	int* solution_cost)
 {
 	if (is_goal(m_start_id))
 	{
