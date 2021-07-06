@@ -294,10 +294,11 @@ bool UAVEnv::Plan(bool save)
     if (!m_goal_set)
     {
         // set random goal
-        m_map->GetRandomState(d1g, d2g);
-        while (d1g == d1s && d2g == d2s) {
+        do {
             m_map->GetRandomState(d1g, d2g);
         }
+        while (d1g == d1s && d2g == d2s);
+
         G = { d1g, d2g, 0, 0 };
     }
 
