@@ -5,7 +5,7 @@ import random
 ysize = 100 # height
 xsize = 100 # width
 
-file = open("../dat/uav_obs.map", "w")
+file = open("../dat/uav_obs_rand.map", "w")
 file.write("type octile\n")
 file.write("height " + str(ysize) + "\n")
 file.write("width " + str(xsize) + "\n")
@@ -13,7 +13,7 @@ file.write("map\n")
 
 for y in range(ysize):
     for x in range(xsize):
-        if random.randrange(40) == 5:
+        if random.randrange(20) == 5:
             file.write("T")
         else:
             file.write(".")
