@@ -83,7 +83,6 @@ private:
     void ContToDiscState(ContState& inContState, DiscState& outDiscState);
 
     bool validTheta(int& theta);
-    bool validTheta(double& theta);
 
 private:
     std::string m_mapname;

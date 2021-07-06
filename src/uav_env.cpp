@@ -282,6 +282,30 @@ void UAVEnv::CreateSearch()
 
 bool UAVEnv::Plan(bool save)
 {
+    int d1s, d2s, d1g, d2g;
+    DiscState S, G;
+    if (!m_start_set)
+    {
+        // set random start
+        m_map->GetRandomState(d1s, d2s);
+        S = { d1s, d2s, 0, 0 };
+
+    }
+    if (!m_goal_set)
+    {
+        // set random goal
+        m_map->GetRandomState(d1g, d2g);
+        while (d1g == d1s && d2g == d2s) {
+            m_map->GetRandomState(d1g, d2g);
+        }
+        G = { d1g, d2g, 0, 0 };
+    }
+
+    ContState goal  = { (double)G[0], (double)G[1], (double)G[2], (double)G[3] };
+    ContState start = { (double)S[0], (double)S[1], (double)S[2], (double)S[3] };
+    SetGoal(goal);
+    SetStart(start);
+
     m_search->set_goal(m_goal_id);
     m_search->set_start(m_start_id);
 
@@ -495,11 +519,6 @@ bool UAVEnv::validTheta(int& theta)
     return theta >= 0 && theta < m_totalAngles;
 }
 
-bool UAVEnv::validTheta(double& theta)
-{
-
-}
-
 bool UAVEnv::IsGoal(const int& id)
 {
     UAVState state, goal;
@@ -667,25 +686,6 @@ bool UAVEnv::convertPath(
         MapState state;
         GetStateFromID(solution_ids[i], state);
         auto action = m_actions.at(action_ids[i+1]);
-
-        printf("state.coord = [%d %d %d %d]\n",
-            state.coord[0],
-            state.coord[1],
-            state.coord[2],
-            state.coord[3]);
-
-        printf("action.start = [%d %d %d %d]\n",
-            action.start[0],
-            action.start[1],
-            action.start[2],
-            action.start[3]);
-        printf("\n");
-
-        // printf("action.end = [%d %d %d %d]\n",
-        //     action.end[0],
-        //     action.end[1],
-        //     action.end[2],
-        //     action.end[3]);
 
         for (auto wp : action.intermediateStates)
         {
