@@ -25,6 +25,6 @@ Vels = solution[3]
 # DRAW
 fig = plt.figure()
 ax = plt.gca()
-ax.scatter(X,Y, s=0.5, c='red')
+ax.scatter(Y, X, s=0.5, c='red')
 ax.imshow(mapdata)
 plt.show()
