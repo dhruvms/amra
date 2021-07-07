@@ -51,8 +51,6 @@ m_goal_set(false)
         }
     }
     m_state_to_id.clear();
-
-    m_exps_debug.open("../dat/uavexps.txt");
 }
 
 void UAVEnv::SetStart(ContState& startState)
@@ -215,18 +213,6 @@ void UAVEnv::ReadMprims(std::string& mprimfile)
         }
     }
     assert(mprimCount == m_totalPrims);
-    // /// Log motion primitive info
-    // std::ofstream mprimlog;
-    // mprimlog.open("../dat/mprimlog.txt");
-    // for (auto i = 0; i < m_totalPrims; ++i) {
-    //     auto action = m_actions[i];
-    //     mprimlog << "idx: " << i << "\n";
-    //     mprimlog << "primID: " << action.primID << "\n";
-    //     mprimlog << "start: " << action.start[0] << "," << action.start[1] << "," << action.start[2] << "," << action.start[3] << "\n";
-    //     mprimlog << "end: " << action.end[0] << "," << action.end[1] << "," << action.end[2] << "," << action.end[3] << "\n";
-    //     mprimlog << "\n";
-    // }
-    // mprimlog.close();
 }
 
 void UAVEnv::storeAction(Action& action)
@@ -361,8 +347,6 @@ void UAVEnv::GetSuccs(
     auto parent_theta = parent->coord[2];
     auto parent_vel   = parent->coord[3];
 
-    m_exps_debug << parent_x << "," << parent_y << std::endl;
-
     assert(m_map->IsTraversible(parent_x, parent_y));
     m_closed[static_cast<int>(level)].push_back(parent);
 
@@ -404,34 +388,27 @@ void UAVEnv::GetSuccs(
         int actionidx = getActionIdx(parent_theta, primid);
         auto action = m_actions.at(actionidx);
 
-        // printf("Applying primid [%d] w/ start theta = %d, vel = %d ... ", primid, action.start[2], action.start[3]);
-
         /// Reject action if not applicable at parent
         auto action_start_theta = action.start[2];
         auto action_start_vel   = action.start[3];
         if (parent_theta != action_start_theta) {
-            // printf(" INVALID theta ... ");
-            // printf("parent_theta = [%d], action_start_theta = [%d]\n", parent_theta, action_start_theta);
             continue;
         }
         if (parent_vel != action_start_vel) {
-            // printf(" INVALID vel ... ");
-            // printf(" parent_vel = [%d], action_start_vel = [%d]\n", parent_vel, action_start_vel);
             continue;
         }
-        // printf(" applicable\n");
 
         /// Check if applying action keeps robot collision-free and in bounds
         if (!validAction(parent, action)) {
             continue;
         }
 
-        /// Compute successor state
-        DiscState succCoords = {
+        /// Compute discrete successor state
+        DiscState succCoords =
+        {
             parent->coord.at(0) + action.end.at(0), // x
             parent->coord.at(1) + action.end.at(1), // y
-            // parent->coord.at(2) + action.end.at(2), // theta
-            action.end.at(2), // theta
+            action.end.at(2),                       // theta
             action.end.at(3)                        // velocity
         };
         if (succCoords[2] > m_totalAngles-1) succCoords[2] -= m_totalAngles;
@@ -441,39 +418,6 @@ void UAVEnv::GetSuccs(
         succs->push_back(succ_state_id);
         costs->push_back(10); // TODO: add action costs
         action_ids->push_back(actionidx);
-
-        // printf("  successor [id = %d] (%d, %d, %d, %d) generated\n",
-        //     succ_state_id, succCoords.at(0), succCoords.at(1), succCoords.at(2), succCoords.at(3));
-
-        /// INTERMEDIATE WAYPOINT = GOAL ///////////////////////////////////////
-        // DiscState interm_goal_coords = {};
-        // for (auto i = 0; i < action.intermediateStates.size(); i++)
-        // {
-        //     // TODO: cont -> disc conversion
-        //     const auto& intState = action.intermediateStates[i];
-        //     int x = (int)(parent->coord.at(0) + intState.at(0));
-        //     int y = (int)(parent->coord.at(1) + intState.at(1));
-
-        //     /// If this intermediate cell is the goal, add this as an extra successor
-        //     if (IsGoal(x, y))
-        //     {
-        //         interm_goal_coords = {
-        //             x,
-        //             y,
-        //             ContToDiscTheta(parent->coord.at(2) + intState.at(2)), // theta
-        //             (int)(intState.at(3)) // velocity
-        //         };
-        //         break;
-        //     }
-        // }
-
-        // if (!interm_goal_coords.empty())
-        // {
-        //     auto id = getOrCreateState(succCoords);
-        //     succs->push_back(id);
-        //     costs->push_back(10); // TODO: add action costs
-        //     action_ids->push_back(actionidx);
-        // }
     }
 }
 
@@ -542,18 +486,7 @@ bool UAVEnv::IsGoal(const int& id)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    if (distToGoalSqrd < 5*5)
-    {
-        return true;
-    }
-    else
-    {
-        // printf(" NOT GOAL: [%d, %d]\n", sx, sy);
-        return false;
-    }
-
-    // return state.coord[0] == goal.coord[0] && state.coord[1] == goal.coord[1];
-    // return (id == m_goal_id) && (state == goal);
+    return (distToGoalSqrd < 5*5);
 }
 
 bool UAVEnv::IsGoal(const int& sx, const int& sy)
@@ -565,15 +498,7 @@ bool UAVEnv::IsGoal(const int& sx, const int& sy)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    if (distToGoalSqrd < 5*5)
-    {
-        return true;
-    }
-    else
-    {
-        // printf(" NOT GOAL: [%d, %d]\n", sx, sy);
-        return false;
-    }
+    return (distToGoalSqrd < 5*5);
 }
 
 void UAVEnv::SaveExpansions(
@@ -715,7 +640,6 @@ bool UAVEnv::convertPath(
             };
             sol_path.push_back(solstate);
         }
-        // printf("[%d, %d, %d, %d] .. a: [%d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3], action_ids[i]);
     }
 
     std::ofstream sol_log;

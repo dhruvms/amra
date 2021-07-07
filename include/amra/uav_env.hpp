@@ -87,7 +87,6 @@ private:
 private:
     std::string m_mapname;
     std::unique_ptr<MovingAI> m_map;
-    std::ofstream m_exps_debug;
 
     std::vector<std::shared_ptr<Heuristic> > m_heurs;
     std::vector<std::pair<Resolution::Level, int> > m_heurs_map;
