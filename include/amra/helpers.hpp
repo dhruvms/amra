@@ -13,6 +13,7 @@ namespace AMRA
 {
 
 #define GETMAPINDEX(X, Y, XSIZE, YSIZE) (X*YSIZE + Y)
+#define CONTXY2DISC(X, CELLSIZE) (int)std::round((X / CELLSIZE))
 
 inline
 void reset(std::stringstream& ss)

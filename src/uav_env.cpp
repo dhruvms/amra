@@ -59,10 +59,9 @@ void UAVEnv::SetStart(ContState& startState)
 {
     assert(!m_start_set);
 
-    DiscState startCoords;
-    ContToDiscState(startState, startCoords);
+    ContToDiscState(startState, m_start_coords);
 
-    m_start_id = getOrCreateState(startCoords);
+    m_start_id = getOrCreateState(m_start_coords);
     m_start_set = true;
 
     auto* state = getHashEntry(m_start_id);
@@ -472,14 +471,15 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
 {
     for (const auto& s : action.intermediateStates)
     {
-        // TODO: convert continuous states to discrete!
-        DiscState int_point_xy = {
-            (int)(state->coord.at(0) + s.at(0)),
-            (int)(state->coord.at(1) + s.at(1)),
-        };
+        auto intx = state->coord.at(0) + s.at(0);
+        auto inty = state->coord.at(1) + s.at(1);
+
+        // convert continuous intermediate point to 1m x 1m discrete cell
+        int intx_disc = CONTXY2DISC(intx, 1.0);
+        int inty_disc = CONTXY2DISC(inty, 1.0);
 
         // performs bounds and collision check
-        if (!m_map->IsTraversible(int_point_xy.at(0), int_point_xy.at(1))) {
+        if (!m_map->IsTraversible(intx_disc, inty_disc)) {
             return false;
         }
     }
@@ -674,12 +674,15 @@ bool UAVEnv::convertPath(
     std::vector<MapState>& path)
 {
     std::vector<ContState> sol_path;
+    ContState start = {
+        (double)m_start_coords[0],
+        (double)m_start_coords[1],
+        (double)m_start_coords[2],
+        (double)m_start_coords[3]
+    };
+    sol_path.push_back(start);
 
     assert(solution_ids.size() == action_ids.size());
-
-    std::ofstream sol_log;
-    sol_log.open("../dat/uavsol.txt");
-
     for (auto i = 0; i < solution_ids.size(); ++i)
     {
         if (i == solution_ids.size()-2) break;
@@ -688,27 +691,34 @@ bool UAVEnv::convertPath(
         GetStateFromID(solution_ids[i], state);
         auto action = m_actions.at(action_ids[i+1]);
 
-        for (auto wp : action.intermediateStates)
+        for(
+        auto wp_i = 1;
+        wp_i < action.intermediateStates.size();
+        ++wp_i)
         {
+            const auto& wp = action.intermediateStates[wp_i];
             ContState solstate = {
                 state.coord.at(0) + wp.at(0),
                 state.coord.at(1) + wp.at(1),
-                // DiscToContTheta(state.coord.at(2)) + wp.at(2),
                 wp.at(2),
                 wp.at(3)
             };
-            // solstate[3] = smpl::normalize_angle_positive(solstate[3]);
             sol_path.push_back(solstate);
-
-            sol_log
-            << solstate[0] << ","
-            << solstate[1] << ","
-            << solstate[2] << ","
-            << solstate[3] << std::endl;
         }
         // printf("[%d, %d, %d, %d] .. a: [%d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3], action_ids[i]);
     }
+
+    std::ofstream sol_log;
+    sol_log.open("../dat/uavsol.txt");
+    for (auto s : sol_path)
+    {
+        sol_log << s[0] << ","
+                << s[1] << ","
+                << s[2] << ","
+                << s[3] << std::endl;
+    }
     sol_log.close();
+
     return true;
 }
 
