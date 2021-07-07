@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 # READ MAP
 # with open('../dat/testmap.map') as f:
-# with open('../dat/uav_obs.map') as f:
-with open('../dat/uav_obs_rand.map') as f:
+with open('../dat/uav_obs.map') as f:
+# with open('../dat/uav_obs_rand.map') as f:
     lines = f.readline()
     lines = f.readline()
     lines = f.readline()

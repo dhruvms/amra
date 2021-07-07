@@ -304,7 +304,7 @@ bool AMRAStar::improve_path(
 		for (int i = 1; i < num_heuristics(); ++i)
 		{
 			if (m_open[0].empty()) {
-				printf(" 1 OPEN[0] empty\n");
+				printf("[1] AMRA*: OPEN[0] empty\n");
 				return false;
 			}
 
@@ -336,7 +336,7 @@ bool AMRAStar::improve_path(
 			}
 		}
 	}
-	printf(" 2 OPEN[0] empty\n");
+	printf("[2] AMRA*: OPEN[0] empty\n");
 }
 
 void AMRAStar::expand(AMRAState *s, int hidx)

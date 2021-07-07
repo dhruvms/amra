@@ -59,6 +59,11 @@ void UAVEnv::SetStart(ContState& startState)
 {
     assert(!m_start_set);
 
+    if (!m_map->IsTraversible(startState[0], startState[1])) {
+        printf("ERROR: Manually set start state not traversable\n");
+        assert(false);
+    }
+
     ContToDiscState(startState, m_start_coords);
 
     m_start_id = getOrCreateState(m_start_coords);
@@ -72,6 +77,11 @@ void UAVEnv::SetStart(ContState& startState)
 void UAVEnv::SetGoal(ContState& goalState)
 {
     assert(!m_goal_set);
+
+    if (!m_map->IsTraversible(goalState[0], goalState[1])) {
+        printf("ERROR: Manually set goal state not traversable\n");
+        assert(false);
+    }
 
     ContToDiscState(goalState, m_goal_coords);
 
@@ -282,29 +292,29 @@ void UAVEnv::CreateSearch()
 bool UAVEnv::Plan(bool save)
 {
     int d1s, d2s, d1g, d2g;
-    DiscState S, G;
-    if (!m_start_set)
-    {
-        // set random start
-        m_map->GetRandomState(d1s, d2s);
-        S = { d1s, d2s, 0, 0 };
 
-    }
+    // set random goal
     if (!m_goal_set)
     {
-        // set random goal
-        do {
-            m_map->GetRandomState(d1g, d2g);
-        }
+        m_map->GetRandomState(d1g, d2g);
         while (d1g == d1s && d2g == d2s);
-
-        G = { d1g, d2g, 0, 0 };
+        // set goal theta and velocity to zero
+        ContState goal{ (double)d1g, (double)d2g, 0.0, 0.0 };
+        SetGoal(goal);
     }
 
-    ContState goal  = { (double)G[0], (double)G[1], (double)G[2], (double)G[3] };
-    ContState start = { (double)S[0], (double)S[1], (double)S[2], (double)S[3] };
-    SetGoal(goal);
-    SetStart(start);
+    // set random start != goal
+    if (!m_start_set)
+    {
+        do
+        {
+            m_map->GetRandomState(d1s, d2s);
+        }
+        while (d1g == d1s && d2g == d2s);
+        // set start theta and velocity to zero
+        ContState start{ (double)d1s, (double)d2s, 0.0, 0.0 };
+        SetStart(start);
+    }
 
     m_search->set_goal(m_goal_id);
     m_search->set_start(m_start_id);
