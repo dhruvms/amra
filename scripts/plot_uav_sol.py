@@ -19,7 +19,7 @@ mapdata[mapdata == 'T'] = 1
 mapdata = mapdata.astype(int)
 
 # READ UAV TRAJECTORY
-solution = pd.read_csv("../dat/uavsol.txt", header=None)
+solution = pd.read_csv("../dat/solutions/uavsol.txt", header=None)
 X = solution[0]
 Y = solution[1]
 Theta = solution[2]

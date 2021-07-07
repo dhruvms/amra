@@ -643,7 +643,7 @@ bool UAVEnv::convertPath(
     }
 
     std::ofstream sol_log;
-    sol_log.open("../dat/uavsol.txt");
+    sol_log.open("../dat/solutions/uavsol.txt");
     for (auto s : sol_path)
     {
         sol_log << s[0] << ","
