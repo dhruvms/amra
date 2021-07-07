@@ -75,7 +75,7 @@ private:
     bool convertPath(
         const std::vector<int>& solution_ids,
         const std::vector<int>& action_ids,
-        std::vector<MapState>& path);
+        std::vector<ContState>& path);
 
     bool validAction(UAVState* state, Action& action);
 

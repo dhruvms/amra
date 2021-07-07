@@ -316,9 +316,18 @@ bool UAVEnv::Plan(bool save)
 
     if (result && save)
     {
-        std::vector<MapState> solpath;
+        std::vector<ContState> solpath;
         convertPath(solution, action_ids, solpath);
-        m_map->SavePath(solpath);
+        std::ofstream sol_log;
+        sol_log.open("../dat/solutions/uavsol.txt");
+        for (auto s : solpath)
+        {
+            sol_log << s[0] << ","
+                    << s[1] << ","
+                    << s[2] << ","
+                    << s[3] << std::endl;
+        }
+        sol_log.close();
 
         return true;
     }
@@ -606,16 +615,20 @@ int UAVEnv::reserveHashEntry()
 bool UAVEnv::convertPath(
     const std::vector<int>& solution_ids,
     const std::vector<int>& action_ids,
-    std::vector<MapState>& path)
+    std::vector<ContState>& path)
 {
-    std::vector<ContState> sol_path;
+    path.clear();
     ContState start = {
         (double)m_start_coords[0],
         (double)m_start_coords[1],
         (double)m_start_coords[2],
         (double)m_start_coords[3]
     };
-    sol_path.push_back(start);
+    path.push_back(start);
+
+    if (solution_ids.size() == 1) {
+        return true;
+    }
 
     assert(solution_ids.size() == action_ids.size());
     for (auto i = 0; i < solution_ids.size(); ++i)
@@ -638,21 +651,9 @@ bool UAVEnv::convertPath(
                 wp.at(2),
                 wp.at(3)
             };
-            sol_path.push_back(solstate);
+            path.push_back(solstate);
         }
     }
-
-    std::ofstream sol_log;
-    sol_log.open("../dat/solutions/uavsol.txt");
-    for (auto s : sol_path)
-    {
-        sol_log << s[0] << ","
-                << s[1] << ","
-                << s[2] << ","
-                << s[3] << std::endl;
-    }
-    sol_log.close();
-
     return true;
 }
 
