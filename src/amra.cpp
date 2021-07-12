@@ -406,7 +406,8 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		{
 			succ_state->g = new_g;
 			succ_state->bp = s;
-			succ_state->actionidx = action_ids[sidx];
+			if (!action_ids.empty())
+				succ_state->actionidx = action_ids[sidx];
 			if (succ_state->closed_in_anc) {
 				m_incons.push_back(succ_state);
 			}
