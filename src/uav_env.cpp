@@ -309,10 +309,6 @@ bool UAVEnv::Plan(bool save)
     std::vector<int> action_ids;
     int solcost;
     bool result = m_search->replan(&solution, &action_ids, &solcost);
-    printf("solution size: %d\n", (int)solution.size());
-    for (auto s : solution) {
-        printf("%d\n", s);
-    }
 
     if (result && save)
     {

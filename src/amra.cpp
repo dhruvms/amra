@@ -309,8 +309,8 @@ bool AMRAStar::improve_path(
 			}
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
-			// printf("f_check = [%u]  m_goal->g = [%u]\n", f_check, m_goal->g);
 			if (m_goal->g <= f_check) {
+				printf("  m_goal->g = [%u]\n", m_goal->g);
 				return true;
 			}
 

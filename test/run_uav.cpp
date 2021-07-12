@@ -19,10 +19,19 @@ int main(int argc, char** argv)
 
     uav_env.CreateSearch();
 
-    ContState goal = { 90.3, 90.4, 0.0, 0.0 };
+    ContState goal = {
+        /* row */ 100.,
+        /* col */ 175.,
+        0., 0.
+    };
     uav_env.SetGoal(goal);
 
-    ContState start = { 3.5, 9.5, 0.0, 0.0 };
+    ContState start = {
+        /* row */ 100.,
+        /* col */ 75.,
+        M_PI/2.,
+        0.
+    };
     uav_env.SetStart(start);
 
     uav_env.Plan(true);
