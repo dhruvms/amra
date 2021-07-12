@@ -78,6 +78,7 @@ private:
         std::vector<ContState>& path);
 
     bool validAction(UAVState* state, Action& action);
+    int getActionCost(std::vector<int>& startCoord, Action* action);
 
     /// Converts a continuous (x,y,theta,v) state to a discrete one.
     void ContToDiscState(ContState& inContState, DiscState& outDiscState);

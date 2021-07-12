@@ -9,7 +9,8 @@ xsize = 0
 ysize = 0
 
 # READ MAP
-with open('../dat/culdesac_np_large.map') as f:
+# with open('../dat/culdesac_np_large.map') as f:
+with open('../dat/multiple_passages.map') as f:
 # with open('../dat/uav_obs.map') as f:
 # with open('../dat/uav_obs_rand.map') as f:
     line = f.readline()

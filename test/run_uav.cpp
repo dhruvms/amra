@@ -20,16 +20,16 @@ int main(int argc, char** argv)
     uav_env.CreateSearch();
 
     ContState goal = {
-        /* row */ 100.,
+        /* row */ 50.,
         /* col */ 175.,
         0., 0.
     };
     uav_env.SetGoal(goal);
 
     ContState start = {
-        /* row */ 100.,
-        /* col */ 75.,
-        M_PI/2.,
+        /* row */ 125.,
+        /* col */ 20.,
+        M_PI,
         0.
     };
     uav_env.SetStart(start);

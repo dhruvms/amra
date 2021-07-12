@@ -419,9 +419,12 @@ void UAVEnv::GetSuccs(
         if (succCoords[2] > m_totalAngles-1) succCoords[2] -= m_totalAngles;
         if (succCoords[2] < 0) succCoords[2] += m_totalAngles;
 
+        int cost = getActionCost(parent->coord, &action);
+        assert(cost > 0);
+
         int succ_state_id = getOrCreateState(succCoords);
         succs->push_back(succ_state_id);
-        costs->push_back(10); // TODO: add action costs
+        costs->push_back(cost); // TODO: add action costs
         action_ids->push_back(actionidx);
     }
 }
@@ -443,6 +446,19 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
         }
     }
     return true;
+}
+
+int UAVEnv::getActionCost(std::vector<int>& startCoord, Action* action)
+{
+    int n_int_poses = action->intermediateStates.size();
+    if (startCoord[2] == action->end[2])
+    {
+        return n_int_poses;
+    }
+    else
+    {
+        return n_int_poses * TURN_PENALTY;
+    }
 }
 
 void UAVEnv::ContToDiscState(ContState& inContState, DiscState& outDiscState)
@@ -491,7 +507,7 @@ bool UAVEnv::IsGoal(const int& id)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    return (distToGoalSqrd < 5*5);
+    return (distToGoalSqrd < 10*10);
 }
 
 bool UAVEnv::IsGoal(const int& sx, const int& sy)
@@ -503,7 +519,7 @@ bool UAVEnv::IsGoal(const int& sx, const int& sy)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    return (distToGoalSqrd < 5*5);
+    return (distToGoalSqrd < 10*10);
 }
 
 void UAVEnv::SaveExpansions(

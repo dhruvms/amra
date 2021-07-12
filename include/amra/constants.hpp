@@ -18,6 +18,8 @@ extern const int NUM_RES;
 
 extern const bool SAVE_ALL;
 
+extern const int TURN_PENALTY;
+
 } // namespace SimPlan
 
 
