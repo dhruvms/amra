@@ -314,7 +314,7 @@ bool UAVEnv::Plan(bool save)
     {
         std::vector<ContState> solpath;
         convertPath(solution, action_ids, solpath);
-        std::ofstream sol_log;
+        std::ofstream sol_log, exp_log;
         sol_log.open("../dat/solutions/uavsol.txt");
         for (auto s : solpath)
         {
@@ -324,6 +324,17 @@ bool UAVEnv::Plan(bool save)
                     << s[3] << std::endl;
         }
         sol_log.close();
+        exp_log.open("../dat/solutions/uavexp.txt");
+        for (const auto& closed : m_closed)
+        {
+            auto i = closed.first;
+            auto states = closed.second;
+            for (auto* s : states)
+            {
+                exp_log << i << "," << s->coord.at(0) << "," << s->coord.at(1) << std::endl;
+            }
+        }
+        exp_log.close();
 
         return true;
     }
