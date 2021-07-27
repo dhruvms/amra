@@ -31,8 +31,10 @@ m_call_number(0),
 m_heur_count(heur_count),
 m_res_count(res_count),
 m_w1_i(10.0), m_w2_i(20.0),
+// m_w1_i(1.0), m_w2_i(1.8),
 m_w1_f(1.0), m_w2_f(1.0),
-m_w1_delta(0.5), m_w2_delta(0.5),
+// m_w1_delta(0.5), m_w2_delta(0.5),
+m_w1_delta(10.0), m_w2_delta(20.0),
 m_start_id(-1),
 m_goal_id(-1)
 {
@@ -265,8 +267,10 @@ int AMRAStar::replan(
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
 			break;
 		}
-		m_w1 = std::max(m_w1_f, m_w1 * m_w1_delta);
-		m_w2 = std::max(m_w2_f, m_w2 * m_w2_delta);
+		// m_w1 = std::max(m_w1_f, m_w1 * m_w1_delta);
+		// m_w2 = std::max(m_w2_f, m_w2 * m_w2_delta);
+		m_w1 = std::max(m_w1_f, m_w1 / m_w1_delta);
+		m_w2 = std::max(m_w2_f, m_w2 / m_w2_delta);
 
 		m_iter++;
 	}
@@ -451,7 +455,6 @@ unsigned int AMRAStar::compute_heuristic(int state_id, int hidx)
 {
 	assert(num_heuristics() >= hidx);
 	return m_heurs.at(m_heurs_map.at(hidx).second)->GetGoalHeuristic(state_id);
-
 }
 
 unsigned int AMRAStar::compute_key(AMRAState *state, int hidx)

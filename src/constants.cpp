@@ -23,4 +23,4 @@ const int AMRA::NUM_RES = 2;
 
 const bool AMRA::SAVE_ALL = false;
 
-const int AMRA::TURN_PENALTY = 2;
+const int AMRA::TURN_PENALTY = 1;

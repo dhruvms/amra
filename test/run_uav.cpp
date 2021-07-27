@@ -19,17 +19,32 @@ int main(int argc, char** argv)
 
     uav_env.CreateSearch();
 
+    // ContState goal = {
+    //     /* row */ 50.,
+    //     /* col */ 175.,
+    //     0., 0.
+    // };
+    // uav_env.SetGoal(goal);
+
+    // ContState start = {
+    //     /* row */ 125.,
+    //     /* col */ 20.,
+    //     M_PI,
+    //     0.
+    // };
+    // uav_env.SetStart(start);
+
     ContState goal = {
-        /* row */ 50.,
-        /* col */ 175.,
+        /* row */ 45.,
+        /* col */ 100.,
         0., 0.
     };
     uav_env.SetGoal(goal);
 
     ContState start = {
-        /* row */ 125.,
-        /* col */ 20.,
-        M_PI,
+        /* row */ 123.,
+        /* col */ 57.,
+        M_PI/2,
         0.
     };
     uav_env.SetStart(start);

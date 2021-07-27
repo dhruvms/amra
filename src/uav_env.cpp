@@ -461,14 +461,15 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
 
 int UAVEnv::getActionCost(std::vector<int>& startCoord, Action* action)
 {
+    // return 10;
     int n_int_poses = action->intermediateStates.size();
     if (startCoord[2] == action->end[2])
     {
-        return n_int_poses;
+        return 10;
     }
     else
     {
-        return n_int_poses * TURN_PENALTY;
+        return 10 * TURN_PENALTY;
     }
 }
 
@@ -477,8 +478,11 @@ void UAVEnv::ContToDiscState(ContState& inContState, DiscState& outDiscState)
     assert(inContState.size() == 4);
 
     // TODO: Make sure these are in correct resolutions?
-    int x = (int)inContState[0];
-    int y = (int)inContState[1];
+    // int x = (int)inContState[0];
+    // int y = (int)inContState[1];
+
+    int x = (int)CONTXY2DISC(inContState[0], 3.0) * 3.0;
+    int y = (int)CONTXY2DISC(inContState[1], 3.0) * 3.0;
 
     int theta = ContToDiscTheta(inContState[2]);
     assert(validTheta(theta));
@@ -518,7 +522,7 @@ bool UAVEnv::IsGoal(const int& id)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    return (distToGoalSqrd < 10*10);
+    return (distToGoalSqrd < 5*5);
 }
 
 bool UAVEnv::IsGoal(const int& sx, const int& sy)
@@ -530,7 +534,7 @@ bool UAVEnv::IsGoal(const int& sx, const int& sy)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    return (distToGoalSqrd < 10*10);
+    return (distToGoalSqrd < 5*5);
 }
 
 void UAVEnv::SaveExpansions(
@@ -607,13 +611,18 @@ int UAVEnv::createHashEntry(DiscState& inCoords)
     int d2 = inCoords.at(1); // y
 
     assert(NUM_RES == 2);
-    if (d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0)
+    if (d1 % LOWRES_MULT == 0 && d2 % LOWRES_MULT == 0) // divisible by 9
     {
         entry->level = Resolution::LOW;
     }
-    else
+    else if (d1 % MIDRES_MULT == 0 && d2 % MIDRES_MULT == 0) // divisible by 3
     {
         entry->level = Resolution::MID;
+    }
+    else
+    {
+        printf("d1: [%d], d2: [%d]\n", d1, d2);
+        assert(false && "INVALID RES?");
     }
 
     // map state -> state id

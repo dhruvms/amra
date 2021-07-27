@@ -52,6 +52,11 @@ hidx_2_indices = index[condition]
 hidx_2_X = expansions.iloc[hidx_2_indices, 1]
 hidx_2_Y = expansions.iloc[hidx_2_indices, 2]
 
+condition = expansions[0] == 3
+hidx_3_indices = index[condition]
+hidx_3_X = expansions.iloc[hidx_3_indices, 1]
+hidx_3_Y = expansions.iloc[hidx_3_indices, 2]
+
 # DRAW
 if PLOT_THETA:
 
@@ -102,14 +107,19 @@ else:
     exps = ax2.scatter(hidx_0_Y, hidx_0_X, s=10, c='b')
     ax2.set_title('ANCHOR')
 
+    # ax3.imshow(mapdata, cmap='Greys')
+    # ax3.grid(color='Grey', linestyle='-', linewidth=0.1)
+    # exps = ax3.scatter(hidx_1_Y, hidx_1_X, s=10, c='r')
+    # ax3.set_title('3m resolution')
+
     ax3.imshow(mapdata, cmap='Greys')
     ax3.grid(color='Grey', linestyle='-', linewidth=0.1)
-    exps = ax3.scatter(hidx_1_Y, hidx_1_X, s=10, c='r')
+    exps = ax3.scatter(hidx_2_Y, hidx_2_X, s=10, c='r')
     ax3.set_title('3m resolution')
 
     ax4.imshow(mapdata, cmap='Greys')
     ax4.grid(color='Grey', linestyle='-', linewidth=0.1)
-    exps = ax4.scatter(hidx_2_Y, hidx_2_X, s=10, c='g')
+    exps = ax4.scatter(hidx_3_Y, hidx_3_X, s=10, c='g')
     ax4.set_title('9m resolution')
 
     plt.show()
