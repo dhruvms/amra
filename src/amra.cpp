@@ -30,7 +30,7 @@ m_space(space),
 m_call_number(0),
 m_heur_count(heur_count),
 m_res_count(res_count),
-m_w1_i(10.0), m_w2_i(20.0),
+m_w1_i(2.0), m_w2_i(2.0),
 m_w1_f(1.0), m_w2_f(1.0),
 m_w1_delta(0.5), m_w2_delta(0.5),
 m_start_id(-1),
@@ -309,6 +309,10 @@ bool AMRAStar::improve_path(
 			}
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
+			printf("\tmin_f =     [%u], state ID = [%d]\n", m_open[0].min()->f, m_open[0].min()->me->state_id);
+			printf("\tf_check =   [%u]\n", f_check);
+			printf("\tm_goal->g = [%u]\n", m_goal->g);
+			printf("\n");
 			if (m_goal->g <= f_check) {
 				printf("  m_goal->g = [%u]\n", m_goal->g);
 				return true;
@@ -373,13 +377,16 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		}
 	}
 
+	bool exp_pot_goal = false;
+
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
 	std::vector<int> action_ids;
 	if (is_goal(s->state_id))
 	{
 		MapState state; m_space->GetStateFromID(s->state_id, state);
-		printf("AMRA: potential goal [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
+		printf("  expanding potential goal [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
+		exp_pot_goal = true;
 
 		succ_ids.push_back(m_goal_id);
 		costs.push_back(1);
@@ -402,8 +409,18 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		reinit_state(succ_state);
 
 		unsigned int new_g = s->g + costs[sidx];
+
 		if (new_g < succ_state->g)
 		{
+			if (exp_pot_goal) {
+				printf("\tedge cost:                 [%u]\n", cost);
+				printf("\told g-value of m_goal:     [%u]\n", m_goal->g);
+				printf("\told g-value of m_goal:     [%u]\n", succ_state->g);
+				printf("\tupdated g-value of m_goal: [%u]\n", new_g);
+				printf("\n");
+				printf("\tsolution can be improved\n");
+			}
+
 			succ_state->g = new_g;
 			succ_state->bp = s;
 			if (!action_ids.empty())
@@ -488,6 +505,7 @@ void AMRAStar::extract_path(
 	m_w2_solve = m_w2;
 	cost = m_goal->g;
 	m_solution_cost = m_goal->g;
+	printf("  Solution cost: [%u]\n", m_solution_cost);
 
 	solution.clear();
 	action_ids.clear();

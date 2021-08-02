@@ -88,12 +88,14 @@ with open('../dat/solutions/uavsol.txt') as f:
 
 # DRAW
 
-fig, axs = plt.subplots(len(iterations), 1)
-col_map = plt.get_cmap('RdBu_r')
+figure_rows = len(iterations)
 
-for i in range(len(iterations)):
-    ax = axs[i]
-    sol = all_solutions[i]
+if len(iterations) == 1:
+
+    fig, ax = plt.subplots(1, 1)
+    col_map = plt.get_cmap('RdBu_r')
+
+    sol = all_solutions[0]
 
     X = [s[0] for s in sol]
     Y = [s[1] for s in sol]
@@ -107,6 +109,28 @@ for i in range(len(iterations)):
 
     ax.imshow(mapdata, cmap='Greys')
     ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+
+else:
+
+    fig, axs = plt.subplots(figure_rows, 1)
+    col_map = plt.get_cmap('RdBu_r')
+
+    for i in range(len(iterations)):
+        ax = axs[i]
+        sol = all_solutions[i]
+
+        X = [s[0] for s in sol]
+        Y = [s[1] for s in sol]
+        Theta = [s[2] for s in sol]
+        Vels = [s[3] for s in sol]
+
+        # traj = ax1.scatter(Y, X, s=0.2, c=Vels, cmap=col_map)
+        traj = ax.scatter(Y, X, s=0.2, c=Vels)
+        start = ax.scatter(Y[0], X[0], s=20, c='r')
+        goal = ax.scatter(Y[len(Y)-1], X[len(X)-1], s=20, c='c')
+
+        ax.imshow(mapdata, cmap='Greys')
+        ax.grid(color='Grey', linestyle='-', linewidth=0.1)
 
 plt.show()
 

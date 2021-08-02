@@ -216,7 +216,7 @@ void WAStar::expand(WAStarState *s, int hidx)
 		printf("AMRA: potential goal [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
 
 		succ_ids.push_back(m_goal_id);
-		costs.push_back(0);
+		costs.push_back(1);
 		action_ids.push_back(-1);
 	}
 	else

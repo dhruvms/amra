@@ -25,7 +25,8 @@ unsigned int EuclideanDist::GetGoalHeuristic(int state_id)
 		dist += std::pow(state.coord.at(i) - goal.coord.at(i), 2);
 	}
 	dist = std::sqrt(dist);
-	return (dist * COST_MULT);
+	return dist;
+	// return (dist * COST_MULT);
 }
 
 unsigned int EuclideanDist::GetStartHeuristic(int state_id)

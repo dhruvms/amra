@@ -329,8 +329,9 @@ bool UAVEnv::Plan(bool save)
         // std::vector<ContState> solpath;
         // convertPath(solution, action_ids, solpath);
         // std::ofstream sol_log;
-        // // std::ofstream exp_log;
-        // sol_log.open("../dat/solutions/uavsol.txt");
+        // sol_log.open("../dat/solutions/uavsol.txt", std::ios_base::app);
+        // sol_log << "iter,0" << std::endl;
+        // sol_log << "solstart" << std::endl;
         // for (auto s : solpath)
         // {
         //     sol_log << s[0] << ","
@@ -338,8 +339,10 @@ bool UAVEnv::Plan(bool save)
         //             << s[2] << ","
         //             << s[3] << std::endl;
         // }
+        // sol_log << "solend" << std::endl;
         // sol_log.close();
-        // exp_log.open("../dat/solutions/uavexp.txt");
+        // std::ofstream exp_log;
+        // exp_log.open("../dat/solutions/uavexp.txt", std::ios_base::app);
         // for (const auto& closed : m_closed)
         // {
         //     auto i = closed.first;
@@ -377,6 +380,10 @@ void UAVEnv::GetSuccs(
     auto parent_y     = parent->coord[1];
     auto parent_theta = parent->coord[2];
     auto parent_vel   = parent->coord[3];
+
+    if (parent_x == 171 && parent_y == 153 && parent_theta == 10 && parent_vel == 3) {
+        printf("\tGetSuccs parent is optimal goal\n");
+    }
 
     assert(m_map->IsTraversible(parent_x, parent_y));
     m_closed[static_cast<int>(level)].push_back(parent);
