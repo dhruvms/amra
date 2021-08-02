@@ -31,10 +31,8 @@ m_call_number(0),
 m_heur_count(heur_count),
 m_res_count(res_count),
 m_w1_i(10.0), m_w2_i(20.0),
-// m_w1_i(1.0), m_w2_i(1.8),
 m_w1_f(1.0), m_w2_f(1.0),
-// m_w1_delta(0.5), m_w2_delta(0.5),
-m_w1_delta(10.0), m_w2_delta(20.0),
+m_w1_delta(0.5), m_w2_delta(0.5),
 m_start_id(-1),
 m_goal_id(-1)
 {
@@ -262,15 +260,13 @@ int AMRAStar::replan(
 		// SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		printf("Solved with (%f, %f) | expansions = %s | time = %f\n", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		extract_path(*solution_path, *action_ids, *solution_cost);
-		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
+		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path, *action_ids);
 
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
 			break;
 		}
-		// m_w1 = std::max(m_w1_f, m_w1 * m_w1_delta);
-		// m_w2 = std::max(m_w2_f, m_w2 * m_w2_delta);
-		m_w1 = std::max(m_w1_f, m_w1 / m_w1_delta);
-		m_w2 = std::max(m_w2_f, m_w2 / m_w2_delta);
+		m_w1 = std::max(m_w1_f, m_w1 * m_w1_delta);
+		m_w2 = std::max(m_w2_f, m_w2 * m_w2_delta);
 
 		m_iter++;
 	}
@@ -386,7 +382,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		printf("AMRA: potential goal [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
 
 		succ_ids.push_back(m_goal_id);
-		costs.push_back(0);
+		costs.push_back(1);
 		action_ids.push_back(-1);
 	}
 	else

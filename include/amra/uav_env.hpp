@@ -58,7 +58,8 @@ public:
 
     void SaveExpansions(
         int iter, double w1, double w2,
-        const std::vector<int>& curr_solution) override;
+        const std::vector<int>& curr_solution,
+        const std::vector<int>& action_ids) override;
 
     Resolution::Level GetResLevel(const int& state_id) override;
     ////////////////////////////////////////////////////////////////////////////

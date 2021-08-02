@@ -21,6 +21,7 @@ struct WAStarState
 	unsigned int g;
 	WAStarState* bp;
 	// std::pair<int, int> actionids;
+	int actionidx;
 
 	struct HeapData : public smpl::heap_element
 	{
@@ -110,7 +111,9 @@ private:
 	void reorder_open();
 
 	void extract_path(
-		std::vector<int>& solution, int& cost);
+		std::vector<int>& solution,
+		std::vector<int>& action_ids,
+		int& cost);
 };
 
 }  // namespace AMRA

@@ -20,7 +20,8 @@ unsigned int EuclideanDist::GetGoalHeuristic(int state_id)
 	assert(state.coord.size() == goal.coord.size());
 
 	double dist = 0.0;
-	for (size_t i = 0; i < state.coord.size(); ++i) {
+	// for (size_t i = 0; i < state.coord.size(); ++i) {
+	for (size_t i = 0; i < 2; ++i) {
 		dist += std::pow(state.coord.at(i) - goal.coord.at(i), 2);
 	}
 	dist = std::sqrt(dist);
@@ -36,7 +37,8 @@ unsigned int EuclideanDist::GetStartHeuristic(int state_id)
 	assert(state.coord.size() == start.coord.size());
 
 	double dist = 0.0;
-	for (size_t i = 0; i < state.coord.size(); ++i) {
+	// for (size_t i = 0; i < state.coord.size(); ++i) {
+	for (size_t i = 0; i < 2; ++i) {
 		dist += std::pow(state.coord.at(i) - start.coord.at(i), 2);
 	}
 	dist = std::sqrt(dist);
@@ -52,7 +54,8 @@ unsigned int EuclideanDist::GetFromToHeuristic(int from_id, int to_id)
 	assert(from.coord.size() == to.coord.size());
 
 	double dist = 0.0;
-	for (size_t i = 0; i < from.coord.size(); ++i) {
+	// for (size_t i = 0; i < from.coord.size(); ++i) {
+	for (size_t i = 0; i < 2; ++i) {
 		dist += std::pow(from.coord.at(i) - to.coord.at(i), 2);
 	}
 	dist = std::sqrt(dist);

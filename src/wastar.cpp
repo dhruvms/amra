@@ -182,9 +182,11 @@ int WAStar::replan(
 		double expand_time = GetTime();
 
 		WAStarState* s = m_open[0].min()->me;
-		if (is_goal(s->state_id))
+		auto f_check = m_w * compute_key(s, 0);
+		if (m_goal->g <= f_check)
+		// if (is_goal(s->state_id))
 		{
-			extract_path(*solution_path, *solution_cost);
+			extract_path(*solution_path, *action_ids, *solution_cost);
 			m_search_time += GetTime() - expand_time;
 			++m_expands[0];
 			SMPL_INFO("%d , %f", get_n_expands(), m_search_time);
@@ -208,7 +210,23 @@ void WAStar::expand(WAStarState *s, int hidx)
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
 	std::vector<int> action_ids;
-	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(0), &succ_ids, &costs, &action_ids);
+	if (is_goal(s->state_id))
+	{
+		MapState state; m_space->GetStateFromID(s->state_id, state);
+		printf("AMRA: potential goal [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
+
+		succ_ids.push_back(m_goal_id);
+		costs.push_back(0);
+		action_ids.push_back(-1);
+	}
+	else
+	{
+		m_space->GetSuccs(s->state_id,
+						  static_cast<Resolution::Level>(0),
+						  &succ_ids,
+						  &costs,
+						  &action_ids);
+	}
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
@@ -222,6 +240,7 @@ void WAStar::expand(WAStarState *s, int hidx)
 		{
 			succ_state->g = new_g;
 			succ_state->bp = s;
+			if (!action_ids.empty()) succ_state->actionidx = action_ids[sidx];
 			if (!succ_state->closed)
 			{
 				unsigned int f_0 = compute_key(succ_state, 0);
@@ -271,18 +290,24 @@ void WAStar::reorder_open()
 }
 
 void WAStar::extract_path(
-	std::vector<int>& solution, int& cost)
+	std::vector<int>& solution,
+	std::vector<int>& action_ids,
+	int& cost)
 {
 	cost = m_goal->g;
 	m_solution_cost = m_goal->g;
+	printf("  Solution cost: [%u]\n", m_solution_cost);
 
 	solution.clear();
+	action_ids.clear();
 
 	// m_goal->state_id == m_goal_id == 0 should be true
 	for (WAStarState *state = m_goal; state; state = state->bp) {
 		solution.push_back(state->state_id);
+		action_ids.push_back(state->actionidx);
 	}
 	std::reverse(solution.begin(), solution.end());
+	std::reverse(action_ids.begin(), action_ids.end());
 }
 
 }  // namespace CMUPlanner

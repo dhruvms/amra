@@ -107,7 +107,8 @@ public:
 
 	virtual void SaveExpansions(
 		int iter, double w1, double w2,
-		const std::vector<int>& curr_solution) = 0;
+		const std::vector<int>& curr_solution,
+		const std::vector<int>& action_ids) = 0;
 
 	int GetStartID() const { return m_start_id; };
 	int GetGoalID() const { return m_goal_id; };

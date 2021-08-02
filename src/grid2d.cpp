@@ -222,7 +222,8 @@ bool Grid2D::IsGoal(const int& id)
 
 void Grid2D::SaveExpansions(
 	int iter, double w1, double w2,
-	const std::vector<int>& curr_solution)
+	const std::vector<int>& curr_solution,
+	const std::vector<int>& action_ids)
 {
 	m_map->SaveExpansions(iter, w1, w2, m_closed);
 	if (!SAVE_ALL)

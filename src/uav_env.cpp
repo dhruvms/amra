@@ -51,6 +51,15 @@ m_goal_set(false)
         }
     }
     m_state_to_id.clear();
+
+    std::ofstream exp_log;
+    exp_log.open("../dat/solutions/uavexp.txt");
+    exp_log << "iter,hidx,x,y,theta,v" << std::endl;
+    exp_log.close();
+
+    std::ofstream sol_log;
+    sol_log.open("../dat/solutions/uavsol.txt");
+    sol_log.close();
 }
 
 void UAVEnv::SetStart(ContState& startState)
@@ -248,6 +257,11 @@ int UAVEnv::getActionIdx(int& disc_angle, int& primID)
 
 void UAVEnv::CreateSearch()
 {
+    // double w = 1.0;
+    // m_heurs.emplace_back(new EuclideanDist(this));
+    // m_search = std::make_unique<WAStar>(this, m_heurs.at(0), w);
+    // m_search->reset();
+
     m_heurs.emplace_back(new EuclideanDist(this));
     m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
     // m_heurs_map.emplace_back(Resolution::HIGH, 0);
@@ -312,29 +326,30 @@ bool UAVEnv::Plan(bool save)
 
     if (result && save)
     {
-        std::vector<ContState> solpath;
-        convertPath(solution, action_ids, solpath);
-        std::ofstream sol_log, exp_log;
-        sol_log.open("../dat/solutions/uavsol.txt");
-        for (auto s : solpath)
-        {
-            sol_log << s[0] << ","
-                    << s[1] << ","
-                    << s[2] << ","
-                    << s[3] << std::endl;
-        }
-        sol_log.close();
-        exp_log.open("../dat/solutions/uavexp.txt");
-        for (const auto& closed : m_closed)
-        {
-            auto i = closed.first;
-            auto states = closed.second;
-            for (auto* s : states)
-            {
-                exp_log << i << "," << s->coord.at(0) << "," << s->coord.at(1) << std::endl;
-            }
-        }
-        exp_log.close();
+        // std::vector<ContState> solpath;
+        // convertPath(solution, action_ids, solpath);
+        // std::ofstream sol_log;
+        // // std::ofstream exp_log;
+        // sol_log.open("../dat/solutions/uavsol.txt");
+        // for (auto s : solpath)
+        // {
+        //     sol_log << s[0] << ","
+        //             << s[1] << ","
+        //             << s[2] << ","
+        //             << s[3] << std::endl;
+        // }
+        // sol_log.close();
+        // exp_log.open("../dat/solutions/uavexp.txt");
+        // for (const auto& closed : m_closed)
+        // {
+        //     auto i = closed.first;
+        //     auto states = closed.second;
+        //     for (auto* s : states)
+        //     {
+        //         exp_log << i << "," << s->coord.at(0) << "," << s->coord.at(1) << std::endl;
+        //     }
+        // }
+        // exp_log.close();
 
         return true;
     }
@@ -461,16 +476,16 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
 
 int UAVEnv::getActionCost(std::vector<int>& startCoord, Action* action)
 {
-    // return 10;
-    int n_int_poses = action->intermediateStates.size();
-    if (startCoord[2] == action->end[2])
-    {
-        return 10;
-    }
-    else
-    {
-        return 10 * TURN_PENALTY;
-    }
+    return 1;
+    // int n_int_poses = action->intermediateStates.size();
+    // if (startCoord[2] == action->end[2])
+    // {
+    //     return 10;
+    // }
+    // else
+    // {
+    //     return 10 * TURN_PENALTY;
+    // }
 }
 
 void UAVEnv::ContToDiscState(ContState& inContState, DiscState& outDiscState)
@@ -522,7 +537,7 @@ bool UAVEnv::IsGoal(const int& id)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    return (distToGoalSqrd < 5*5);
+    return (distToGoalSqrd < 10*10);
 }
 
 bool UAVEnv::IsGoal(const int& sx, const int& sy)
@@ -534,14 +549,50 @@ bool UAVEnv::IsGoal(const int& sx, const int& sy)
     auto goaly = goal.coord[1];
 
     auto distToGoalSqrd = (sx-goalx)*(sx-goalx) + (sy-goaly)*(sy-goaly);
-    return (distToGoalSqrd < 5*5);
+    return (distToGoalSqrd < 10*10);
 }
 
 void UAVEnv::SaveExpansions(
     int iter, double w1, double w2,
-    const std::vector<int>& curr_solution)
+    const std::vector<int>& curr_solution,
+    const std::vector<int>& action_ids)
 {
-    printf("UAVEnv::SaveExpansions not implemented\n");
+    std::ofstream exp_log;
+    exp_log.open("../dat/solutions/uavexp.txt", std::ios_base::app);
+    for (const auto& closed : m_closed)
+    {
+        auto i = closed.first;
+        auto states = closed.second;
+        for (auto* s : states)
+        {
+            assert(s->coord.size() == 4);
+            exp_log
+            << iter        << ","
+            << i           << ","
+            << s->coord[0] << ","
+            << s->coord[1] << ","
+            << s->coord[2] << ","
+            << s->coord[3] << std::endl;
+        }
+    }
+    exp_log.close();
+
+    std::vector<ContState> solpath;
+    convertPath(curr_solution, action_ids, solpath);
+
+    std::ofstream sol_log;
+    sol_log.open("../dat/solutions/uavsol.txt", std::ios_base::app);
+    sol_log << "iter," << iter << std::endl;
+    sol_log << "solstart" << std::endl;
+    for (auto s : solpath)
+    {
+        sol_log << s[0] << ","
+                << s[1] << ","
+                << s[2] << ","
+                << s[3] << std::endl;
+    }
+    sol_log << "solend" << std::endl;
+    sol_log.close();
 }
 
 void UAVEnv::GetStart(MapState& start)
