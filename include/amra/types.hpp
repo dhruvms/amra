@@ -19,9 +19,9 @@ struct Resolution
 		Invalid = -1,
 		//  reserved for ANCHOR = 0;
 		ANCHOR = 0,
-		HIGH = 1,
-		MID = 2,
-		LOW = 3
+		MID = 1,
+		LOW = 2,
+		HIGH = 3
 	};
 };
 
@@ -109,6 +109,7 @@ public:
 		int iter, double w1, double w2,
 		const std::vector<int>& curr_solution,
 		const std::vector<int>& action_ids) = 0;
+	virtual void ClearStoredExpansions() = 0;
 
 	int GetStartID() const { return m_start_id; };
 	int GetGoalID() const { return m_goal_id; };

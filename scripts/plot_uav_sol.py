@@ -1,7 +1,10 @@
 import numpy as np
 import pandas as pd
-import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+
+plt.rcParams.update({"text.usetex": True})
+plt.rc('font', family='serif')
 
 PLOT_THETA = 0
 
@@ -23,13 +26,6 @@ mapdata[mapdata == '.'] = 0
 mapdata[mapdata == 'T'] = 1
 mapdata = mapdata.astype(int)
 
-# READ SOLUTIONS
-# solution = pd.read_csv("../dat/solutions/uavsol.txt", header=None)
-# X = solution[0]
-# Y = solution[1]
-# Theta = solution[2]
-# Vels = solution[3]
-
 all_solutions = []
 all_expansions = []
 iterations = []
@@ -40,7 +36,6 @@ with open('../dat/solutions/uavsol.txt') as f:
         if done:
             break
         line = f.readline()[:-1]  # discard newline character
-        print(line)
         if line == "":
             break
         field = line.split(',')[0]
@@ -59,137 +54,83 @@ with open('../dat/solutions/uavsol.txt') as f:
                 current_solution.append(state)
             continue
 
-# exp_df = pd.read_csv("../dat/solutions/uavexp.txt")
-# exp_iters = exp_df[0]
-# exp_hidxs = exp_df[1]
-
-# # READ EXPANSIONS
-# exp_hidxs = expansions[0]
-# index = expansions.index
-# condition = expansions[0] == 0
-# hidx_0_indices = index[condition]
-# hidx_0_X = expansions.iloc[hidx_0_indices, 1]
-# hidx_0_Y = expansions.iloc[hidx_0_indices, 2]
-
-# condition = expansions[0] == 1
-# hidx_1_indices = index[condition]
-# hidx_1_X = expansions.iloc[hidx_1_indices, 1]
-# hidx_1_Y = expansions.iloc[hidx_1_indices, 2]
-
-# condition = expansions[0] == 2
-# hidx_2_indices = index[condition]
-# hidx_2_X = expansions.iloc[hidx_2_indices, 1]
-# hidx_2_Y = expansions.iloc[hidx_2_indices, 2]
-
-# condition = expansions[0] == 3
-# hidx_3_indices = index[condition]
-# hidx_3_X = expansions.iloc[hidx_3_indices, 1]
-# hidx_3_Y = expansions.iloc[hidx_3_indices, 2]
+expdf = pd.read_csv("../dat/solutions/uavexp.txt")
+exp_iters = expdf["iter"]
+exp_hidxs = expdf["hidx"]
+exp_Xs = expdf["x"]
+exp_Ys = expdf["y"]
 
 # DRAW
-
 figure_rows = len(iterations)
+fig, axs = plt.subplots(ncols=4, nrows=figure_rows)
+spec = gridspec.GridSpec(ncols=4, nrows=figure_rows, figure=fig, hspace=0, wspace=0)
 
-if len(iterations) == 1:
+for i in range(figure_rows):
 
-    fig, ax = plt.subplots(1, 1)
-    col_map = plt.get_cmap('RdBu_r')
+    # fig, axs = plt.subplots(1, 4)
 
-    sol = all_solutions[0]
+    sol = all_solutions[i]
 
     X = [s[0] for s in sol]
     Y = [s[1] for s in sol]
     Theta = [s[2] for s in sol]
     Vels = [s[3] for s in sol]
 
-    # traj = ax1.scatter(Y, X, s=0.2, c=Vels, cmap=col_map)
+    # TRAJECTORY
+    # ax = plt.subplot(gs1[i,0])
+    ax = axs[i,0]
     traj = ax.scatter(Y, X, s=0.2, c=Vels)
     start = ax.scatter(Y[0], X[0], s=20, c='r')
     goal = ax.scatter(Y[len(Y)-1], X[len(X)-1], s=20, c='c')
 
     ax.imshow(mapdata, cmap='Greys')
-    ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    ax.tick_params(axis='both', which='major', labelsize=4)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
 
-else:
+    # ANCHOR EXPANSIONS
+    df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 0)]
+    X = df["x"]
+    Y = df["y"]
+    # Th = df["theta"]
 
-    fig, axs = plt.subplots(figure_rows, 1)
-    col_map = plt.get_cmap('RdBu_r')
+    # ax = plt.subplot(gs1[i,1])
+    ax = axs[i,1]
+    ax.imshow(mapdata, cmap='Greys')
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    ax.tick_params(axis='both', which='major', labelsize=3)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
+    ax.set_title(r'Anchor', fontsize=8)
 
-    for i in range(len(iterations)):
-        ax = axs[i]
-        sol = all_solutions[i]
+    # HEUR 1 EXPANSIONS
+    df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 1)]
+    X = df["x"]
+    Y = df["y"]
 
-        X = [s[0] for s in sol]
-        Y = [s[1] for s in sol]
-        Theta = [s[2] for s in sol]
-        Vels = [s[3] for s in sol]
+    # ax = plt.subplot(gs1[i,2])
+    ax = axs[i,2]
+    ax.imshow(mapdata, cmap='Greys')
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    ax.tick_params(axis='both', which='major', labelsize=3)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
+    ax.set_title(r'3m res.', fontsize=8)
 
-        # traj = ax1.scatter(Y, X, s=0.2, c=Vels, cmap=col_map)
-        traj = ax.scatter(Y, X, s=0.2, c=Vels)
-        start = ax.scatter(Y[0], X[0], s=20, c='r')
-        goal = ax.scatter(Y[len(Y)-1], X[len(X)-1], s=20, c='c')
+    # HEUR 2 EXPANSIONS
+    df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 2)]
+    X = df["x"]
+    Y = df["y"]
 
-        ax.imshow(mapdata, cmap='Greys')
-        ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    # ax = plt.subplot(gs1[i,3])
+    ax = axs[i,3]
+    ax.imshow(mapdata, cmap='Greys')
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    ax.tick_params(axis='both', which='major', labelsize=3)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
+    ax.set_title(r'9m res.', fontsize=8)
 
 plt.show()
-
-# # map
-# ax1.imshow(mapdata, cmap='Greys')
-# ax1.grid(color='Grey', linestyle='-', linewidth=0.1)
-
-# # trajectory
-# traj = ax1.scatter(Y, X, s=0.2, c=Vels, cmap=col_map)
-# start = ax1.scatter(Y[0], X[0], s=20, c='r')
-# goal = ax1.scatter(Y[len(Y)-1], X[len(X)-1], s=20, c='c')
-# ax1.legend([start, goal], ["Start", "Goal"])
-# # legend, colorbar
-# # fig.colorbar(traj, ax=ax1)
-
-# # PLOT EXPANSIONS
-# ax2.imshow(mapdata, cmap='Greys')
-# ax2.grid(color='Grey', linestyle='-', linewidth=0.1)
-# exps = ax2.scatter(hidx_0_Y, hidx_0_X, s=10, c='b')
-# ax2.set_title('ANCHOR')
-
-# # ax3.imshow(mapdata, cmap='Greys')
-# # ax3.grid(color='Grey', linestyle='-', linewidth=0.1)
-# # exps = ax3.scatter(hidx_1_Y, hidx_1_X, s=10, c='r')
-# # ax3.set_title('3m resolution')
-
-# ax3.imshow(mapdata, cmap='Greys')
-# ax3.grid(color='Grey', linestyle='-', linewidth=0.1)
-# exps = ax3.scatter(hidx_2_Y, hidx_2_X, s=10, c='r')
-# ax3.set_title('3m resolution')
-
-# ax4.imshow(mapdata, cmap='Greys')
-# ax4.grid(color='Grey', linestyle='-', linewidth=0.1)
-# exps = ax4.scatter(hidx_3_Y, hidx_3_X, s=10, c='g')
-# ax4.set_title('9m resolution')
-
-
-# if PLOT_THETA:
-
-#     fig, (ax1, ax2) = plt.subplots(1,2)
-#     col_map = plt.get_cmap('RdBu_r')
-
-#     # map
-#     ax1.imshow(mapdata, cmap='Greys')
-#     ax1.grid(color='Grey', linestyle='-', linewidth=0.1)
-#     # ax1.set_xticks(np.arange(0, 100, 1))
-#     # ax1.set_yticks(np.arange(0, 100, 1))
-#     # ax1.set_xticklabels(np.arange(0, 100, 1))
-#     # ax1.set_yticklabels(np.arange(0, 100, 1))
-
-#     # trajectory
-#     traj = ax1.scatter(Y, X, s=0.2, c=Vels, cmap=col_map)
-#     start = ax1.scatter(Y[0], X[0], s=20, c='r')
-#     goal = ax1.scatter(Y[len(Y)-1], X[len(X)-1], s=20, c='c')
-
-#     # legend, colorbar
-#     plt.legend([start, goal], ["Start", "Goal"])
-#     fig.colorbar(traj, ax=ax1)
-
-#     ax2.plot(range(0, len(Theta)), Theta)
-
-#     plt.show()
+# filename = "solution_iter_" + str(i) + ".pdf"
+# plt.savefig(filename, dpi=600)

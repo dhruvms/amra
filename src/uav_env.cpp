@@ -381,10 +381,6 @@ void UAVEnv::GetSuccs(
     auto parent_theta = parent->coord[2];
     auto parent_vel   = parent->coord[3];
 
-    if (parent_x == 171 && parent_y == 153 && parent_theta == 10 && parent_vel == 3) {
-        printf("\tGetSuccs parent is optimal goal\n");
-    }
-
     assert(m_map->IsTraversible(parent_x, parent_y));
     m_closed[static_cast<int>(level)].push_back(parent);
 
@@ -483,16 +479,8 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
 
 int UAVEnv::getActionCost(std::vector<int>& startCoord, Action* action)
 {
-    return 1;
-    // int n_int_poses = action->intermediateStates.size();
-    // if (startCoord[2] == action->end[2])
-    // {
-    //     return 10;
-    // }
-    // else
-    // {
-    //     return 10 * TURN_PENALTY;
-    // }
+    int n_int_poses = action->intermediateStates.size();
+    return n_int_poses;
 }
 
 void UAVEnv::ContToDiscState(ContState& inContState, DiscState& outDiscState)
@@ -727,6 +715,7 @@ bool UAVEnv::convertPath(
 
         MapState state;
         GetStateFromID(solution_ids[i], state);
+        // printf("sol state: [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
         auto action = m_actions.at(action_ids[i+1]);
 
         for(

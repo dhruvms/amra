@@ -60,6 +60,7 @@ public:
         int iter, double w1, double w2,
         const std::vector<int>& curr_solution,
         const std::vector<int>& action_ids) override;
+    void ClearStoredExpansions() override { m_closed.clear(); };
 
     Resolution::Level GetResLevel(const int& state_id) override;
     ////////////////////////////////////////////////////////////////////////////

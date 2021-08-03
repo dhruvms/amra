@@ -53,6 +53,9 @@ public:
 		const std::vector<int>& curr_solution,
 		const std::vector<int>& action_ids) override;
 
+	/// not implemented for 2D grid domain
+	void ClearStoredExpansions() override {};
+
 	void GetStart(MapState& start);
 	void GetGoal(MapState& goal);
 	void GetStateFromID(const int& id, MapState& state);
