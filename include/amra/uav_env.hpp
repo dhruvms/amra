@@ -22,8 +22,7 @@ struct hash<AMRA::UAVState>
     result_type operator()(const argument_type& s) const;
 };
 
-}
- // namespace std
+} // namespace std
 
 namespace AMRA
 {

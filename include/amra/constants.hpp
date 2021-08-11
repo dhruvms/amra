@@ -19,6 +19,8 @@ extern const int NUM_RES;
 extern const bool SAVE_ALL;
 
 extern const int TURN_PENALTY;
+extern const double TURNING_RADIUS;
+extern const double MAX_VEL;
 
 } // namespace SimPlan
 
