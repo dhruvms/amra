@@ -59,9 +59,11 @@ void Dubins::dubins_dist(const MapState& from, const MapState& to)
 {
 	m_dist = std::numeric_limits<int>::max();
 
+	int from_theta = from.coord.size() == 2 ? 0 : from.coord.at(2);
+	int to_theta = to.coord.size() == 2 ? 0 : to.coord.at(2);
 	int num_paths = smpl::MakeDubinsPaths(
-		smpl::Pose2D(from.coord.at(0), from.coord.at(1), DiscToContTheta(from.coord.at(2))),
-		smpl::Pose2D(to.coord.at(0), to.coord.at(1), DiscToContTheta(to.coord.at(2))),
+		smpl::Pose2D(from.coord.at(0), from.coord.at(1), DiscToContTheta(from_theta)),
+		smpl::Pose2D(to.coord.at(0), to.coord.at(1), DiscToContTheta(to_theta)),
 		TURNING_RADIUS / 1.0, m_motions);
 
 	for (int i = 0; i < num_paths; ++i)
