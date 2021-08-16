@@ -1,6 +1,7 @@
 // project includes
 #include <amra/dijkstra.hpp>
 #include <amra/constants.hpp>
+#include <amra/movingai.hpp>
 
 // system includes
 
@@ -64,8 +65,9 @@ bool Dijkstra::resume(int state_id)
 {
 	while (!m_open[0].empty())
 	{
-		AbstractState *parent = m_open[i].min()->me;
+		AbstractState *parent = m_open[0].min()->me;
 		parent->closed = true;
+		m_open[0].pop();
 
 		if (parent->state_id == state_id) {
 			return true;
@@ -92,18 +94,17 @@ bool Dijkstra::resume(int state_id)
 
 				int child_id = getOrCreateState(child_s);
 				AbstractState* child = getHashEntry(child_id);
-				child->g = parent->g + cost(child_s, parent->coord);
 
-				if (!m_open[0].contains(&child->od[0]) && !child->closed) {
-					insert_or_update(child);
-				}
-
-				unsigned int f = child->g + child->od[0].h;
-				if (m_open[0].contains(&child->od[0]) &&
-					f < child->od[0].f)
+				unsigned int new_g = parent->g + cost(child_s, parent->coord);
+				if (new_g < child->g)
 				{
-					child->od[0].f = f;
-					insert_or_update(child);
+					child->g = new_g;
+					child->bp = parent;
+					if (!child->closed)
+					{
+						child->od[0].f = child->g + child->od[0].h;
+						insert_or_update(child);
+					}
 				}
 			}
 		}
@@ -112,18 +113,23 @@ bool Dijkstra::resume(int state_id)
 	return false;
 }
 
-int Dijkstra::getOrCreateState(const DiscState& s)
+int Dijkstra::getOrCreateState(DiscState& s)
 {
-	int state_id = getHashEntry(&s);
+	int state_id = getHashEntry(s);
 	if (state_id < 0) {
 		state_id = createHashEntry(s);
 	}
 	return state_id;
 }
 
-int Dijkstra::getHashEntry(DiscState* s)
+int Dijkstra::getHashEntry(DiscState& s)
 {
-	auto sit = m_state_to_id.find(s);
+	AbstractState t;
+	t.coord.resize(2, 0);
+
+	t.coord.at(0) = s.at(0);
+	t.coord.at(1) = s.at(1);
+	auto sit = m_state_to_id.find(&t);
 	if (sit == m_state_to_id.end()) {
 		return -1;
 	}

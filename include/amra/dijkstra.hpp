@@ -7,6 +7,8 @@
 
 // system includes
 #include <smpl/console/console.h>
+#include <smpl/heap/intrusive_heap.h>
+#include <smpl/types.h>
 
 // standard includes
 
@@ -36,6 +38,12 @@ struct AbstractState
 	HeapData od[1]; // overallocated for additional n heuristics
 };
 
+inline
+bool operator==(const AbstractState& a, const AbstractState& b)
+{
+    return (a.coord == b.coord);
+}
+
 } // namespace AMRA
 
 namespace std
@@ -55,11 +63,13 @@ struct hash<AMRA::AbstractState>
 namespace AMRA
 {
 
+class MovingAI;
+
 class Dijkstra : public Heuristic
 {
 public:
 	Dijkstra(Environment* space, MovingAI* map);
-	void Init(const DiscState& robot, const DiscState& goal);
+	void Init(const DiscState& robot, const DiscState& goal) override;
 
 	unsigned int GetGoalHeuristic(int state_id) override;
 
@@ -73,7 +83,7 @@ public:
 private:
 	MovingAI* m_map;
 	DiscState m_start, m_goal;
-	int m_start_ids, m_goal_id;
+	int m_start_id, m_goal_id;
 
 	struct HeapCompare {
 		bool operator()(
@@ -97,8 +107,8 @@ private:
 
     bool resume(int state_id);
 
-    int getOrCreateState(const DiscState& s);
-	int getHashEntry(DiscState* s);
+    int getOrCreateState(DiscState& s);
+	int getHashEntry(DiscState& s);
 	int createHashEntry(const DiscState& s);
 	AbstractState* getHashEntry(int state_id) const;
 	int reserveHashEntry();
