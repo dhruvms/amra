@@ -62,8 +62,8 @@ exp_Ys = expdf["y"]
 
 # DRAW
 figure_rows = len(iterations)
-fig, axs = plt.subplots(ncols=4, nrows=figure_rows)
-spec = gridspec.GridSpec(ncols=4, nrows=figure_rows, figure=fig, hspace=0, wspace=0)
+fig, axs = plt.subplots(ncols=5, nrows=figure_rows)
+spec = gridspec.GridSpec(ncols=5, nrows=figure_rows, figure=fig, hspace=0, wspace=0)
 
 for i in range(figure_rows):
 
@@ -130,6 +130,20 @@ for i in range(figure_rows):
     ax.tick_params(axis='both', which='major', labelsize=3)
     ax.tick_params(axis='both', which='minor', labelsize=0)
     ax.set_title(r'9m res.', fontsize=8)
+
+    # HEUR 3 EXPANSIONS
+    df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 3)]
+    X = df["x"]
+    Y = df["y"]
+
+    # ax = plt.subplot(gs1[i,3])
+    ax = axs[i,4]
+    ax.imshow(mapdata, cmap='Greys')
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    ax.tick_params(axis='both', which='major', labelsize=3)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
+    ax.set_title(r'Dijkstra.', fontsize=8)
 
 plt.show()
 # filename = "solution_iter_" + str(i) + ".pdf"
