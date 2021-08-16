@@ -44,7 +44,8 @@ public:
 		int state_id,
 		Resolution::Level level,
 		std::vector<int>* succs,
-		std::vector<unsigned int>* costs) override;
+		std::vector<unsigned int>* costs,
+		int hidx) override;
 	bool IsGoal(const int& id) override;
 
 	void SaveExpansions(

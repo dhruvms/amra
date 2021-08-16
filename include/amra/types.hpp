@@ -32,6 +32,7 @@ struct MapState
 	Resolution::Level level;
 };
 typedef std::map<int, std::vector<MapState*> > EXPANDS_t;
+typedef	std::vector<int> DiscState;
 
 inline
 bool operator==(const MapState& a, const MapState& b)
@@ -76,7 +77,8 @@ public:
 		int state_id,
 		Resolution::Level level,
 		std::vector<int>* succs,
-		std::vector<unsigned int>* costs) = 0;
+		std::vector<unsigned int>* costs,
+		int hidx) = 0;
 	virtual bool IsGoal(const int& id) = 0;
 
 	virtual void SaveExpansions(

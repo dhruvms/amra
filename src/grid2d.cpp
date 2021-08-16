@@ -136,7 +136,8 @@ void Grid2D::GetSuccs(
 	int state_id,
 	Resolution::Level level,
 	std::vector<int>* succs,
-	std::vector<unsigned int>* costs)
+	std::vector<unsigned int>* costs,
+	int hidx)
 {
 	assert(state_id >= 0);
 	succs->clear();
@@ -145,7 +146,7 @@ void Grid2D::GetSuccs(
 	MapState* parent = getHashEntry(state_id);
 	assert(parent);
 	assert(m_map->IsTraversible(parent->coord.at(0), parent->coord.at(1)));
-	m_closed[static_cast<int>(level)].push_back(parent);
+	m_closed[hidx].push_back(parent);
 
 	// goal state should be absorbing
 	if (state_id == GetGoalID()) {

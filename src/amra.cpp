@@ -371,7 +371,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
-	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(hres_i), &succ_ids, &costs);
+	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(hres_i), &succ_ids, &costs, hidx);
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
@@ -428,7 +428,6 @@ unsigned int AMRAStar::compute_heuristic(int state_id, int hidx)
 {
 	assert(num_heuristics() >= hidx);
 	return m_heurs.at(m_heurs_map.at(hidx).second)->GetGoalHeuristic(state_id);
-
 }
 
 unsigned int AMRAStar::compute_key(AMRAState *state, int hidx)
