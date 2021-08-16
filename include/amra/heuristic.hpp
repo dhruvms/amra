@@ -17,6 +17,8 @@ public:
 	Heuristic(Environment* space) : m_space(space) {};
 	virtual ~Heuristic(){};
 
+	virtual void Init(const DiscState& robot, const DiscState& goal) {};
+
 	virtual unsigned int GetGoalHeuristic(int state_id) = 0;
 	virtual unsigned int GetStartHeuristic(int state_id) = 0;
 	virtual unsigned int GetFromToHeuristic(int from_id, int to_id) = 0;
