@@ -261,7 +261,7 @@ int AMRAStar::replan(
 
 		SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		extract_path(*solution_path, *solution_cost);
-		// m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
+		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
 
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
 			break;
