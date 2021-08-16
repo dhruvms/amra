@@ -26,6 +26,7 @@ const bool AMRA::SAVE_ALL = false;
 const int AMRA::TURN_PENALTY = 1;
 const double AMRA::TURNING_RADIUS = 20.0;
 const double AMRA::MAX_VEL = 8.0;
+const int AMRA::WP_TIME = 50; // milliseconds
 
 const bool AMRA::DUBINS = false;
 const bool AMRA::DIJKSTRA = true;

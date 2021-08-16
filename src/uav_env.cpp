@@ -479,8 +479,8 @@ bool UAVEnv::validAction(UAVState* state, Action& action)
 
 int UAVEnv::getActionCost(std::vector<int>& startCoord, Action* action)
 {
-    int n_int_poses = action->intermediateStates.size();
-    return n_int_poses;
+    int action_time_ms = action->intermediateStates.size() * WP_TIME;
+    return action_time_ms;
 }
 
 void UAVEnv::ContToDiscState(ContState& inContState, DiscState& outDiscState)
