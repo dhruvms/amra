@@ -399,7 +399,7 @@ void UAVEnv::GetSuccs(
     {
         case Resolution::ANCHOR: {
             primid_start = 0;
-            primid_end   = 17;
+            primid_end   = parent->level == Resolution::LOW ? 17 : 8;
             break;
         }
         case Resolution::MID: {
@@ -414,10 +414,7 @@ void UAVEnv::GetSuccs(
         }
     }
 
-    for(
-    auto primid = primid_start;
-    primid <= primid_end;
-    ++primid)
+    for (auto primid = primid_start; primid <= primid_end; ++primid)
     {
         int actionidx = getActionIdx(parent_theta, primid);
         auto action = m_actions.at(actionidx);
