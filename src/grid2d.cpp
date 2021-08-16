@@ -1,6 +1,8 @@
 // project includes
 #include <amra/grid2d.hpp>
 #include <amra/heuristic.hpp>
+#include <amra/dubins.hpp>
+#include <amra/dijkstra.hpp>
 #include <amra/constants.hpp>
 #include <amra/amra.hpp>
 #include <amra/wastar.hpp>
@@ -43,6 +45,7 @@ m_goal_set(false)
 void Grid2D::CreateSearch()
 {
 	m_heurs.emplace_back(new EuclideanDist(this));
+
 	m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
 	m_heurs_map.emplace_back(Resolution::HIGH, 0);
 	m_res_count = 1; // inadmissible resolution count
@@ -57,6 +60,19 @@ void Grid2D::CreateSearch()
 	{
 		m_heurs_map.emplace_back(Resolution::LOW, 0);
 		m_res_count++;
+	}
+
+	if (DUBINS)
+	{
+		m_heur_count++;
+		m_heurs.emplace_back(new Dubins(this));
+		m_heurs_map.emplace_back(Resolution::HIGH, m_heurs.size()-1);
+	}
+	if (DIJKSTRA)
+	{
+		m_heur_count++;
+		m_heurs.emplace_back(new Dijkstra(this, m_map.get()));
+		m_heurs_map.emplace_back(Resolution::HIGH, m_heurs.size()-1);
 	}
 
 	for (int i = 0; i < m_heurs_map.size(); ++i) {
@@ -115,6 +131,13 @@ bool Grid2D::Plan(bool save)
 
 	m_search->set_start(m_start_id);
 	m_search->set_goal(m_goal_id);
+
+	if (DIJKSTRA)
+	{
+		auto robot = getHashEntry(m_start_id);
+		auto goal = getHashEntry(m_goal_id);
+		m_heurs.back()->Init(robot->coord, goal->coord);
+	}
 
 	std::vector<int> solution;
 	int solcost;
@@ -470,8 +493,11 @@ unsigned int Grid2D::cost(
 	}
 	else
 	{
-		double dist = std::sqrt(std::pow(s1->coord.at(0) - s2->coord.at(0), 2) +
-								std::pow(s1->coord.at(1) - s2->coord.at(1), 2));
+		double dist = 0.0;
+		for (size_t i = 0; i < s1->coord.size(); ++i) {
+			dist += std::pow(s1->coord.at(i) - s2->coord.at(i), 2);
+		}
+		dist = std::sqrt(dist);
 		return (dist * COST_MULT);
 	}
 }
