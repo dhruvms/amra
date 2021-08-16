@@ -31,6 +31,8 @@ add_library(
     src/grid2d.cpp
     src/uav_env.cpp
     src/heuristic.cpp
+    src/dubins.cpp
+    src/dijkstra.cpp
     src/wastar.cpp
     src/amra.cpp
     src/movingai.cpp
