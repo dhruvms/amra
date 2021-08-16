@@ -1,6 +1,8 @@
 // project includes
 #include <amra/uav_env.hpp>
 #include <amra/heuristic.hpp>
+#include <amra/dubins.hpp>
+#include <amra/dijkstra.hpp>
 #include <amra/constants.hpp>
 #include <amra/helpers.hpp>
 #include <amra/amra.hpp>
@@ -257,16 +259,10 @@ int UAVEnv::getActionIdx(int& disc_angle, int& primID)
 
 void UAVEnv::CreateSearch()
 {
-    // double w = 1.0;
-    // m_heurs.emplace_back(new EuclideanDist(this));
-    // m_search = std::make_unique<WAStar>(this, m_heurs.at(0), w);
-    // m_search->reset();
-
     m_heurs.emplace_back(new EuclideanDist(this));
-    m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
-    // m_heurs_map.emplace_back(Resolution::HIGH, 0);
-    m_res_count = 1; // inadmissible resolution count
     m_heur_count = 1;
+
+    m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
 
     if (NUM_RES != 2) {
         printf("For now, NUM_RES must be 2 for UAV domain.\n");
@@ -275,9 +271,23 @@ void UAVEnv::CreateSearch()
 
     /// Add MID and LOW resolution queues
     m_heurs_map.emplace_back(Resolution::MID, 0);
-    m_res_count++;
+    m_res_count = 1; // inadmissible resolution count
+
     m_heurs_map.emplace_back(Resolution::LOW, 0);
     m_res_count++;
+
+    if (DUBINS)
+    {
+        m_heurs.emplace_back(new Dubins(this));
+        m_heur_count++;
+        m_heurs_map.emplace_back(Resolution::MID, m_heurs.size()-1);
+    }
+    if (DIJKSTRA)
+    {
+        m_heurs.emplace_back(new Dijkstra(this, m_map.get()));
+        m_heur_count++;
+        m_heurs_map.emplace_back(Resolution::MID, m_heurs.size()-1);
+    }
 
     for (int i = 0; i < m_heurs_map.size(); ++i) {
         m_closed[i].clear(); // init expansions container
@@ -318,6 +328,13 @@ bool UAVEnv::Plan(bool save)
 
     m_search->set_goal(m_goal_id);
     m_search->set_start(m_start_id);
+
+    if (DIJKSTRA)
+    {
+        auto robot = getHashEntry(m_start_id);
+        auto goal = getHashEntry(m_goal_id);
+        m_heurs.back()->Init(robot->coord, goal->coord);
+    }
 
     std::vector<int> solution;
     std::vector<int> action_ids;
