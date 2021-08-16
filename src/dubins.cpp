@@ -1,6 +1,7 @@
 // project includes
 #include <amra/dubins.hpp>
 #include <amra/constants.hpp>
+#include <amra/helpers.hpp>
 
 // system includes
 

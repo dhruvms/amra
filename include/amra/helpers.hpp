@@ -26,6 +26,17 @@ int sgn(T val) {
 	return (T(0) < val) - (val < T(0));
 }
 
+const int DEFAULT_NUM_ANGLES = 12;
+
+inline double DiscToContTheta(int theta, int numAngles) {
+	double delta = 2 * M_PI / numAngles;
+	return theta * delta;
+}
+
+inline double DiscToContTheta(int theta) {
+ 	return DiscToContTheta(theta, DEFAULT_NUM_ANGLES);
+}
+
 }  // namespace AMRA
 
 #endif  // HELPERS_HPP
