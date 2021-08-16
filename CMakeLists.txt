@@ -30,6 +30,8 @@ add_library(
     AMRA
     src/grid2d.cpp
     src/heuristic.cpp
+    src/dubins.cpp
+    src/dijkstra.cpp
     src/wastar.cpp
     src/amra.cpp
     src/movingai.cpp
