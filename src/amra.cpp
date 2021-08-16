@@ -46,6 +46,15 @@ m_goal_id(-1)
 	m_heurs_map = heurs_map;
 	m_open = new OpenList[m_heurs_map.size()];  // inadmissible(s) + anchor
 	m_expands = new int[m_heurs_map.size()];
+
+	m_offset = std::numeric_limits<int>::max();
+	for (const auto& pair: m_heurs_map)
+	{
+		int hres = static_cast<int>(pair.first);
+		if (hres > 0 && hres < m_offset) {
+			m_offset = hres;
+		}
+	}
 }
 
 AMRAStar::~AMRAStar()
@@ -354,8 +363,8 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	}
 	else
 	{
-		assert(!s->closed_in_res[hres_i - 1]);
-		s->closed_in_res[hres_i - 1] = true;
+		assert(!s->closed_in_res[hres_i - m_offset]);
+		s->closed_in_res[hres_i - m_offset] = true;
 		if (m_open[hidx].contains(&s->od[hidx])) {
 			m_open[hidx].erase(&s->od[hidx]);
 		}
@@ -422,7 +431,7 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 					// all grids coarser than it
 					if (static_cast<int>(succ_state->res) >= hres_j)
 					{
-						if (!succ_state->closed_in_res[hres_j - 1])
+						if (!succ_state->closed_in_res[hres_j - m_offset])
 						{
 							unsigned int f_j = compute_key(succ_state, j);
 							if (f_j <= m_w2 * f_0)

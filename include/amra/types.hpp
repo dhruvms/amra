@@ -19,9 +19,9 @@ struct Resolution
 		Invalid = -1,
 		//  reserved for ANCHOR = 0;
 		ANCHOR = 0,
-		MID = 1,
-		LOW = 2,
-		HIGH = 3
+		HIGH = 1,
+		MID = 2,
+		LOW = 3,
 	};
 };
 

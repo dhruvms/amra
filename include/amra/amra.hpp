@@ -88,7 +88,7 @@ private:
 	OpenList* m_open = nullptr;  // sequence of (m_heur_count + 1) open lists
 
 	// Search params
-	int m_call_number, m_iter;
+	int m_call_number, m_iter, m_offset;
 	double m_time_limit;
 	double m_w1_i, m_w1_f, m_w2_i, m_w2_f, m_w1, m_w2;
 	double m_w1_delta, m_w2_delta;
