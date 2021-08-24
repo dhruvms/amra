@@ -354,13 +354,10 @@ bool AMRAStar::improve_path(
 				return false;
 			}
 
-			// printf("State id of min state in anchor: [%d]\n", m_open[0].min()->me->state_id);
-
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
 			if (!m_open[i].empty() && m_open[i].min()->f <= f_check)
 			{
 				AMRAState *s = m_open[i].min()->me;
-				// printf("  expand [%d, %d]\n", s->state_id, i);
 				expand(s, i);
 				if (s->state_id == m_goal_id) {
 					return true;
@@ -371,7 +368,6 @@ bool AMRAStar::improve_path(
 			{
 				// expand from anchor
 				AMRAState *s = m_open[0].min()->me;
-				// printf("  expand [%d, 0]\n", s->state_id);
 				expand(s, 0);
 				if (s->state_id == m_goal_id) {
 					return true;
@@ -388,17 +384,13 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	// close s in correct resolution
 	// and remove from appropriate OPENs
 
-	// printf("    expanding state [%d] with hidx [%d]\n", s->state_id, hidx);
-
 	int hres_i = static_cast<int>(m_heurs_map.at(hidx).first);
 	if (hidx == 0)
 	{
 		assert(!s->closed_in_anc);
 		s->closed_in_anc = true;
-		// printf("    mark [%d] closed in ANCHOR\n", s->state_id);
 
 		if (m_open[0].contains(&s->od[0])) {
-			// printf("    erase [%d] from ANCHOR\n", s->state_id);
 			m_open[0].erase(&s->od[0]);
 		}
 	}
@@ -439,12 +431,6 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 						  &action_ids);
 	}
 
-	// printf("successors for state [%d]:\n", s->state_id);
-	// for (auto i : succ_ids) {
-	// 	printf("[%d], ", i);
-	// }
-	// printf("\n");
-
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
 		unsigned int cost = costs[sidx];
@@ -464,14 +450,12 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 
 			if (succ_state->closed_in_anc)
 			{
-				// printf("  push [%d] in INCONS\n", succ_state->state_id);
 				m_incons.push_back(succ_state);
 			}
 			else
 			{
 				unsigned int f_0 = compute_key(succ_state, 0);
 				succ_state->od[0].f = f_0;
-				// printf("  insert/update [%d] in ANCHOR\n", succ_state->state_id);
 				insert_or_update(succ_state, 0);
 
 				for (int j = 1; j < num_heuristics(); ++j)
