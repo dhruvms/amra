@@ -36,9 +36,11 @@ struct AMRAState
 	};
 
 	bool closed_in_anc;
-	bool closed_in_res[1]; // overallocated for each resolution
+	// bool closed_in_res[1]; // overallocated for each resolution
+	bool closed_in_res[6]; // overallocated for each resolution
 
-	HeapData od[1]; // overallocated for additional n heuristics
+	// HeapData od[1]; // overallocated for additional n heuristics
+	HeapData od[6]; // overallocated for additional n heuristics
 };
 
 class Environment;
@@ -107,7 +109,7 @@ private:
 	int num_heuristics() const { return m_heurs_map.size(); }
 
 	AMRAState* get_state(int state_id);
-	// AMRAState* create_state(int state_id);
+	AMRAState* create_state(int state_id);
 	void init_state(AMRAState *state, int state_id);
 	void reinit_state(AMRAState *state);
 

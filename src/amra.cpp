@@ -30,8 +30,7 @@ m_space(space),
 m_call_number(0),
 m_heur_count(heur_count),
 m_res_count(res_count),
-// m_w1_i(10.0), m_w2_i(20.0),
-m_w1_i(1.0), m_w2_i(1.0),
+m_w1_i(10.0), m_w2_i(20.0),
 m_w1_f(1.0), m_w2_f(1.0),
 m_w1_delta(0.5), m_w2_delta(0.5),
 m_start_id(-1),
@@ -129,38 +128,72 @@ void AMRAStar::reset()
 	m_goal = nullptr;
 }
 
+AMRAState* AMRAStar::create_state(int state_id)
+{
+	assert(state_id >= 0);
+
+	// // overallocate search state for appropriate heuristic information
+	// size_t state_size = sizeof(SMHAState) +
+	//                     sizeof(SMHAState::HeapData)*(m_heur_count);
+	// SMHAState* s = (SMHAState*)malloc(state_size);
+
+	// new(s) SMHAState;
+	// for (int i = 0; i < m_heur_count; ++i) {
+	//     new(&s->od[1 + i]) SMHAState::HeapData;
+	// }
+
+	AMRAState* s = new AMRAState;
+
+	// s->state_id = state_id;
+	init_state(s, state_id);
+	return s;
+}
+
 // Get the search state corresponding to a graph state, creating a new state if
 // one has not been created yet.
 AMRAState* AMRAStar::get_state(int state_id)
 {
 	assert(state_id >= 0);
 
-	if (m_states.size() <= state_id)
-	{
-		size_t state_size =
-			sizeof(AMRAState) +
-			sizeof(AMRAState::HeapData) * (num_heuristics() - 1) +
-			sizeof(bool) * (m_res_count - 1);
-		AMRAState* s = (AMRAState*)malloc(state_size);
-
-		// Use placement new(s) to construct allocated memory
-		new (s) AMRAState;
-		for (int i = 0; i < m_res_count-1; ++i) {
-			new (&s->closed_in_res[1 + i]) bool;
-		}
-		for (int i = 0; i < num_heuristics() - 1; ++i) {
-			new (&s->od[1 + i]) AMRAState::HeapData;
-		}
-
-		// assert(state_id == m_states.size());
-
-		init_state(s, state_id);
-		m_states.push_back(s);
-
-		return s;
+	if (int(m_states.size()) <= state_id) {
+		m_states.resize(state_id + 1, nullptr);
 	}
 
-	return m_states[state_id];
+	auto& state = m_states[state_id];
+
+	if (state == nullptr) {
+		state = create_state(state_id);
+	}
+	return state;
+
+	// assert(state_id >= 0);
+
+	// if (m_states.size() <= state_id)
+	// {
+	// 	size_t state_size =
+	// 		sizeof(AMRAState) +
+	// 		sizeof(AMRAState::HeapData) * (num_heuristics() - 1) +
+	// 		sizeof(bool) * (m_res_count - 1);
+	// 	AMRAState* s = (AMRAState*)malloc(state_size);
+
+	// 	// Use placement new(s) to construct allocated memory
+	// 	new (s) AMRAState;
+	// 	for (int i = 0; i < m_res_count-1; ++i) {
+	// 		new (&s->closed_in_res[1 + i]) bool;
+	// 	}
+	// 	for (int i = 0; i < num_heuristics() - 1; ++i) {
+	// 		new (&s->od[1 + i]) AMRAState::HeapData;
+	// 	}
+
+	// 	// assert(state_id == m_states.size());
+
+	// 	init_state(s, state_id);
+	// 	m_states.push_back(s);
+
+	// 	return s;
+	// }
+
+	// return m_states[state_id];
 }
 
 void AMRAStar::init_state(AMRAState *state, int state_id)
@@ -321,13 +354,13 @@ bool AMRAStar::improve_path(
 				return false;
 			}
 
-			printf("State id of min state in anchor: [%d]\n", m_open[0].min()->me->state_id);
+			// printf("State id of min state in anchor: [%d]\n", m_open[0].min()->me->state_id);
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
 			if (!m_open[i].empty() && m_open[i].min()->f <= f_check)
 			{
 				AMRAState *s = m_open[i].min()->me;
-				printf("  expand [%d, %d]\n", s->state_id, i);
+				// printf("  expand [%d, %d]\n", s->state_id, i);
 				expand(s, i);
 				if (s->state_id == m_goal_id) {
 					return true;
@@ -338,7 +371,7 @@ bool AMRAStar::improve_path(
 			{
 				// expand from anchor
 				AMRAState *s = m_open[0].min()->me;
-				printf("  expand [%d, 0]\n", s->state_id);
+				// printf("  expand [%d, 0]\n", s->state_id);
 				expand(s, 0);
 				if (s->state_id == m_goal_id) {
 					return true;
@@ -362,10 +395,10 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 	{
 		assert(!s->closed_in_anc);
 		s->closed_in_anc = true;
-		printf("    mark [%d] closed in ANCHOR\n", s->state_id);
+		// printf("    mark [%d] closed in ANCHOR\n", s->state_id);
 
 		if (m_open[0].contains(&s->od[0])) {
-			printf("    erase [%d] from ANCHOR\n", s->state_id);
+			// printf("    erase [%d] from ANCHOR\n", s->state_id);
 			m_open[0].erase(&s->od[0]);
 		}
 	}
@@ -431,14 +464,14 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 
 			if (succ_state->closed_in_anc)
 			{
-				printf("  push [%d] in INCONS\n", succ_state->state_id);
+				// printf("  push [%d] in INCONS\n", succ_state->state_id);
 				m_incons.push_back(succ_state);
 			}
 			else
 			{
 				unsigned int f_0 = compute_key(succ_state, 0);
 				succ_state->od[0].f = f_0;
-				printf("  insert/update [%d] in ANCHOR\n", succ_state->state_id);
+				// printf("  insert/update [%d] in ANCHOR\n", succ_state->state_id);
 				insert_or_update(succ_state, 0);
 
 				for (int j = 1; j < num_heuristics(); ++j)
