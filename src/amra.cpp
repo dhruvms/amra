@@ -249,7 +249,8 @@ int AMRAStar::replan(
 				if ((*it)->me->res >= m_heurs_map.at(hidx).first)
 				{
 					(*it)->me->od[hidx].f = compute_key((*it)->me, hidx);
-					(*it)->me->closed_in_res[hidx - 1] = false;
+					int hres = static_cast<int>(m_heurs_map.at(hidx).first);
+					(*it)->me->closed_in_res[hres - m_offset] = false;
 					insert_or_update((*it)->me, hidx);
 				}
 			}
