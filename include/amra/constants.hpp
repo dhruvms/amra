@@ -26,6 +26,8 @@ extern const double MAX_VEL;
 extern const bool DUBINS;
 extern const bool DIJKSTRA;
 
+extern const bool SUCCESSIVE;
+
 } // namespace SimPlan
 
 

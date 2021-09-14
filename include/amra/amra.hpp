@@ -23,6 +23,9 @@ struct AMRAState
 	AMRAState* bp;
 	// std::pair<int, int> actionids;
 
+	bool closed_in_anc;
+	bool closed_in_res[3]; // overallocated for each resolution
+
 	struct HeapData : public smpl::heap_element
 	{
 		// TODO: rather than map back to the state, the heap could know its
@@ -34,10 +37,6 @@ struct AMRAState
 		unsigned int h;
 		unsigned int f;
 	};
-
-	bool closed_in_anc;
-	bool closed_in_res[1]; // overallocated for each resolution
-
 	HeapData od[1]; // overallocated for additional n heuristics
 };
 

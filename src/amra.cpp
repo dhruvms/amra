@@ -41,9 +41,10 @@ m_goal_id(-1)
 
 	if (COSTMAP) {
 		m_w1_i = 500.0;
-		m_w2_i = 100.0;
+		m_w2_i = 500.0;
 
 		m_w1_delta = 0.33;
+		m_w2_delta = 0.33;
 	}
 
 	m_w1 = m_w1_i;
@@ -53,6 +54,12 @@ m_goal_id(-1)
 	m_heurs_map = heurs_map;
 	m_open = new OpenList[m_heurs_map.size()];  // inadmissible(s) + anchor
 	m_expands = new int[m_heurs_map.size()];
+
+	m_initial_t = 0.0;
+	m_final_t = 0.0;
+	m_initial_c = -1;
+	m_final_c = -1;
+	m_total_e = -1;
 }
 
 AMRAStar::~AMRAStar()
@@ -134,15 +141,16 @@ AMRAState* AMRAStar::get_state(int state_id)
 	{
 		size_t state_size =
 			sizeof(AMRAState) +
-			sizeof(AMRAState::HeapData) * (num_heuristics() - 1) +
-			sizeof(bool) * (m_res_count - 1);
+			sizeof(AMRAState::HeapData) * (num_heuristics() - 1);
+			//  +
+			// sizeof(bool) * (m_res_count - 1);
 		AMRAState* s = (AMRAState*)malloc(state_size);
 
 		// Use placement new(s) to construct allocated memory
 		new (s) AMRAState;
-		for (int i = 0; i < m_res_count-1; ++i) {
-			new (&s->closed_in_res[1 + i]) bool;
-		}
+		// for (int i = 0; i < m_res_count-1; ++i) {
+		// 	new (&s->closed_in_res[1 + i]) bool;
+		// }
 		for (int i = 0; i < num_heuristics() - 1; ++i) {
 			new (&s->od[1 + i]) AMRAState::HeapData;
 		}
@@ -242,26 +250,44 @@ int AMRAStar::replan(
 				if ((*it)->me->res >= m_heurs_map.at(hidx).first)
 				{
 					(*it)->me->od[hidx].f = compute_key((*it)->me, hidx);
-					(*it)->me->closed_in_res[hidx - 1] = false;
+					int hres = static_cast<int>(m_heurs_map.at(hidx).first);
+					(*it)->me->closed_in_res[hres - 1] = false;
 					insert_or_update((*it)->me, hidx);
 				}
 			}
 		}
 		reorder_open();
 
+		for (size_t i = 0; i < m_states.size(); ++i)
+		{
+			if (m_states[i] != nullptr)
+			{
+				m_states[i]->closed_in_anc = false;
+				for (int j = 0; j < m_res_count; ++j) {
+					m_states[i]->closed_in_res[j] = false;
+				}
+			}
+		}
+
 		double search_start_time = GetTime();
 		double search_time = 0.0;
+		int curr_exps = get_n_expands();
 		bool result = improve_path(search_start_time, search_time);
 
 		m_search_time += search_time;
 
-		if(!result) {
+		if(!result || m_search_time >= m_time_limit) {
 			break;
 		}
+		if (m_w1_solve < 0 || m_w2_solve < 0) {
+			m_initial_t = m_search_time;
+		}
 
-		SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		extract_path(*solution_path, *solution_cost);
-		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
+		// SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f | cost = %d", m_w1, m_w2, get_expands_str().c_str(), search_time, *solution_cost);
+		// if (curr_exps < get_n_expands()) {
+		// 	m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
+		// }
 
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
 			break;
@@ -270,6 +296,23 @@ int AMRAStar::replan(
 		m_w2 = std::max(m_w2_f, m_w2 * m_w2_delta);
 
 		m_iter++;
+
+		if (SUCCESSIVE)
+		{
+			++m_call_number;
+
+			reinit_state(m_goal);
+			reinit_state(m_start);
+			m_start->g = 0;
+
+			// clear all OPEN lists
+			for (int i = 0; i < num_heuristics(); ++i) {
+				m_open[i].clear();
+			}
+
+			m_incons.clear();
+			m_incons.push_back(m_start);
+		}
 	}
 
 	if (m_w1_solve < 0 || m_w2_solve < 0)
@@ -282,7 +325,10 @@ int AMRAStar::replan(
 	// m_ss << "time (s) = " << m_search_time << " | expansions = " << get_n_expands() << " | solution_cost = " << m_solution_cost;
 	// log_it(LogLevel::WARN);
 
-	SMPL_INFO("%d (%s), %f", get_n_expands(), get_expands_str().c_str(), m_search_time);
+	// SMPL_INFO("%d (%s), %f", get_n_expands(), get_expands_str().c_str(), m_search_time);
+	m_final_t = m_search_time;
+	m_final_c = *solution_cost;
+	m_total_e = get_n_expands();
 
 	return 1;
 }
@@ -459,6 +505,10 @@ void AMRAStar::reorder_open()
 void AMRAStar::extract_path(
 	std::vector<int>& solution, int& cost)
 {
+	if (m_w1_solve < 0 || m_w2_solve < 0) {
+		m_initial_c = m_goal->g;
+	}
+
 	m_w1_solve = m_w1;
 	m_w2_solve = m_w2;
 	cost = m_goal->g;

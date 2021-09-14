@@ -1,6 +1,6 @@
 #include <amra/constants.hpp>
 
-const int AMRA::MAX_PLANNING_TIME_MS = 4000;
+const int AMRA::MAX_PLANNING_TIME_MS = 30000;
 const int AMRA::COST_MULT = 1000;
 const std::map<char, int> AMRA::MOVINGAI_DICT = {
 	{'.', 1},
@@ -16,9 +16,9 @@ const std::map<char, int> AMRA::MOVINGAI_DICT = {
 	{'E', 1003}, // expanded state
 };
 
-const int AMRA::MIDRES_MULT = 3;
-const int AMRA::LOWRES_MULT = 9;
-const int AMRA::GRID = 8;
+const int AMRA::MIDRES_MULT = 7;
+const int AMRA::LOWRES_MULT = 21;
+const int AMRA::GRID = 4;
 const int AMRA::NUM_RES = 3;
 
 const bool AMRA::SAVE_ALL = false;
@@ -29,4 +29,6 @@ const double AMRA::TURNING_RADIUS = 20.0;
 const double AMRA::MAX_VEL = 8.0;
 
 const bool AMRA::DUBINS = false;
-const bool AMRA::DIJKSTRA = true;
+const bool AMRA::DIJKSTRA = false;
+
+const bool AMRA::SUCCESSIVE = false;
