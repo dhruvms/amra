@@ -37,6 +37,16 @@ public:
 	unsigned int GetFromToHeuristic(int from_id, int to_id) override;
 };
 
+class ManhattanDist : public Heuristic
+{
+public:
+	ManhattanDist(Environment* space) : Heuristic(space) {};
+
+	unsigned int GetGoalHeuristic(int state_id) override;
+	unsigned int GetStartHeuristic(int state_id) override;
+	unsigned int GetFromToHeuristic(int from_id, int to_id) override;
+};
+
 }  // namespace AMRA
 
 #endif  // HEURISTIC_HPP

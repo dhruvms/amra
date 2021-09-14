@@ -5,13 +5,14 @@
 #include <amra/dijkstra.hpp>
 #include <amra/constants.hpp>
 #include <amra/amra.hpp>
-#include <amra/wastar.hpp>
+#include <amra/arastar.hpp>
 #include <amra/helpers.hpp>
 
 // system includes
 #include <smpl/console/console.h>
 
 // standard includes
+#include <fstream>
 
 auto std::hash<AMRA::MapState>::operator()(
 	const argument_type& s) const -> result_type
@@ -44,7 +45,8 @@ m_goal_set(false)
 
 void Grid2D::CreateSearch()
 {
-	m_heurs.emplace_back(new EuclideanDist(this));
+	// m_heurs.emplace_back(new EuclideanDist(this));
+	m_heurs.emplace_back(new ManhattanDist(this));
 
 	m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
 	m_heurs_map.emplace_back(Resolution::HIGH, 0);
@@ -85,11 +87,13 @@ void Grid2D::CreateSearch()
 	m_search->reset();
 }
 
-void Grid2D::CreateWAStarSearch(double w)
+void Grid2D::CreateARAStarSearch()
 {
-	m_heurs.emplace_back(new EuclideanDist(this));
-	m_search = std::make_unique<WAStar>(this, m_heurs.at(0), w);
+	// m_heurs.emplace_back(new EuclideanDist(this));
+	m_heurs.emplace_back(new ManhattanDist(this));
+	m_search = std::make_unique<ARAStar>(this, m_heurs.at(0));
 	m_search->reset();
+	m_default_res = Resolution::HIGH;
 }
 
 void Grid2D::SetStart(const int& d1, const int& d2)
@@ -97,6 +101,10 @@ void Grid2D::SetStart(const int& d1, const int& d2)
 	assert(!m_start_set);
 	m_start_id = getOrCreateState(d1, d2);
 	m_start_set = true;
+
+	m_s1 = d1;
+	m_s2 = d2;
+	printf("Start: {%d, %d},\t", m_s1, m_s2);
 }
 
 void Grid2D::SetGoal(const int& d1, const int& d2)
@@ -104,6 +112,10 @@ void Grid2D::SetGoal(const int& d1, const int& d2)
 	assert(!m_goal_set);
 	m_goal_id = getOrCreateState(d1, d2);
 	m_goal_set = true;
+
+	m_g1 = d1;
+	m_g2 = d2;
+	printf("Goal: {%d, %d},\n", m_g1, m_g2);
 }
 
 bool Grid2D::Plan(bool save)
@@ -115,6 +127,10 @@ bool Grid2D::Plan(bool save)
 		m_map->GetRandomState(d1s, d2s);
 		m_start_id = getOrCreateState(d1s, d2s);
 		m_start_set = true;
+
+		m_s1 = d1s;
+		m_s2 = d2s;
+		printf("Start: {%d, %d},\t", m_s1, m_s2);
 	}
 
 	if (!m_goal_set)
@@ -127,6 +143,10 @@ bool Grid2D::Plan(bool save)
 
 		m_goal_id = getOrCreateState(d1g, d2g);
 		m_goal_set = true;
+
+		m_g1 = d1g;
+		m_g2 = d2g;
+		printf("Goal: {%d, %d},\n", m_g1, m_g2);
 	}
 
 	m_search->set_start(m_start_id);
@@ -143,11 +163,35 @@ bool Grid2D::Plan(bool save)
 	int solcost;
 	bool result = m_search->replan(&solution, &solcost);
 
+	double initial_t, final_t;
+	int initial_c, final_c, total_e;
+	m_search->GetStats(initial_t, final_t, initial_c, final_c, total_e);
+
 	if (result && save)
 	{
 		std::vector<MapState> solpath;
 		convertPath(solution, solpath);
 		m_map->SavePath(solpath);
+
+		std::string filename(__FILE__);
+		auto found = filename.find_last_of("/\\");
+		filename = filename.substr(0, found + 1) + "../dat/STATS.csv";
+
+		bool exists = FileExists(filename);
+		std::ofstream STATS;
+		STATS.open(filename, std::ofstream::out | std::ofstream::app);
+		if (!exists)
+		{
+			STATS << "TotalExpansions,"
+					<< "InitialSolutionTime,FinalSolutionTime,"
+					<< "InitialSolutionCost,FinalSolutionCost\n";
+		}
+		STATS << total_e << ','
+				<< initial_t << ','
+				<< final_t << ','
+				<< initial_c << ','
+				<< final_c << '\n';
+		STATS.close();
 
 		return true;
 	}
@@ -191,6 +235,24 @@ void Grid2D::GetSuccs(
 		}
 		case Resolution::LOW: {
 			grid_res = LOWRES_MULT;
+			break;
+		}
+		case Resolution::Invalid: {
+			switch (m_default_res)
+			{
+				case Resolution::HIGH: {
+					grid_res = 1;
+					break;
+				}
+				case Resolution::MID: {
+					grid_res = MIDRES_MULT;
+					break;
+				}
+				case Resolution::LOW: {
+					grid_res = LOWRES_MULT;
+					break;
+				}
+			}
 			break;
 		}
 	}

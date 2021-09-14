@@ -37,7 +37,7 @@ public:
 	void SetGoal(const int& d1, const int& d2);
 
 	void CreateSearch() override;
-	void CreateWAStarSearch(double w=1.0);
+	void CreateARAStarSearch();
 	bool Plan(bool save=false) override;
 
 	void GetSuccs(
@@ -65,7 +65,9 @@ private:
 	std::vector<std::shared_ptr<Heuristic> > m_heurs;
 	std::vector<std::pair<Resolution::Level, int> > m_heurs_map;
 	int m_heur_count, m_res_count;
+	Resolution::Level m_default_res;
 
+	int m_s1, m_s2, m_g1, m_g2;
 	bool m_start_set, m_goal_set;
 	std::vector<MapState*> m_states;
 	EXPANDS_t m_closed;
