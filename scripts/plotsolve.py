@@ -30,7 +30,13 @@ for f in os.listdir(EXPS_DIR):
 nrows += 1
 ncols += 1
 
-qnames = {0: 'anchor', 1: 'high res', 2: 'mid res', 3: 'low res'}
+qnames = {
+	0: 'anchor',
+	1: 'high res',
+	2: 'mid res',
+	3: 'low res',
+	# 1: 'dijkstra'
+	}
 
 fig = plt.figure(figsize=(10,10))
 
@@ -52,12 +58,12 @@ for f in os.listdir(EXPS_DIR):
 		E[15, 45] = -1
 	P = np.genfromtxt(SOL_DIR + '{0:04d}'.format(iters) + '_' + MAP + '_path.map', delimiter=',')
 
-	ax.plot(P[:, 0], P[:, 1], 'gold', lw=5, alpha=1.0)
+	ax.plot(P[:, 0], P[:, 1], 'yellow', lw=4, alpha=1.0)
 	im = None
 	if 'costs' in MAP:
-		im = ax.imshow(E.transpose(), vmin=0.9, vmax=26, cmap=plt.get_cmap('rainbow'))
+		im = ax.imshow(E.transpose(), vmin=0.9, vmax=26, cmap=plt.get_cmap('plasma'))
 		im.cmap.set_under('k')
-		im.cmap.set_over('w')
+		im.cmap.set_over('cyan')
 	else:
 		im = ax.imshow(E.transpose(), vmin=-0.1, vmax=1.1, cmap=plt.get_cmap('gray'))
 		im.cmap.set_under('r')
@@ -67,7 +73,7 @@ for f in os.listdir(EXPS_DIR):
 	ax.set_yticklabels([])
 	ax.set_ylabel('({0:2.2f}, {1:2.2f})'.format(float(fields[2]), float(fields[3])))
 	ax.set_title(qnames[queue])
-	ax.axis('equal')
+	# ax.axis('equal')
 
 	# plt.show()
 	plt.savefig(IMG_DIR + f + '.png', bbox_inches='tight')
