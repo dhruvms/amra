@@ -24,19 +24,28 @@ set(SMPL_INCLUDE_DIRS
     # /usr/local/include/ # Tushar
 )
 
-include_directories(include)
+find_package(Boost REQUIRED)
+find_package(OMPL REQUIRED)
+
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 include_directories(${SMPL_INCLUDE_DIRS})
+include_directories(include)
 add_library(
     AMRA
     src/grid2d.cpp
     src/heuristic.cpp
     src/dubins.cpp
     src/dijkstra.cpp
-    src/wastar.cpp
+    src/arastar.cpp
     src/amra.cpp
     src/movingai.cpp
-    src/constants.cpp)
+    src/constants.cpp
+    src/CostConvergenceTerminationCondition.cpp)
 target_link_libraries(AMRA ${SMPL_LIBRARIES})
 
 add_executable(run2d test/run2d.cpp)
 target_link_libraries(run2d AMRA)
+
+add_executable(ompl_run test/ompl_run.cpp)
+target_include_directories(ompl_run SYSTEM PRIVATE ${OMPL_INCLUDE_DIRS})
+target_link_libraries(ompl_run AMRA ${SMPL_LIBRARIES} ${OMPL_LIBRARIES})
