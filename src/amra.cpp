@@ -138,15 +138,16 @@ AMRAState* AMRAStar::get_state(int state_id)
 	{
 		size_t state_size =
 			sizeof(AMRAState) +
-			sizeof(AMRAState::HeapData) * (num_heuristics() - 1) +
-			sizeof(bool) * (m_res_count - 1);
+			sizeof(AMRAState::HeapData) * (num_heuristics() - 1);
+			//  +
+			// sizeof(bool) * (m_res_count - 1);
 		AMRAState* s = (AMRAState*)malloc(state_size);
 
 		// Use placement new(s) to construct allocated memory
 		new (s) AMRAState;
-		for (int i = 0; i < m_res_count-1; ++i) {
-			new (&s->closed_in_res[1 + i]) bool;
-		}
+		// for (int i = 0; i < m_res_count-1; ++i) {
+		// 	new (&s->closed_in_res[1 + i]) bool;
+		// }
 		for (int i = 0; i < num_heuristics() - 1; ++i) {
 			new (&s->od[1 + i]) AMRAState::HeapData;
 		}

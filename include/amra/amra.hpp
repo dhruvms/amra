@@ -36,7 +36,7 @@ struct AMRAState
 	};
 
 	bool closed_in_anc;
-	bool closed_in_res[1]; // overallocated for each resolution
+	bool closed_in_res[3]; // overallocated for each resolution
 
 	HeapData od[1]; // overallocated for additional n heuristics
 };
