@@ -1,5 +1,5 @@
-#ifndef WASTAR_HPP
-#define WASTAR_HPP
+#ifndef ARASTAR_HPP
+#define ARASTAR_HPP
 
 // project includes
 #include <amra/types.hpp>
@@ -14,12 +14,12 @@
 namespace AMRA
 {
 
-struct WAStarState
+struct ARAStarState
 {
 	int call_number;
 	int state_id;
 	unsigned int g;
-	WAStarState* bp;
+	ARAStarState* bp;
 	// std::pair<int, int> actionids;
 
 	struct HeapData : public smpl::heap_element
@@ -29,7 +29,7 @@ struct WAStarState
 		// overallocate an array for the heap index, h, and f
 
 		// TODO: in any case, this offset can be much smaller
-		WAStarState* me;
+		ARAStarState* me;
 		unsigned int h;
 		unsigned int f;
 	};
@@ -41,14 +41,13 @@ struct WAStarState
 class Environment;
 class Heuristic;
 
-class WAStar : public Search
+class ARAStar : public Search
 {
 public:
-	WAStar(
+	ARAStar(
 		Environment* space,
-		std::shared_ptr<Heuristic> heur,
-		double w=1.0);
-	~WAStar();
+		std::shared_ptr<Heuristic> heur);
+	~ARAStar();
 
 	int set_start(int start_id) override;
 	int set_goal(int goal_id) override;
@@ -68,43 +67,46 @@ private:
 
 	struct HeapCompare {
 		bool operator()(
-				const WAStarState::HeapData& s,
-				const WAStarState::HeapData& t) const
+				const ARAStarState::HeapData& s,
+				const ARAStarState::HeapData& t) const
 		{
 			return s.f < t.f;
 		}
 	};
 
-	using OpenList = smpl::intrusive_heap<WAStarState::HeapData, HeapCompare>;
+	using OpenList = smpl::intrusive_heap<ARAStarState::HeapData, HeapCompare>;
 	OpenList* m_open = nullptr;  // sequence of (m_heur_count + 1) open lists
 
 	// Search params
-	int m_call_number;
-	double m_time_limit, m_w;
-	WAStarState *m_goal, *m_start;
+	int m_call_number, m_iter;
+	double m_time_limit, m_w, m_w_delta, m_w_i, m_w_f;
+	ARAStarState *m_goal, *m_start;
 
 	int m_start_id, m_goal_id;
 
-	std::vector<WAStarState*> m_states;
+	std::vector<ARAStarState*> m_states, m_incons;
 
 	// Search statistics
 	double m_search_time;
 	int *m_expands; // expansions per queue
-	int m_solution_cost;
+	int m_w_solve, m_solution_cost;
 
 	int num_heuristics() const { return 1; }
 
-	WAStarState* get_state(int state_id);
-	// WAStarState* create_state(int state_id);
-	void init_state(WAStarState *state, int state_id);
-	void reinit_state(WAStarState *state);
+	ARAStarState* get_state(int state_id);
+	// ARAStarState* create_state(int state_id);
+	void init_state(ARAStarState *state, int state_id);
+	void reinit_state(ARAStarState *state);
 
-	void expand(WAStarState *state, int hidx);
+	bool improve_path(
+		const double& start_time,
+		double& elapsed_time);
+	void expand(ARAStarState *state, int hidx);
 	bool is_goal(int state_id);
 
 	unsigned int compute_heuristic(int state_id, int hidx);
-	unsigned int compute_key(WAStarState *state, int hidx);
-	void insert_or_update(WAStarState *state, int hidx);
+	unsigned int compute_key(ARAStarState *state, int hidx);
+	void insert_or_update(ARAStarState *state, int hidx);
 	void reorder_open();
 
 	void extract_path(
@@ -113,4 +115,4 @@ private:
 
 }  // namespace AMRA
 
-#endif  // WASTAR_HPP
+#endif  // ARASTAR_HPP

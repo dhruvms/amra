@@ -1,5 +1,5 @@
 // project includes
-#include <amra/wastar.hpp>
+#include <amra/arastar.hpp>
 #include <amra/constants.hpp>
 #include <amra/types.hpp>
 #include <amra/heuristic.hpp>
@@ -20,50 +20,56 @@ static double GetTime()
 namespace AMRA
 {
 
-WAStar::WAStar(
+ARAStar::ARAStar(
 	Environment* space,
-	std::shared_ptr<Heuristic> heur,
-	double w)
+	std::shared_ptr<Heuristic> heur)
 :
 m_space(space),
 m_call_number(0),
 m_heur(heur),
-m_w(w),
+m_w_delta(0.5), m_w_i(10.0), m_w_f(1.0),
 m_start_id(-1),
 m_goal_id(-1)
 {
 	// Set default max planing time
 	m_time_limit = double(MAX_PLANNING_TIME_MS / 1000.0); // seconds
+	m_w = m_w_i;
 
 	m_open = new OpenList[1];
 	m_expands = new int[1];
+
+	m_initial_t = 0.0;
+	m_final_t = 0.0;
+	m_initial_c = -1;
+	m_final_c = -1;
+	m_total_e = -1;
 }
 
-WAStar::~WAStar()
+ARAStar::~ARAStar()
 {
 	reset();
 }
 
-int WAStar::set_start(int start_id)
+int ARAStar::set_start(int start_id)
 {
 	m_start_id = start_id;
 	m_start = get_state(m_start_id);
 	return m_start_id;
 }
 
-int WAStar::set_goal(int goal_id)
+int ARAStar::set_goal(int goal_id)
 {
 	m_goal_id = goal_id;
 	m_goal = get_state(m_goal_id);
 	return m_goal_id;
 }
 
-int WAStar::get_n_expands() const
+int ARAStar::get_n_expands() const
 {
 	return m_expands[0];
 }
 
-void WAStar::reset()
+void ARAStar::reset()
 {
 	// Clear OPEN list
 	for (int i = 0; i < num_heuristics(); ++i) {
@@ -94,20 +100,17 @@ void WAStar::reset()
 
 // Get the search state corresponding to a graph state, creating a new state if
 // one has not been created yet.
-WAStarState* WAStar::get_state(int state_id)
+ARAStarState* ARAStar::get_state(int state_id)
 {
 	assert(state_id >= 0);
 
 	if (m_states.size() <= state_id)
 	{
-		size_t state_size = sizeof(WAStarState);
-		WAStarState* s = (WAStarState*)malloc(state_size);
+		size_t state_size = sizeof(ARAStarState);
+		ARAStarState* s = (ARAStarState*)malloc(state_size);
 
 		// Use placement new(s) to construct allocated memory
-		new (s) WAStarState;
-		for (int i = 0; i < num_heuristics() - 1; ++i) { // loop not entered
-			new (&s->od[1 + i]) WAStarState::HeapData;
-		}
+		new (s) ARAStarState;
 
 		// assert(state_id == m_states.size());
 
@@ -120,7 +123,7 @@ WAStarState* WAStar::get_state(int state_id)
 	return m_states[state_id];
 }
 
-void WAStar::init_state(WAStarState *state, int state_id)
+void ARAStar::init_state(ARAStarState *state, int state_id)
 {
 	state->call_number = 0; // not initialized for any iteration
 	state->state_id = state_id;
@@ -130,7 +133,7 @@ void WAStar::init_state(WAStarState *state, int state_id)
 }
 
 // Lazily (re)initialize a search state.
-void WAStar::reinit_state(WAStarState *state)
+void ARAStar::reinit_state(ARAStarState *state)
 {
 	if (state->call_number != m_call_number) {
 		state->call_number = m_call_number;
@@ -146,7 +149,7 @@ void WAStar::reinit_state(WAStarState *state)
 	}
 }
 
-int WAStar::replan(
+int ARAStar::replan(
 	std::vector<int>* solution_path, int* solution_cost)
 {
 	if (is_goal(m_start_id))
@@ -157,61 +160,147 @@ int WAStar::replan(
 		return 1;
 	}
 
+	m_w_solve = -1;
+
 	for (int i = 0; i < num_heuristics(); ++i) {
 		m_expands[i] = 0;
 	}
 
 	m_call_number++;
-
 	reinit_state(m_goal);
 	reinit_state(m_start);
 	m_start->g = 0;
-	m_start->od[0].f = compute_key(m_start, 0);
 
 	// clear all OPEN lists
 	for (int i = 0; i < num_heuristics(); ++i) {
 		m_open[i].clear();
 	}
-	insert_or_update(m_start, 0);
+
+	m_incons.clear();
+	m_incons.push_back(m_start);
 
 	m_search_time = 0.0;
-	while (!m_open[0].empty() && m_search_time < m_time_limit)
+	m_iter = 0;
+
+	while (m_search_time < m_time_limit && (m_w >= m_w_f))
 	{
-		double expand_time = GetTime();
-
-		WAStarState* s = m_open[0].min()->me;
-		if (is_goal(s->state_id))
+		for (auto* s : m_incons)
 		{
-			extract_path(*solution_path, *solution_cost);
-			m_search_time += GetTime() - expand_time;
-			++m_expands[0];
-			SMPL_INFO("%d , %f", get_n_expands(), m_search_time);
-
-			return 1;
+			s->od[0].f = compute_key(s, 0);
+			s->closed = false;
+			insert_or_update(s, 0);
 		}
-		m_open[0].pop();
+		m_incons.clear();
 
-		expand(s, 0);
-		++m_expands[0];
-		m_search_time += GetTime() - expand_time;
+		reorder_open();
+		for (auto* s : m_states) {
+			s->closed = false;
+		}
+
+		double search_start_time = GetTime();
+		double search_time = 0.0;
+		int curr_exps = get_n_expands();
+		bool result = improve_path(search_start_time, search_time);
+
+		m_search_time += search_time;
+
+		if(!result || m_search_time >= m_time_limit) {
+			break;
+		}
+		if (m_w_solve < 0) {
+			m_initial_t = m_search_time;
+		}
+
+		extract_path(*solution_path, *solution_cost);
+		// SMPL_INFO("Solved with (%f) | expansions = %d | time = %f | cost = %d", m_w, get_n_expands(), search_time, *solution_cost);
+		// if (curr_exps < get_n_expands()) {
+		// 	m_space->SaveExpansions(m_iter, m_w, 1.0, *solution_path);
+		// }
+
+		if (m_w == m_w_f) {
+			break;
+		}
+		m_w = std::max(m_w_f, m_w * m_w_delta);
+
+		m_iter++;
+
+		if (SUCCESSIVE)
+		{
+			// clear all OPEN lists
+			for (int i = 0; i < num_heuristics(); ++i) {
+				m_open[i].clear();
+			}
+
+			m_incons.clear();
+			m_incons.push_back(m_start);
+		}
 	}
 
-	return 0;
+	if (m_w_solve < 0)
+	{
+		solution_path->clear();
+		*solution_cost = -1;
+		return 0;
+	}
+
+	// SMPL_INFO("Total expansions = %d, Total time = %f", get_n_expands(), m_search_time);
+	m_final_t = m_search_time;
+	m_final_c = *solution_cost;
+	m_total_e = get_n_expands();
+
+	return 1;
 }
 
-void WAStar::expand(WAStarState *s, int hidx)
+bool ARAStar::improve_path(
+	const double& start_time,
+	double& elapsed_time)
 {
+	elapsed_time = 0.0;
+	while (!m_open[0].empty() &&
+				m_open[0].min()->f < std::numeric_limits<unsigned int>::max())
+	{
+		elapsed_time = GetTime() - start_time;
+		if (elapsed_time >= m_time_limit) {
+			return false;
+		}
+
+		if (m_open[0].empty()) {
+			return false;
+		}
+
+		unsigned int f_check = m_open[0].min()->f;
+		if (m_goal->g <= f_check) {
+			return true;
+		}
+
+		// expand from anchor
+		ARAStarState *s = m_open[0].min()->me;
+		expand(s, 0);
+		if (s->state_id == m_goal_id) {
+			return true;
+		}
+		++m_expands[0];
+	}
+}
+
+void ARAStar::expand(ARAStarState *s, int hidx)
+{
+	assert(!s->closed);
 	s->closed = true;
+
+	if (m_open[0].contains(&s->od[0])) {
+		m_open[0].erase(&s->od[0]);
+	}
 
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
-	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(0), &succ_ids, &costs, hidx);
+	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(-1), &succ_ids, &costs, hidx);
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
 		unsigned int cost = costs[sidx];
 
-		WAStarState *succ_state = get_state(succ_ids[sidx]);
+		ARAStarState *succ_state = get_state(succ_ids[sidx]);
 		reinit_state(succ_state);
 
 		unsigned int new_g = s->g + costs[sidx];
@@ -219,34 +308,36 @@ void WAStar::expand(WAStarState *s, int hidx)
 		{
 			succ_state->g = new_g;
 			succ_state->bp = s;
-			if (!succ_state->closed)
+			if (succ_state->closed) {
+				m_incons.push_back(succ_state);
+			}
+			else
 			{
-				unsigned int f_0 = compute_key(succ_state, 0);
-				succ_state->od[0].f = f_0;
+				succ_state->od[0].f = compute_key(succ_state, 0);
 				insert_or_update(succ_state, 0);
 			}
 		}
 	}
 }
 
-bool WAStar::is_goal(int state_id)
+bool ARAStar::is_goal(int state_id)
 {
 	return m_space->IsGoal(state_id);
 }
 
-unsigned int WAStar::compute_heuristic(int state_id, int hidx)
+unsigned int ARAStar::compute_heuristic(int state_id, int hidx)
 {
 	assert(num_heuristics() >= hidx);
 	return m_heur->GetGoalHeuristic(state_id);
 
 }
 
-unsigned int WAStar::compute_key(WAStarState *state, int hidx)
+unsigned int ARAStar::compute_key(ARAStarState *state, int hidx)
 {
 	return state->g + m_w * state->od[hidx].h;
 }
 
-void WAStar::insert_or_update(WAStarState *state, int hidx)
+void ARAStar::insert_or_update(ARAStarState *state, int hidx)
 {
 	if (m_open[hidx].contains(&state->od[hidx])) {
 		m_open[hidx].update(&state->od[hidx]);
@@ -256,7 +347,7 @@ void WAStar::insert_or_update(WAStarState *state, int hidx)
 	}
 }
 
-void WAStar::reorder_open()
+void ARAStar::reorder_open()
 {
 	for (auto hidx = 0; hidx < num_heuristics(); hidx++)
 	{
@@ -267,16 +358,21 @@ void WAStar::reorder_open()
 	}
 }
 
-void WAStar::extract_path(
+void ARAStar::extract_path(
 	std::vector<int>& solution, int& cost)
 {
+	if (m_w_solve < 0) {
+		m_initial_c = m_goal->g;
+	}
+
+	m_w_solve = m_w;
 	cost = m_goal->g;
 	m_solution_cost = m_goal->g;
 
 	solution.clear();
 
 	// m_goal->state_id == m_goal_id == 0 should be true
-	for (WAStarState *state = m_goal; state; state = state->bp) {
+	for (ARAStarState *state = m_goal; state; state = state->bp) {
 		solution.push_back(state->state_id);
 	}
 	std::reverse(solution.begin(), solution.end());
