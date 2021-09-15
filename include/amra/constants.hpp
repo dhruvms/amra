@@ -26,6 +26,8 @@ extern const int WP_TIME;
 extern const bool DUBINS;
 extern const bool DIJKSTRA;
 
+extern const bool SUCCESSIVE;
+
 } // namespace SimPlan
 
 

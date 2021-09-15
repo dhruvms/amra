@@ -1,6 +1,6 @@
 #include <amra/constants.hpp>
 
-const int AMRA::MAX_PLANNING_TIME_MS = 400000;
+const int AMRA::MAX_PLANNING_TIME_MS = 30000;
 const int AMRA::COST_MULT = 100;
 const std::map<char, int> AMRA::MOVINGAI_DICT = {
 	{'.', 1},
@@ -30,3 +30,5 @@ const int AMRA::WP_TIME = 50; // milliseconds
 
 const bool AMRA::DUBINS = true;
 const bool AMRA::DIJKSTRA = true;
+
+const bool AMRA::SUCCESSIVE = false;

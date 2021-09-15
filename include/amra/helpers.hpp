@@ -8,6 +8,7 @@
 
 // standard includes
 #include <sstream>
+#include <sys/stat.h>
 
 namespace AMRA
 {
@@ -77,6 +78,18 @@ inline double DiscToContTheta(int theta, int numAngles) {
 inline double DiscToContTheta(int theta) {
  	return DiscToContTheta(theta, DEFAULT_NUM_ANGLES);
 }
+
+inline
+bool FileExists(const std::string& filename)
+{
+	struct stat buf;
+	if (stat(filename.c_str(), &buf) != -1)
+	{
+		return true;
+	}
+	return false;
+}
+
 }  // namespace AMRA
 
 #endif  // HELPERS_HPP
