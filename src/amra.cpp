@@ -30,7 +30,7 @@ m_space(space),
 m_call_number(0),
 m_heur_count(heur_count),
 m_res_count(res_count),
-m_w1_i(10.0), m_w2_i(20.0),
+m_w1_i(100.0), m_w2_i(200.0),
 m_w1_f(1.0), m_w2_f(1.0),
 m_w1_delta(0.5), m_w2_delta(0.5),
 m_start_id(-1),
@@ -55,6 +55,12 @@ m_goal_id(-1)
 			m_offset = hres;
 		}
 	}
+
+	m_initial_t = 0.0;
+	m_final_t = 0.0;
+	m_initial_c = -1;
+	m_final_c = -1;
+	m_total_e = -1;
 }
 
 AMRAStar::~AMRAStar()
@@ -66,7 +72,6 @@ int AMRAStar::set_start(int start_id)
 {
 	m_start_id = start_id;
 	m_start = get_state(m_start_id);
-	printf("AMRA: set start %d\n", m_start_id);
 	return m_start_id;
 }
 
@@ -74,7 +79,6 @@ int AMRAStar::set_goal(int goal_id)
 {
 	m_goal_id = goal_id;
 	m_goal = get_state(m_goal_id);
-	printf("AMRA: set goal %d\n", m_goal_id);
 	return m_goal_id;
 }
 
@@ -201,7 +205,6 @@ int AMRAStar::replan(
 	if (is_goal(m_start_id))
 	{
 		// m_logger->LogMsg("Start is goal!", LogLevel::WARN);
-		printf("    Start is goal!");
 		solution_path->push_back(m_start_id);
 		solution_cost = 0;
 		return 1;
@@ -258,19 +261,32 @@ int AMRAStar::replan(
 		}
 		reorder_open();
 
+		for (size_t i = 0; i < m_states.size(); ++i)
+		{
+			if (m_states[i] != nullptr)
+			{
+				m_states[i]->closed_in_anc = false;
+				for (int j = 0; j < m_res_count; ++j) {
+					m_states[i]->closed_in_res[j] = false;
+				}
+			}
+		}
+
 		double search_start_time = GetTime();
 		double search_time = 0.0;
 		bool result = improve_path(search_start_time, search_time);
 
 		m_search_time += search_time;
 
-		if(!result) {
+		if(!result || m_search_time >= m_time_limit) {
 			break;
 		}
+		if (m_w1_solve < 0 || m_w2_solve < 0) {
+			m_initial_t = m_search_time;
+		}
 
-		// SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
-		printf("Solved with (%f, %f) | expansions = %s | time = %f\n", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		extract_path(*solution_path, *action_ids, *solution_cost);
+		SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f", m_w1, m_w2, get_expands_str().c_str(), search_time);
 		m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path, *action_ids);
 
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
@@ -280,6 +296,23 @@ int AMRAStar::replan(
 		m_w2 = std::max(m_w2_f, m_w2 * m_w2_delta);
 
 		m_iter++;
+
+		if (SUCCESSIVE)
+		{
+			++m_call_number;
+
+			reinit_state(m_goal);
+			reinit_state(m_start);
+			m_start->g = 0;
+
+			// clear all OPEN lists
+			for (int i = 0; i < num_heuristics(); ++i) {
+				m_open[i].clear();
+			}
+
+			m_incons.clear();
+			m_incons.push_back(m_start);
+		}
 	}
 
 	if (m_w1_solve < 0 || m_w2_solve < 0)
@@ -292,6 +325,9 @@ int AMRAStar::replan(
 	// m_ss << "time (s) = " << m_search_time << " | expansions = " << get_n_expands() << " | solution_cost = " << m_solution_cost;
 	// log_it(LogLevel::WARN);
 
+	m_final_t = m_search_time;
+	m_final_c = *solution_cost;
+	m_total_e = get_n_expands();
 	SMPL_INFO("%d (%s), %f", get_n_expands(), get_expands_str().c_str(), m_search_time);
 
 	return 1;
@@ -301,8 +337,6 @@ bool AMRAStar::improve_path(
 	const double& start_time,
 	double& elapsed_time)
 {
-	printf("... calling improve_path\n");
-
 	// Clear expansions in environment
 	m_space->ClearStoredExpansions();
 
@@ -311,18 +345,21 @@ bool AMRAStar::improve_path(
 				m_open[0].min()->f < std::numeric_limits<unsigned int>::max())
 	{
 		elapsed_time = GetTime() - start_time;
-		if (elapsed_time >= m_time_limit) {
+		if (elapsed_time + m_search_time >= m_time_limit) {
 			return false;
 		}
 
 		for (int i = 1; i < num_heuristics(); ++i)
 		{
 			if (m_open[0].empty()) {
-				printf("[1] AMRA*: OPEN[0] empty\n");
 				return false;
 			}
 
 			unsigned int f_check = m_w2 * m_open[0].min()->f;
+			if (m_goal->g <= f_check) {
+				return true;
+			}
+
 			if (!m_open[i].empty() &&
 					m_open[i].min()->f <= f_check)
 			{
@@ -345,7 +382,6 @@ bool AMRAStar::improve_path(
 			}
 		}
 	}
-	printf("[2] AMRA*: OPEN[0] empty\n");
 }
 
 void AMRAStar::expand(AMRAState *s, int hidx)
@@ -413,8 +449,9 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		{
 			succ_state->g = new_g;
 			succ_state->bp = s;
-			if (!action_ids.empty())
+			if (!action_ids.empty()) {
 				succ_state->actionidx = action_ids[sidx];
+			}
 			if (succ_state->closed_in_anc) {
 				m_incons.push_back(succ_state);
 			}
@@ -491,18 +528,20 @@ void AMRAStar::extract_path(
 	std::vector<int>& action_ids,
 	int& cost)
 {
+	if (m_w1_solve < 0 || m_w2_solve < 0) {
+		m_initial_c = m_goal->g;
+	}
+
 	m_w1_solve = m_w1;
 	m_w2_solve = m_w2;
 	cost = m_goal->g;
 	m_solution_cost = m_goal->g;
-	printf("  Solution cost: [%u]\n", m_solution_cost);
 
 	solution.clear();
 	action_ids.clear();
 
 	// m_goal->state_id == m_goal_id == 0 should be true
 	for (AMRAState *state = m_goal; state; state = state->bp) {
-		// printf("g = [%d]\n", state->g);
 		solution.push_back(state->state_id);
 		action_ids.push_back(state->actionidx);
 	}
