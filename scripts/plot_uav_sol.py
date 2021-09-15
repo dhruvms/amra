@@ -7,12 +7,13 @@ plt.rcParams.update({"text.usetex": True})
 plt.rc('font', family='serif')
 
 PLOT_THETA = 0
+IMG_DIR = '../dat/imgs/'
 
 xsize = 0
 ysize = 0
 
 # READ MAP
-with open('../dat/culdesac_np_large.map') as f:
+with open('../dat/Boston_0_1024.map') as f:
     line = f.readline()
     line = f.readline()
     xsize = int(line.split(' ')[1])
@@ -23,6 +24,7 @@ with open('../dat/culdesac_np_large.map') as f:
 
 mapdata.reshape((xsize,ysize))
 mapdata[mapdata == '.'] = 0
+mapdata[mapdata == '@'] = 1
 mapdata[mapdata == 'T'] = 1
 mapdata = mapdata.astype(int)
 
@@ -62,8 +64,10 @@ exp_Ys = expdf["y"]
 
 # DRAW
 figure_rows = len(iterations)
-fig, axs = plt.subplots(ncols=5, nrows=figure_rows)
-spec = gridspec.GridSpec(ncols=5, nrows=figure_rows, figure=fig, hspace=0, wspace=0)
+# fig, axs = plt.subplots(ncols=5, nrows=figure_rows)
+# spec = gridspec.GridSpec(ncols=5, nrows=figure_rows, figure=fig, hspace=0, wspace=0)
+fig = plt.figure(figsize=(10,10))
+ax = plt.gca()
 
 for i in range(figure_rows):
 
@@ -78,15 +82,17 @@ for i in range(figure_rows):
 
     # TRAJECTORY
     # ax = plt.subplot(gs1[i,0])
-    ax = axs[i,0]
-    traj = ax.scatter(Y, X, s=0.2, c=Vels)
-    start = ax.scatter(Y[0], X[0], s=20, c='r')
-    goal = ax.scatter(Y[len(Y)-1], X[len(X)-1], s=20, c='c')
+    # ax = axs[i,0]
+    traj = ax.scatter(Y, X, s=20, c=Vels, cmap='plasma')
+    start = ax.scatter(Y[0], X[0], s=40, c='g')
+    goal = ax.scatter(Y[len(Y)-1], X[len(X)-1], s=40, c='r')
 
     ax.imshow(mapdata, cmap='Greys')
     # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
     ax.tick_params(axis='both', which='major', labelsize=4)
     ax.tick_params(axis='both', which='minor', labelsize=0)
+    plt.savefig(IMG_DIR + str(i) + '_0_traj.png', bbox_inches='tight')
+    plt.cla()
 
     # ANCHOR EXPANSIONS
     df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 0)]
@@ -95,13 +101,15 @@ for i in range(figure_rows):
     # Th = df["theta"]
 
     # ax = plt.subplot(gs1[i,1])
-    ax = axs[i,1]
+    # ax = axs[i,1]
     ax.imshow(mapdata, cmap='Greys')
     # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
-    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
     ax.tick_params(axis='both', which='major', labelsize=3)
     ax.tick_params(axis='both', which='minor', labelsize=0)
     ax.set_title(r'Anchor', fontsize=8)
+    plt.savefig(IMG_DIR + str(i) + '_1_ANCHOR.png', bbox_inches='tight')
+    plt.cla()
 
     # HEUR 1 EXPANSIONS
     df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 1)]
@@ -109,13 +117,15 @@ for i in range(figure_rows):
     Y = df["y"]
 
     # ax = plt.subplot(gs1[i,2])
-    ax = axs[i,2]
+    # ax = axs[i,2]
     ax.imshow(mapdata, cmap='Greys')
     # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
-    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
     ax.tick_params(axis='both', which='major', labelsize=3)
     ax.tick_params(axis='both', which='minor', labelsize=0)
     ax.set_title(r'3m res.', fontsize=8)
+    plt.savefig(IMG_DIR + str(i) + '_2_3m.png', bbox_inches='tight')
+    plt.cla()
 
     # HEUR 2 EXPANSIONS
     df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 2)]
@@ -123,13 +133,15 @@ for i in range(figure_rows):
     Y = df["y"]
 
     # ax = plt.subplot(gs1[i,3])
-    ax = axs[i,3]
+    # ax = axs[i,3]
     ax.imshow(mapdata, cmap='Greys')
     # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
-    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
     ax.tick_params(axis='both', which='major', labelsize=3)
     ax.tick_params(axis='both', which='minor', labelsize=0)
     ax.set_title(r'9m res.', fontsize=8)
+    plt.savefig(IMG_DIR + str(i) + '_3_9m.png', bbox_inches='tight')
+    plt.cla()
 
     # HEUR 3 EXPANSIONS
     df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 3)]
@@ -137,14 +149,16 @@ for i in range(figure_rows):
     Y = df["y"]
 
     # ax = plt.subplot(gs1[i,3])
-    ax = axs[i,4]
+    # ax = axs[i,4]
     ax.imshow(mapdata, cmap='Greys')
     # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
-    exps = ax.scatter(Y, X, s=1, alpha=0.1, color='b')
+    exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
     ax.tick_params(axis='both', which='major', labelsize=3)
     ax.tick_params(axis='both', which='minor', labelsize=0)
     ax.set_title(r'Dijkstra.', fontsize=8)
+    plt.savefig(IMG_DIR + str(i) + '_4_Dijkstra.png', bbox_inches='tight')
+    plt.cla()
 
-plt.show()
+# plt.show()
 # filename = "solution_iter_" + str(i) + ".pdf"
 # plt.savefig(filename, dpi=600)
