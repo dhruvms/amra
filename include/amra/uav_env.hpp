@@ -11,6 +11,7 @@
 // standard includes
 #include <memory>
 #include <fstream>
+#include <random>
 
 namespace std {
 
@@ -30,7 +31,7 @@ namespace AMRA
 class UAVEnv : public Environment
 {
 public:
-    UAVEnv(const std::string& mapname);
+    UAVEnv(const std::string& mapname, const std::string& savename);
 
     void SetStart(ContState& startState);
     void SetGoal(ContState& goalState);
@@ -87,7 +88,7 @@ private:
     bool validTheta(int& theta);
 
 private:
-    std::string m_mapname;
+    std::string m_mapname, m_savename;
     std::unique_ptr<MovingAI> m_map;
 
     std::vector<std::shared_ptr<Heuristic> > m_heurs;
@@ -102,6 +103,12 @@ private:
     std::vector<Action> m_actions;
     int m_totalAngles, m_totalPrims, m_primsPerAngle;
     int m_numHighResPrims, m_numMidResPrims;
+
+    ContState m_start, m_goal;
+
+    std::random_device m_dev;
+    std::mt19937 m_rng;
+    std::uniform_int_distribution<> m_distI;
 
     // maps from coords to stateID
     typedef UAVState StateKey;

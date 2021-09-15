@@ -37,11 +37,13 @@ auto split(std::string& s, char delim) -> std::vector<std::string>
 namespace AMRA
 {
 
-UAVEnv::UAVEnv(const std::string& mapname)
+UAVEnv::UAVEnv(const std::string& mapname, const std::string& savename)
 :
 m_mapname(mapname),
+m_savename(savename),
 m_start_set(false),
-m_goal_set(false)
+m_goal_set(false),
+m_rng(m_dev())
 {
     m_map = std::make_unique<MovingAI>(mapname);
 
@@ -62,6 +64,8 @@ m_goal_set(false)
     std::ofstream sol_log;
     sol_log.open("../dat/solutions/uavsol.txt");
     sol_log.close();
+
+    m_distI = std::uniform_int_distribution<>(0, 11);
 }
 
 void UAVEnv::SetStart(ContState& startState)
@@ -77,10 +81,10 @@ void UAVEnv::SetStart(ContState& startState)
 
     m_start_id = getOrCreateState(m_start_coords);
     m_start_set = true;
+    m_start = startState;
+    printf("Start: {%f, %f, %f, %f},\n", m_start[0], m_start[1], m_start[2], m_start[3]);
 
     auto* state = getHashEntry(m_start_id);
-    printf("Set start (id = %d): %d, %d, %d, %d, ", m_start_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
-    printf("Resolution::Level: %d\n", state->level);
 }
 
 void UAVEnv::SetGoal(ContState& goalState)
@@ -97,10 +101,10 @@ void UAVEnv::SetGoal(ContState& goalState)
     m_goal_id = getOrCreateState(m_goal_coords);
     assert(m_goal_id == 0);
     m_goal_set = true;
+    m_goal = goalState;
+    printf("Goal: {%f, %f, %f, %f},\t", m_goal[0], m_goal[1], m_goal[2], m_goal[3]);
 
     auto* state = getHashEntry(m_goal_id);
-    printf("Set goal (id = %d): %d, %d, %d, %d, ", m_goal_id, state->coord[0], state->coord[1], state->coord[2], state->coord[3]);
-    printf("Resolution::Level: %d\n", state->level);
 }
 
 void UAVEnv::ReadMprims(std::string& mprimfile)
@@ -281,12 +285,14 @@ void UAVEnv::CreateSearch()
         m_heurs.emplace_back(new Dubins(this));
         m_heur_count++;
         m_heurs_map.emplace_back(Resolution::MID, m_heurs.size()-1);
+        m_heurs_map.emplace_back(Resolution::LOW, m_heurs.size()-1);
     }
     if (DIJKSTRA)
     {
         m_heurs.emplace_back(new Dijkstra(this, m_map.get()));
         m_heur_count++;
         m_heurs_map.emplace_back(Resolution::MID, m_heurs.size()-1);
+        m_heurs_map.emplace_back(Resolution::LOW, m_heurs.size()-1);
     }
 
     for (int i = 0; i < m_heurs_map.size(); ++i) {
@@ -302,27 +308,28 @@ void UAVEnv::CreateSearch()
 bool UAVEnv::Plan(bool save)
 {
     int d1s, d2s, d1g, d2g;
+    double theta_s, theta_g, v_s = 0.0, v_g = 0.0;
 
     // set random goal
     if (!m_goal_set)
     {
         m_map->GetRandomState(d1g, d2g);
-        while (d1g == d1s && d2g == d2s);
-        // set goal theta and velocity to zero
-        ContState goal{ (double)d1g, (double)d2g, 0.0, 0.0 };
+        theta_g = m_distI(m_rng) * (2 * M_PI / DEFAULT_NUM_ANGLES);
+        ContState goal{ (double)d1g, (double)d2g, theta_g, 0.0 };
         SetGoal(goal);
     }
 
     // set random start != goal
     if (!m_start_set)
     {
-        do
-        {
+        // set random start
+        do {
             m_map->GetRandomState(d1s, d2s);
         }
-        while (d1g == d1s && d2g == d2s);
-        // set start theta and velocity to zero
-        ContState start{ (double)d1s, (double)d2s, 0.0, 0.0 };
+        while (d1s == d1g && d2s == d2g);
+
+        theta_s = m_distI(m_rng) * (2 * M_PI / DEFAULT_NUM_ANGLES);
+        ContState start{ (double)d1s, (double)d2s, theta_s, 0.0 };
         SetStart(start);
     }
 
@@ -343,33 +350,56 @@ bool UAVEnv::Plan(bool save)
 
     if (result && save)
     {
-        // std::vector<ContState> solpath;
-        // convertPath(solution, action_ids, solpath);
-        // std::ofstream sol_log;
-        // sol_log.open("../dat/solutions/uavsol.txt", std::ios_base::app);
-        // sol_log << "iter,0" << std::endl;
-        // sol_log << "solstart" << std::endl;
-        // for (auto s : solpath)
+        std::vector<ContState> solpath;
+        convertPath(solution, action_ids, solpath);
+        std::ofstream sol_log;
+        sol_log.open("../dat/solutions/uavsol.txt", std::ios_base::app);
+        sol_log << "iter,0" << std::endl;
+        sol_log << "solstart" << std::endl;
+        for (auto s : solpath)
+        {
+            sol_log << s[0] << ","
+                    << s[1] << ","
+                    << s[2] << ","
+                    << s[3] << std::endl;
+        }
+        sol_log << "solend" << std::endl;
+        sol_log.close();
+        std::ofstream exp_log;
+        exp_log.open("../dat/solutions/uavexp.txt", std::ios_base::app);
+        for (const auto& closed : m_closed)
+        {
+            auto i = closed.first;
+            auto states = closed.second;
+            for (auto* s : states)
+            {
+                exp_log << i << "," << s->coord.at(0) << "," << s->coord.at(1) << std::endl;
+            }
+        }
+        exp_log.close();
+
+        // double initial_t, final_t;
+        // int initial_c, final_c, total_e;
+        // m_search->GetStats(initial_t, final_t, initial_c, final_c, total_e);
+        // std::string filename(__FILE__);
+        // auto found = filename.find_last_of("/\\");
+        // filename = filename.substr(0, found + 1) + "../dat/" + m_savename + ".csv";
+
+        // bool exists = FileExists(filename);
+        // std::ofstream STATS;
+        // STATS.open(filename, std::ofstream::out | std::ofstream::app);
+        // if (!exists)
         // {
-        //     sol_log << s[0] << ","
-        //             << s[1] << ","
-        //             << s[2] << ","
-        //             << s[3] << std::endl;
+        //     STATS << "TotalExpansions,"
+        //             << "InitialSolutionTime,FinalSolutionTime,"
+        //             << "InitialSolutionCost,FinalSolutionCost\n";
         // }
-        // sol_log << "solend" << std::endl;
-        // sol_log.close();
-        // std::ofstream exp_log;
-        // exp_log.open("../dat/solutions/uavexp.txt", std::ios_base::app);
-        // for (const auto& closed : m_closed)
-        // {
-        //     auto i = closed.first;
-        //     auto states = closed.second;
-        //     for (auto* s : states)
-        //     {
-        //         exp_log << i << "," << s->coord.at(0) << "," << s->coord.at(1) << std::endl;
-        //     }
-        // }
-        // exp_log.close();
+        // STATS << total_e << ','
+        //         << initial_t << ','
+        //         << final_t << ','
+        //         << initial_c << ','
+        //         << final_c << '\n';
+        // STATS.close();
 
         return true;
     }
@@ -729,7 +759,6 @@ bool UAVEnv::convertPath(
 
         MapState state;
         GetStateFromID(solution_ids[i], state);
-        // printf("sol state: [%d, %d, %d, %d]\n", state.coord[0], state.coord[1], state.coord[2], state.coord[3]);
         auto action = m_actions.at(action_ids[i+1]);
 
         for(
