@@ -89,6 +89,20 @@ public:
 		std::vector<int>* solution_path,
 		std::vector<int>* action_ids,
 		int* solution_cost) = 0;
+
+	void GetStats(
+		double& initial_t, double& final_t,
+		int& initial_c, int& final_c, int& total_e)
+	{
+		initial_t = m_initial_t;
+		final_t = m_final_t;
+		initial_c = m_initial_c;
+		final_c = m_final_c;
+		total_e = m_total_e;
+	}
+protected:
+	double m_initial_t, m_final_t;
+	int m_initial_c, m_final_c, m_total_e;
 };
 
 class Environment
