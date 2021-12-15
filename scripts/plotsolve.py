@@ -51,26 +51,34 @@ for f in os.listdir(EXPS_DIR):
 	queue = int(fields[1])
 
 	E = np.genfromtxt(EXPS_DIR + f, delimiter=',')
+	# expansions = None
 	if 'costs' in MAP:
 		E = E / 10
 	if 'culdesac' in MAP:
 		E[28, 20] = -1
 		E[15, 45] = -1
+	if 'Cauldron' in MAP or 'TheFrozenSea' in MAP:
+		# E[E >= 1000] = 10
+		E[E == 0] = -2
+		expansions = np.argwhere(E == 1003)
 	P = np.genfromtxt(SOL_DIR + '{0:04d}'.format(iters) + '_' + MAP + '_path.map', delimiter=',')
 
 	ax.plot(P[:, 0], P[:, 1], 'yellow', lw=4, alpha=1.0)
+	# if expansions is not None:
+	# 	ax.scatter(expansions[:, 1], expansions[:, 0], s=5, c='b')
+
 	im = None
 	if 'costs' in MAP:
 		im = ax.imshow(E.transpose(), vmin=0.9, vmax=26, cmap=plt.get_cmap('plasma'))
 		im.cmap.set_under('k')
 		im.cmap.set_over('cyan')
 	else:
-		im = ax.imshow(E.transpose(), vmin=-0.1, vmax=1.1, cmap=plt.get_cmap('gray'))
-		im.cmap.set_under('r')
+		im = ax.imshow(E.transpose(), vmin=-1.1, vmax=1.1, cmap=plt.get_cmap('gray'))
+		im.cmap.set_under('g')
 		im.cmap.set_over('b')
 
-	ax.set_xticklabels([])
-	ax.set_yticklabels([])
+	# ax.set_xticklabels([])
+	# ax.set_yticklabels([])
 	ax.set_ylabel('({0:2.2f}, {1:2.2f})'.format(float(fields[2]), float(fields[3])))
 	ax.set_title(qnames[queue])
 	# ax.axis('equal')
