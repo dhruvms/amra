@@ -395,6 +395,13 @@ void AMRAStar::expand(AMRAState *s, int hidx)
 		if (m_open[0].contains(&s->od[0])) {
 			m_open[0].erase(&s->od[0]);
 		}
+
+		// for (int j = 1; j < num_heuristics(); ++j)
+		// {
+		// 	if (m_open[j].contains(&s->od[j])) {
+		// 		m_open[j].erase(&s->od[j]);
+		// 	}
+		// }
 	}
 	else
 	{
