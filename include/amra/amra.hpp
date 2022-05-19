@@ -21,7 +21,7 @@ struct AMRAState
 	unsigned int g;
 	Resolution::Level res;
 	AMRAState* bp;
-	// std::pair<int, int> actionids;
+	int actionidx;
 
 	bool closed_in_anc;
 	bool closed_in_res[3]; // overallocated for each resolution
@@ -63,7 +63,9 @@ public:
 	void reset() override;
 
 	int replan(
-		std::vector<int>* solution_path, int* solution_cost) override;
+		std::vector<int>* solution_path,
+		std::vector<int>* action_ids,
+		int* solution_cost) override;
 
 private:
 	Environment* m_space = nullptr;
@@ -85,7 +87,7 @@ private:
 	OpenList* m_open = nullptr;  // sequence of (m_heur_count + 1) open lists
 
 	// Search params
-	int m_call_number, m_iter;
+	int m_call_number, m_iter, m_offset;
 	double m_time_limit;
 	double m_w1_i, m_w1_f, m_w2_i, m_w2_f, m_w1, m_w2;
 	double m_w1_delta, m_w2_delta;
@@ -120,7 +122,9 @@ private:
 	void reorder_open();
 
 	void extract_path(
-		std::vector<int>& solution, int& cost);
+		std::vector<int>& solution,
+		std::vector<int>& action_ids,
+		int& cost);
 };
 
 }  // namespace AMRA

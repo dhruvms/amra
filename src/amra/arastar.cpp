@@ -144,7 +144,9 @@ void ARAStar::reinit_state(ARAStarState *state)
 }
 
 int ARAStar::replan(
-	std::vector<int>* solution_path, int* solution_cost)
+	std::vector<int>* solution_path,
+	std::vector<int>* action_ids,
+	int* solution_cost)
 {
 	if (is_goal(m_start_id))
 	{
@@ -205,10 +207,10 @@ int ARAStar::replan(
 			m_initial_t = m_search_time;
 		}
 
-		extract_path(*solution_path, *solution_cost);
+		extract_path(*solution_path, *action_ids, *solution_cost);
 		SMPL_INFO("Solved with (%f) | expansions = %d | time = %f | cost = %d", m_w, get_n_expands(), search_time, *solution_cost);
 		if (curr_exps < get_n_expands()) {
-			m_space->SaveExpansions(m_iter, m_w, 1.0, *solution_path);
+			m_space->SaveExpansions(m_iter, m_w, 1.0, *solution_path, *action_ids);
 		}
 
 		if (m_w == m_w_f) {
@@ -269,10 +271,10 @@ bool ARAStar::improve_path(
 
 		// expand from anchor
 		ARAStarState *s = m_open[0].min()->me;
-		expand(s, 0);
 		if (s->state_id == m_goal_id) {
 			return true;
 		}
+		expand(s, 0);
 		++m_expands[0];
 	}
 }
@@ -288,7 +290,21 @@ void ARAStar::expand(ARAStarState *s, int hidx)
 
 	std::vector<int> succ_ids;
 	std::vector<unsigned int> costs;
-	m_space->GetSuccs(s->state_id, static_cast<Resolution::Level>(-1), &succ_ids, &costs, hidx);
+	std::vector<int> action_ids;
+	if (is_goal(s->state_id))
+	{
+		succ_ids.push_back(m_goal_id);
+		costs.push_back(0);
+		action_ids.push_back(-1);
+	}
+	else
+	{
+		m_space->GetSuccs(s->state_id,
+						  static_cast<Resolution::Level>(-1),
+						  &succ_ids,
+						  &costs,
+						  &action_ids);
+	}
 
 	for (size_t sidx = 0; sidx < succ_ids.size(); ++sidx)
 	{
@@ -353,7 +369,9 @@ void ARAStar::reorder_open()
 }
 
 void ARAStar::extract_path(
-	std::vector<int>& solution, int& cost)
+	std::vector<int>& solution,
+	std::vector<int>& action_ids,
+	int& cost)
 {
 	if (m_w_solve < 0) {
 		m_initial_c = m_goal->g;
@@ -364,12 +382,15 @@ void ARAStar::extract_path(
 	m_solution_cost = m_goal->g;
 
 	solution.clear();
+	action_ids.clear();
 
 	// m_goal->state_id == m_goal_id == 0 should be true
 	for (ARAStarState *state = m_goal; state; state = state->bp) {
 		solution.push_back(state->state_id);
+		action_ids.push_back(state->actionidx);
 	}
 	std::reverse(solution.begin(), solution.end());
+	std::reverse(action_ids.begin(), action_ids.end());
 }
 
 }  // namespace CMUPlanner
