@@ -4,13 +4,22 @@
 // project includes
 
 // system includes
+#include <smpl/time.h>
 
 // standard includes
 #include <sstream>
 #include <sys/stat.h>
+#include <chrono>
+#include <cmath>
 
 namespace AMRA
 {
+
+static double GetTime()
+{
+	using namespace smpl;
+	return to_seconds(clock::now().time_since_epoch());
+}
 
 #define GETMAPINDEX(X, Y, XSIZE, YSIZE) (X*YSIZE + Y)
 

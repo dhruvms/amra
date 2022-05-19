@@ -16,19 +16,26 @@ const std::map<char, int> AMRA::MOVINGAI_DICT = {
 	{'E', 1003}, // expanded state
 };
 
-const int AMRA::MIDRES_MULT = 7;
-const int AMRA::LOWRES_MULT = 21;
+// discretisation resolutions for mid- and low-level grids
+// high-level grids assume a 1x1 discretisation
+const int AMRA::MIDRES_MULT = 3;
+const int AMRA::LOWRES_MULT = 9;
+// number of resolutions to use in the search (>= 1, <= 3)
+const int AMRA::NUM_RES = 2;
+// 4-connected or 8-connected grid
 const int AMRA::GRID = 4;
-const int AMRA::NUM_RES = 3;
-
-const bool AMRA::SAVE_ALL = false;
+// set true if using maps with non-uniform cell costs
 const bool AMRA::COSTMAP = false;
 
+// UAV experiment parameters
 const int AMRA::TURN_PENALTY = 1;
 const double AMRA::TURNING_RADIUS = 20.0;
 const double AMRA::MAX_VEL = 8.0;
 
+// use dubins or dijkstra heuristics?
 const bool AMRA::DUBINS = false;
 const bool AMRA::DIJKSTRA = false;
 
+// run successive search iterations from scratch?
+// (with no reuse of previous search effort)
 const bool AMRA::SUCCESSIVE = false;

@@ -3,19 +3,13 @@
 #include <amra/constants.hpp>
 #include <amra/types.hpp>
 #include <amra/heuristic.hpp>
+#include <amra/helpers.hpp>
 
 // system includes
 #include <smpl/console/console.h>
-#include <smpl/time.h>
 
 // standard includes
 #include <algorithm>
-
-static double GetTime()
-{
-	using namespace smpl;
-	return to_seconds(clock::now().time_since_epoch());
-}
 
 namespace AMRA
 {
@@ -284,10 +278,10 @@ int AMRAStar::replan(
 		}
 
 		extract_path(*solution_path, *solution_cost);
-		// SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f | cost = %d", m_w1, m_w2, get_expands_str().c_str(), search_time, *solution_cost);
-		// if (curr_exps < get_n_expands()) {
-		// 	m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
-		// }
+		SMPL_INFO("Solved with (%f, %f) | expansions = %s | time = %f | cost = %d", m_w1, m_w2, get_expands_str().c_str(), search_time, *solution_cost);
+		if (curr_exps < get_n_expands()) {
+			m_space->SaveExpansions(m_iter, m_w1, m_w2, *solution_path);
+		}
 
 		if (m_w1 == m_w1_f && m_w2 == m_w2_f) {
 			break;
@@ -322,10 +316,6 @@ int AMRAStar::replan(
 		return 0;
 	}
 
-	// m_ss << "time (s) = " << m_search_time << " | expansions = " << get_n_expands() << " | solution_cost = " << m_solution_cost;
-	// log_it(LogLevel::WARN);
-
-	// SMPL_INFO("%d (%s), %f", get_n_expands(), get_expands_str().c_str(), m_search_time);
 	m_final_t = m_search_time;
 	m_final_c = *solution_cost;
 	m_total_e = get_n_expands();

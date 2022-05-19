@@ -60,7 +60,7 @@ void MovingAI::SavePath(
 {
 	std::string filename(__FILE__);
 	auto found = filename.find_last_of("/\\");
-	filename = filename.substr(0, found + 1) + "../dat/solutions/";
+	filename = filename.substr(0, found + 1) + "../../dat/solutions/";
 
 	found = m_fname.find_last_of("/\\");
 	filename += m_fname.substr(found + 1);
@@ -94,7 +94,7 @@ void MovingAI::SaveExpansions(
 {
 	std::string filename(__FILE__), expfile;
 	auto found = filename.find_last_of("/\\");
-	filename = filename.substr(0, found + 1) + "../dat/expansions/";
+	filename = filename.substr(0, found + 1) + "../../dat/expansions/";
 
 	std::stringstream ss;
 	ss << std::setw(4) << std::setfill('0') << iter << '_';

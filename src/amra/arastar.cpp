@@ -3,19 +3,13 @@
 #include <amra/constants.hpp>
 #include <amra/types.hpp>
 #include <amra/heuristic.hpp>
+#include <amra/helpers.hpp>
 
 // system includes
 #include <smpl/console/console.h>
-#include <smpl/time.h>
 
 // standard includes
 #include <algorithm>
-
-static double GetTime()
-{
-	using namespace smpl;
-	return to_seconds(clock::now().time_since_epoch());
-}
 
 namespace AMRA
 {
@@ -212,10 +206,10 @@ int ARAStar::replan(
 		}
 
 		extract_path(*solution_path, *solution_cost);
-		// SMPL_INFO("Solved with (%f) | expansions = %d | time = %f | cost = %d", m_w, get_n_expands(), search_time, *solution_cost);
-		// if (curr_exps < get_n_expands()) {
-		// 	m_space->SaveExpansions(m_iter, m_w, 1.0, *solution_path);
-		// }
+		SMPL_INFO("Solved with (%f) | expansions = %d | time = %f | cost = %d", m_w, get_n_expands(), search_time, *solution_cost);
+		if (curr_exps < get_n_expands()) {
+			m_space->SaveExpansions(m_iter, m_w, 1.0, *solution_path);
+		}
 
 		if (m_w == m_w_f) {
 			break;

@@ -15,8 +15,6 @@ extern const int MIDRES_MULT;
 extern const int LOWRES_MULT;
 extern const int GRID;
 extern const int NUM_RES;
-
-extern const bool SAVE_ALL;
 extern const bool COSTMAP;
 
 extern const int TURN_PENALTY;

@@ -13,6 +13,7 @@
 
 // standard includes
 #include <fstream>
+#include <stdexcept>
 
 auto std::hash<AMRA::MapState>::operator()(
 	const argument_type& s) const -> result_type
@@ -45,8 +46,15 @@ m_goal_set(false)
 
 void Grid2D::CreateSearch()
 {
-	// m_heurs.emplace_back(new EuclideanDist(this));
-	m_heurs.emplace_back(new ManhattanDist(this));
+	if (GRID == 4) {
+		m_heurs.emplace_back(new ManhattanDist(this));
+	}
+	else if (GRID == 8) {
+		m_heurs.emplace_back(new EuclideanDist(this));
+	}
+	else {
+		throw std::runtime_error("Invalid 2D grid. Must be 4- or 8-connected!");
+	}
 
 	m_heurs_map.emplace_back(Resolution::ANCHOR, 0); // anchor always goes first
 	m_heurs_map.emplace_back(Resolution::HIGH, 0);
@@ -175,7 +183,7 @@ bool Grid2D::Plan(bool save)
 
 		std::string filename(__FILE__);
 		auto found = filename.find_last_of("/\\");
-		filename = filename.substr(0, found + 1) + "../dat/STATS.csv";
+		filename = filename.substr(0, found + 1) + "../../dat/STATS.csv";
 
 		bool exists = FileExists(filename);
 		std::ofstream STATS;
@@ -299,11 +307,8 @@ void Grid2D::SaveExpansions(
 	const std::vector<int>& curr_solution)
 {
 	m_map->SaveExpansions(iter, w1, w2, m_closed);
-	if (!SAVE_ALL)
-	{
-		for (int i = 0; i < m_heurs_map.size(); ++i) {
-			m_closed[i].clear(); // init expansions container
-		}
+	for (int i = 0; i < m_heurs_map.size(); ++i) {
+		m_closed[i].clear(); // init expansions container
 	}
 
 	std::vector<MapState> solpath;
