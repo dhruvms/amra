@@ -5,6 +5,7 @@
 
 // system includes
 #include <smpl/time.h>
+#include <smpl/angles.h>
 
 // standard includes
 #include <sstream>
@@ -22,6 +23,7 @@ static double GetTime()
 }
 
 #define GETMAPINDEX(X, Y, XSIZE, YSIZE) (X*YSIZE + Y)
+#define CONTXY2DISC(X, CELLSIZE) (int)std::round((X / CELLSIZE))
 
 inline
 void reset(std::stringstream& ss)
@@ -37,6 +39,17 @@ int sgn(T val) {
 }
 
 const int DEFAULT_NUM_ANGLES = 12;
+
+// converts continuous (radians) version of angle into discrete
+// maps 0->0, [delta/2, 3/2*delta)->1, [3/2*delta, 5/2*delta)->2, ...
+inline int ContToDiscTheta(double theta, int numAngles) {
+	double delta = 2 * M_PI / numAngles;
+	return (int)(smpl::normalize_angle_positive(theta + delta / 2) / delta);
+}
+
+inline int ContToDiscTheta(double theta) {
+ 	return ContToDiscTheta(theta, DEFAULT_NUM_ANGLES);
+}
 
 inline double DiscToContTheta(int theta, int numAngles) {
 	double delta = 2 * M_PI / numAngles;

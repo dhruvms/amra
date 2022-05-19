@@ -25,14 +25,24 @@ struct Resolution
 	};
 };
 
+typedef	std::vector<int> DiscState;
+typedef	std::vector<double> ContState;
+
 struct MapState
 {
-	std::vector<int> coord;
-	std::vector<double> state;
+	DiscState coord;
+	ContState state;
 	Resolution::Level level;
 };
 typedef std::map<int, std::vector<MapState*> > EXPANDS_t;
-typedef	std::vector<int> DiscState;
+
+struct Action
+{
+	int primID;
+	DiscState start;
+	DiscState end;
+	std::vector<ContState> intermediateStates;
+};
 
 inline
 bool operator==(const MapState& a, const MapState& b)
@@ -64,7 +74,9 @@ public:
 	virtual void reset() = 0;
 
 	virtual int replan(
-		std::vector<int>* solution_path, int* solution_cost) = 0;
+		std::vector<int>* solution_path,
+		std::vector<int>* action_ids,
+		int* solution_cost) = 0;
 
 	void GetStats(
 		double& initial_t, double& final_t,
@@ -92,12 +104,13 @@ public:
 		Resolution::Level level,
 		std::vector<int>* succs,
 		std::vector<unsigned int>* costs,
-		int hidx) = 0;
+		std::vector<int>* action_ids) = 0;
 	virtual bool IsGoal(const int& id) = 0;
 
 	virtual void SaveExpansions(
 		int iter, double w1, double w2,
-		const std::vector<int>& curr_solution) = 0;
+		const std::vector<int>& curr_solution,
+		const std::vector<int>& action_ids) = 0;
 
 	int GetStartID() const { return m_start_id; };
 	int GetGoalID() const { return m_goal_id; };
