@@ -150,7 +150,7 @@ int Dijkstra::createHashEntry(const DiscState& s)
 	entry->coord.at(1) = s.at(1);
 
 	entry->od[0].me = entry;
-	entry->od[0].h = manhattan_dist(entry->coord);
+	entry->od[0].h = euclidean_dist(entry->coord);
 	entry->od[0].f = std::numeric_limits<unsigned int>::max();
 
 	// map state -> state id
@@ -190,9 +190,9 @@ void Dijkstra::insert_or_update(AbstractState *state)
 	}
 }
 
-unsigned int Dijkstra::manhattan_dist(const DiscState& s)
+unsigned int Dijkstra::euclidean_dist(const DiscState& s)
 {
-	return COST_MULT * (std::abs(m_goal.at(0) - s.at(0)) + std::abs(m_goal.at(1) - s.at(1)));
+	return cost(s, m_goal);
 }
 
 unsigned int Dijkstra::cost(const DiscState& a, const DiscState& b)

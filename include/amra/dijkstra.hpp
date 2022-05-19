@@ -115,7 +115,7 @@ private:
 
 	void insert_or_update(AbstractState *state);
 
-	unsigned int manhattan_dist(const DiscState& s);
+	unsigned int euclidean_dist(const DiscState& s);
 	unsigned int cost(const DiscState& a, const DiscState& b);
 };
 
