@@ -22,7 +22,6 @@ unsigned int Dubins::GetGoalHeuristic(int state_id)
 	int dubins_time_ms = (m_dist / MAX_VEL) * 1000;
 
 	return dubins_time_ms;
-	// return (dubins_time_ms * COST_MULT);
 }
 
 unsigned int Dubins::GetStartHeuristic(int state_id)
@@ -37,7 +36,6 @@ unsigned int Dubins::GetStartHeuristic(int state_id)
 	int dubins_time_ms = (m_dist / MAX_VEL) * 1000;
 
 	return dubins_time_ms;
-	// return (dubins_time_ms * COST_MULT);
 }
 
 unsigned int Dubins::GetFromToHeuristic(int from_id, int to_id)
@@ -52,7 +50,6 @@ unsigned int Dubins::GetFromToHeuristic(int from_id, int to_id)
 	int dubins_time_ms = (m_dist / MAX_VEL) * 1000;
 
 	return dubins_time_ms;
-	// return (dubins_time_ms * COST_MULT);
 }
 
 void Dubins::dubins_dist(const MapState& from, const MapState& to)
