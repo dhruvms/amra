@@ -168,18 +168,20 @@ bool Grid2D::Plan(bool save)
 	}
 
 	std::vector<int> solution;
-	int solcost;
-	bool result = m_search->replan(&solution, &solcost);
+	std::vector<int> action_ids;
+    int solcost;
+    bool result = m_search->replan(&solution, &action_ids, &solcost);
 
-	double initial_t, final_t;
-	int initial_c, final_c, total_e;
-	m_search->GetStats(initial_t, final_t, initial_c, final_c, total_e);
 
 	if (result && save)
 	{
 		std::vector<MapState> solpath;
 		convertPath(solution, solpath);
 		m_map->SavePath(solpath);
+
+		double initial_t, final_t;
+		int initial_c, final_c, total_e;
+		m_search->GetStats(initial_t, final_t, initial_c, final_c, total_e);
 
 		std::string filename(__FILE__);
 		auto found = filename.find_last_of("/\\");
@@ -212,7 +214,7 @@ void Grid2D::GetSuccs(
 	Resolution::Level level,
 	std::vector<int>* succs,
 	std::vector<unsigned int>* costs,
-	int hidx)
+	std::vector<int>* action_ids)
 {
 	assert(state_id >= 0);
 	succs->clear();
@@ -221,7 +223,7 @@ void Grid2D::GetSuccs(
 	MapState* parent = getHashEntry(state_id);
 	assert(parent);
 	assert(m_map->IsTraversible(parent->coord.at(0), parent->coord.at(1)));
-	m_closed[hidx].push_back(parent);
+	m_closed[static_cast<int>(level)].push_back(parent);
 
 	// goal state should be absorbing
 	if (state_id == GetGoalID()) {
@@ -304,7 +306,8 @@ bool Grid2D::IsGoal(const int& id)
 
 void Grid2D::SaveExpansions(
 	int iter, double w1, double w2,
-	const std::vector<int>& curr_solution)
+	const std::vector<int>& curr_solution,
+	const std::vector<int>& action_ids)
 {
 	m_map->SaveExpansions(iter, w1, w2, m_closed);
 	for (int i = 0; i < m_heurs_map.size(); ++i) {
