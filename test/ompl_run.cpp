@@ -1,24 +1,17 @@
 #include <amra/movingai.hpp>
 #include <amra/CostConvergenceTerminationCondition.h>
+#include <amra/helpers.hpp>
 
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
 #include <ompl/base/objectives/PathLengthOptimizationObjective.h>
 #include <ompl/config.h>
 
-#include <smpl/time.h>
-
 #include <vector>
 #include <iostream>
 
 namespace ob = ompl::base;
 namespace og = ompl::geometric;
-
-static double GetTime()
-{
-	using namespace smpl;
-	return to_seconds(clock::now().time_since_epoch());
-}
 
 class MovingAIOMPL
 { public:
@@ -78,10 +71,10 @@ class MovingAIOMPL
 		m_planner->setup();
 
 		// attempt to solve the planning problem in the given runtime
-		double start_time = GetTime();
+		double start_time = AMRA::GetTime();
 		// ob::PlannerStatus solved = m_planner->solve(ob::plannerOrTerminationCondition(ob::CostConvergenceTerminationCondition(m_pdef, 1, 1.0), ob::timedPlannerTerminationCondition(runTime)));
 		ob::PlannerStatus solved = m_planner->solve(ob::plannerOrTerminationCondition(ob::CostConvergenceTerminationCondition(m_pdef), ob::timedPlannerTerminationCondition(runTime)));
-		double t_i = GetTime() - start_time;
+		double t_i = AMRA::GetTime() - start_time;
 
 		if (solved)
 		{
