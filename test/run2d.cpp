@@ -14,8 +14,8 @@ int main(int argc, char** argv)
 
 	// // run 2D gridworld planning for fixed starts and goals
 	// std::vector<std::vector<int> > starts, goals;
-	// starts = { {0, 36} };
-	// goals = { {27, 27} };
+	// starts = { {28, 12} };
+	// goals = { {5, 45} };
 	// for (int i = 0; i < starts.size(); ++i)
 	// {
 	// 	Grid2D grid(mapfile);
