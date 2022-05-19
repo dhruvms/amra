@@ -17,9 +17,9 @@ extern const int GRID;
 extern const int NUM_RES;
 extern const bool COSTMAP;
 
-extern const int TURN_PENALTY;
 extern const double TURNING_RADIUS;
 extern const double MAX_VEL;
+extern const int WP_TIME;
 
 extern const bool DUBINS;
 extern const bool DIJKSTRA;

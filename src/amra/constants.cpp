@@ -1,7 +1,7 @@
 #include <amra/constants.hpp>
 
 const int AMRA::MAX_PLANNING_TIME_MS = 30000;
-const int AMRA::COST_MULT = 1000;
+const int AMRA::COST_MULT = 100;
 const std::map<char, int> AMRA::MOVINGAI_DICT = {
 	{'.', 1},
 	{'G', 1},
@@ -28,9 +28,9 @@ const int AMRA::GRID = 4;
 const bool AMRA::COSTMAP = false;
 
 // UAV experiment parameters
-const int AMRA::TURN_PENALTY = 1;
 const double AMRA::TURNING_RADIUS = 20.0;
 const double AMRA::MAX_VEL = 8.0;
+const int AMRA::WP_TIME = 50; // milliseconds
 
 // use dubins or dijkstra heuristics?
 const bool AMRA::DUBINS = false;
