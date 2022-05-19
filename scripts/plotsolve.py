@@ -74,7 +74,7 @@ for f in os.listdir(EXPS_DIR):
 		E = E.transpose()
 
 	# plot start and goal if input through command line
-	if movingai and not flipped:
+	if S is not None and G is not None and movingai and not flipped:
 		S = np.flipud(S)
 		G = np.flipud(G)
 		flipped = True
