@@ -17,7 +17,7 @@ add_library(
     src/smpl/unicycle/dubins.cpp)
 target_link_libraries(SMPL ${Boost_FILESYSTEM_LIBRARY} ${Boost_PROGRAM_OPTIONS_LIBRARY} ${Boost_SYSTEM_LIBRARY})
 
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS} ${OMPL_INCLUDE_DIRS})
 include_directories(include)
 
 add_library(

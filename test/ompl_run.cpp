@@ -1,6 +1,6 @@
 #include <amra/movingai.hpp>
-#include <amra/CostConvergenceTerminationCondition.h>
 #include <amra/helpers.hpp>
+#include <amra/CostConvergenceTerminationCondition.h>
 
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
