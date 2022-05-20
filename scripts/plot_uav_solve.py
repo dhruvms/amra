@@ -155,8 +155,54 @@ for i in range(figure_rows):
     exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
     ax.tick_params(axis='both', which='major', labelsize=3)
     ax.tick_params(axis='both', which='minor', labelsize=0)
+    ax.set_title(r'Dubins.', fontsize=8)
+    plt.savefig(IMG_DIR + str(i) + '_4_Dubins3m.png', bbox_inches='tight')
+    plt.cla()
+
+    df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 4)]
+    X = df["x"]
+    Y = df["y"]
+
+    # ax = plt.subplot(gs1[i,3])
+    # ax = axs[i,4]
+    ax.imshow(mapdata, cmap='Greys')
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
+    ax.tick_params(axis='both', which='major', labelsize=3)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
+    ax.set_title(r'Dubins.', fontsize=8)
+    plt.savefig(IMG_DIR + str(i) + '_4_Dubins9m.png', bbox_inches='tight')
+    plt.cla()
+
+    # HEUR 4 EXPANSIONS
+    df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 5)]
+    X = df["x"]
+    Y = df["y"]
+
+    # ax = plt.subplot(gs1[i,3])
+    # ax = axs[i,4]
+    ax.imshow(mapdata, cmap='Greys')
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
+    ax.tick_params(axis='both', which='major', labelsize=3)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
     ax.set_title(r'Dijkstra.', fontsize=8)
-    plt.savefig(IMG_DIR + str(i) + '_4_Dijkstra.png', bbox_inches='tight')
+    plt.savefig(IMG_DIR + str(i) + '_4_Dijkstra3m.png', bbox_inches='tight')
+    plt.cla()
+
+    df = expdf[(expdf["iter"] == i) & (expdf["hidx"] == 6)]
+    X = df["x"]
+    Y = df["y"]
+
+    # ax = plt.subplot(gs1[i,3])
+    # ax = axs[i,4]
+    ax.imshow(mapdata, cmap='Greys')
+    # ax.grid(color='Grey', linestyle='-', linewidth=0.1)
+    exps = ax.scatter(Y, X, s=5, alpha=0.25, color='b')
+    ax.tick_params(axis='both', which='major', labelsize=3)
+    ax.tick_params(axis='both', which='minor', labelsize=0)
+    ax.set_title(r'Dijkstra.', fontsize=8)
+    plt.savefig(IMG_DIR + str(i) + '_4_Dijkstra9m.png', bbox_inches='tight')
     plt.cla()
 
 # plt.show()
