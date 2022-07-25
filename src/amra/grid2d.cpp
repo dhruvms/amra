@@ -175,6 +175,9 @@ bool Grid2D::Plan(bool save)
 
 	if (result && save)
 	{
+		std::vector<int> expand_ts, f_vals;
+		m_search->GetPathStats(solution, expand_ts, f_vals);
+
 		std::vector<MapState> solpath;
 		convertPath(solution, solpath);
 		m_map->SavePath(solpath);

@@ -21,7 +21,7 @@ ARAStar::ARAStar(
 m_space(space),
 m_call_number(0),
 m_heur(heur),
-m_w_delta(0.5), m_w_i(10.0), m_w_f(1.0),
+m_w_delta(0.5), m_w_i(1.0), m_w_f(1.0),
 m_start_id(-1),
 m_goal_id(-1)
 {
@@ -133,6 +133,7 @@ void ARAStar::reinit_state(ARAStarState *state)
 		state->call_number = m_call_number;
 		state->g = std::numeric_limits<unsigned int>::max();
 		state->bp = nullptr;
+		state->expand_t = -1;
 
 		for (int i = 0; i < num_heuristics(); ++i) {
 			state->od[i].h = compute_heuristic(state->state_id, i);
@@ -265,15 +266,20 @@ bool ARAStar::improve_path(
 		}
 
 		unsigned int f_check = m_open[0].min()->f;
-		if (m_goal->g <= f_check) {
+		if (m_goal->g <= f_check)
+		{
+			m_goal->expand_t = m_expands[0];
 			return true;
 		}
 
 		// expand from anchor
 		ARAStarState *s = m_open[0].min()->me;
-		if (s->state_id == m_goal_id) {
+		if (s->state_id == m_goal_id)
+		{
+			m_goal->expand_t = m_expands[0];
 			return true;
 		}
+		s->expand_t = m_expands[0];
 		expand(s, 0);
 		++m_expands[0];
 	}
@@ -344,7 +350,7 @@ unsigned int ARAStar::compute_heuristic(int state_id, int hidx)
 
 unsigned int ARAStar::compute_key(ARAStarState *state, int hidx)
 {
-	return state->g + m_w * state->od[hidx].h;
+	return state->g + 2.0 * m_w * state->od[hidx].h;
 }
 
 void ARAStar::insert_or_update(ARAStarState *state, int hidx)
@@ -391,6 +397,22 @@ void ARAStar::extract_path(
 	}
 	std::reverse(solution.begin(), solution.end());
 	std::reverse(action_ids.begin(), action_ids.end());
+}
+
+void ARAStar::GetPathStats(
+	const std::vector<int>& solpath,
+	std::vector<int>& expand_ts,
+	std::vector<int>& f_vals)
+{
+	expand_ts.clear();
+	f_vals.clear();
+
+	for (const auto& state_id: solpath)
+	{
+		ARAStarState *state = get_state(state_id);
+		expand_ts.push_back(state->expand_t);
+		f_vals.push_back(state->od[0].f);
+	}
 }
 
 }  // namespace CMUPlanner

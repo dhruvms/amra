@@ -88,6 +88,14 @@ public:
 		final_c = m_final_c;
 		total_e = m_total_e;
 	}
+
+	virtual void GetPathStats(
+		const std::vector<int>& solpath,
+		std::vector<int>& expand_ts,
+		std::vector<int>& f_vals)
+	{
+		std::cerr << "GetPathStats unimplemented in derived class! Calling through base class." << std::endl;
+	};
 protected:
 	double m_initial_t, m_final_t;
 	int m_initial_c, m_final_c, m_total_e;

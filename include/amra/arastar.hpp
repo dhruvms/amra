@@ -21,6 +21,7 @@ struct ARAStarState
 	unsigned int g;
 	ARAStarState* bp;
 	int actionidx;
+	int expand_t;
 
 	struct HeapData : public smpl::heap_element
 	{
@@ -61,6 +62,11 @@ public:
 		std::vector<int>* solution_path,
 		std::vector<int>* action_ids,
 		int* solution_cost) override;
+
+	void GetPathStats(
+		const std::vector<int>& solpath,
+		std::vector<int>& expand_ts,
+		std::vector<int>& f_vals) override;
 
 private:
 	Environment* m_space = nullptr;
