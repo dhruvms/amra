@@ -180,7 +180,7 @@ bool Grid2D::Plan(bool save)
 
 		std::vector<MapState> solpath;
 		convertPath(solution, solpath);
-		m_map->SavePath(solpath);
+		m_map->SavePath(solpath, -1, expand_ts, f_vals);
 
 		double initial_t, final_t;
 		int initial_c, final_c, total_e;
@@ -317,9 +317,9 @@ void Grid2D::SaveExpansions(
 		m_closed[i].clear(); // init expansions container
 	}
 
-	std::vector<MapState> solpath;
-	convertPath(curr_solution, solpath);
-	m_map->SavePath(solpath, iter);
+	// std::vector<MapState> solpath;
+	// convertPath(curr_solution, solpath);
+	// m_map->SavePath(solpath, iter);
 }
 
 void Grid2D::GetStart(MapState& start)

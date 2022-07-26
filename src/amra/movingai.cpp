@@ -56,7 +56,9 @@ void MovingAI::GetRandomState(int& d1, int& d2)
 
 void MovingAI::SavePath(
 	const std::vector<MapState>& solpath,
-	int iter)
+	int iter,
+	const std::vector<int>& expand_ts,
+	const std::vector<int>& f_vals)
 {
 	std::string filename(__FILE__);
 	auto found = filename.find_last_of("/\\");
@@ -65,9 +67,13 @@ void MovingAI::SavePath(
 	found = m_fname.find_last_of("/\\");
 	filename += m_fname.substr(found + 1);
 
-	std::string pathfile(filename);
+	std::string pathfile(filename), exp_ts_file(filename), f_vals_file(filename);
 	pathfile.insert(pathfile.find_last_of('.'), "_");
 	pathfile.insert(pathfile.find_last_of('.'), "path");
+	exp_ts_file.insert(exp_ts_file.find_last_of('.'), "_");
+	exp_ts_file.insert(exp_ts_file.find_last_of('.'), "texpands");
+	f_vals_file.insert(f_vals_file.find_last_of('.'), "_");
+	f_vals_file.insert(f_vals_file.find_last_of('.'), "fvals");
 
 	if (iter >= 0)
 	{
@@ -80,12 +86,32 @@ void MovingAI::SavePath(
 		reset(ss);
 	}
 
-	std::ofstream OUT_PATH;
+	std::ofstream OUT_PATH, OUT_TEXPANDS, OUT_FVALS;
 	OUT_PATH.open(pathfile, std::ofstream::out);
 	for (const auto& s: solpath) {
 		OUT_PATH << s;
 	}
 	OUT_PATH.close();
+
+	OUT_TEXPANDS.open(exp_ts_file, std::ofstream::out);
+	for (size_t i = 0; i < expand_ts.size(); ++i)
+	{
+		OUT_TEXPANDS << expand_ts[i];
+		if (i < expand_ts.size() - 1) {
+			OUT_TEXPANDS << '\n';
+		}
+	}
+	OUT_TEXPANDS.close();
+
+	OUT_FVALS.open(f_vals_file, std::ofstream::out);
+	for (size_t i = 0; i < f_vals.size(); ++i)
+	{
+		OUT_FVALS << f_vals[i];
+		if (i < f_vals.size() - 1) {
+			OUT_FVALS << '\n';
+		}
+	}
+	OUT_FVALS.close();
 }
 
 void MovingAI::SaveExpansions(
@@ -118,10 +144,13 @@ void MovingAI::SaveExpansions(
 		}
 
 		expfile = filename;
-		ss << std::setw(4) << std::setfill('0') << q.first << '_';
-		found = expfile.find_last_of("/\\");
-		expfile.insert(found+1+4+1, ss.str());
-		reset(ss);
+		if (q.first >= 0)
+		{
+			ss << std::setw(4) << std::setfill('0') << q.first << '_';
+			found = expfile.find_last_of("/\\");
+			expfile.insert(found+1+4+1, ss.str());
+			reset(ss);
+		}
 
 		std::ofstream EXP_MAP;
 		EXP_MAP.open(expfile, std::ofstream::out);

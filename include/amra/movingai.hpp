@@ -22,7 +22,9 @@ public:
 
 	void SavePath(
 		const std::vector<MapState>& solpath,
-		int iter=-1);
+		int iter=-1,
+		const std::vector<int>& expand_ts={},
+		const std::vector<int>& f_vals={});
 	void SaveExpansions(
 		int iter, double w1, double w2,
 		const EXPANDS_t& expansions);

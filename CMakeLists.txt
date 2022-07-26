@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.5.1)
 project(amra)
 
 if(NOT CMAKE_BUILD_TYPE)
+    # set(CMAKE_BUILD_TYPE Debug)
     set(CMAKE_BUILD_TYPE Release)
 endif()
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -g -fmax-errors=5")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fmax-errors=5")
 
 find_package(Boost REQUIRED COMPONENTS filesystem program_options system)
@@ -36,6 +38,9 @@ target_link_libraries(AMRA SMPL)
 
 add_executable(run2d test/run2d.cpp)
 target_link_libraries(run2d AMRA)
+
+add_executable(runset test/runset.cpp)
+target_link_libraries(runset AMRA)
 
 add_executable(runuav test/runuav.cpp)
 target_link_libraries(runuav AMRA)

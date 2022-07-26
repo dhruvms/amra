@@ -37,8 +37,9 @@ int main(int argc, char** argv)
 			mapfile += std::to_string(id1) + "-" + std::to_string(id2) + ".map";
 		}
 
+		printf("Map: %s\n", mapfile.c_str());
 		Grid2D grid(mapfile);
-		grid.CreateARASearch();
+		grid.CreateARAStarSearch();
 		grid.Plan(true);
 	}
 }
